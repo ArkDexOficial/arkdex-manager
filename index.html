@@ -178,6 +178,50 @@
         .status-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--text-dim); }
         .dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: pulse-dot 2s infinite; }
         @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* --- AJUSTES PARA CELULAR (Telas menores que 768px) --- */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            
+            header h1 { font-size: 1.8rem; }
+        
+            /* Cards do topo em coluna única */
+            .insights-grid { grid-template-columns: 1fr; }
+            .dashboard { grid-template-columns: 1fr; }
+        
+            /* Ajuste do formulário */
+            .form-grid { 
+                grid-template-columns: 1fr !important; /* Tudo vira uma coluna só */
+                gap: 10px;
+            }
+            
+            .filter-group { grid-column: span 1 !important; }
+        
+            /* Filtros e botões de ação */
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group select, .filter-group input { width: 100%; }
+            
+            .action-buttons-wrap {
+                justify-content: center;
+                margin-top: 10px;
+            }
+        
+            /* O SEGREDO PARA A TABELA NÃO QUEBRAR: Scroll Horizontal */
+            .table-container {
+                margin: 0 -10px; /* Encosta nas bordas da tela do celular */
+                border-radius: 0;
+            }
+        
+            /* Aumentar botões para facilitar o toque com o dedo */
+            .btn-mini {
+                padding: 12px 15px;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -604,4 +648,5 @@
     }
 </script>
 </body>
+
 </html>
