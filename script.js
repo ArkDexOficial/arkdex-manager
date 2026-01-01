@@ -16,171 +16,68 @@ const db = firebase.database();
 const auth = firebase.auth();
 
 let mostrarApenasAtivos = false;
-let modoFiltroVencidos = false; 
 let dataInicioWipe = null;      
 let vipsGlobais = [];
 let historicoWipes = [];
 
 // ========================================================
-// 2. AUTENTICAÇÃO E INICIALIZAÇÃO
+// 2. AUTENTICAÇÃO
 // ========================================================
 auth.onAuthStateChanged(user => {
     const loginOverlay = document.getElementById('login-overlay');
     const mainApp = document.getElementById('main-app');
-
     if (user) {
-        if(loginOverlay) loginOverlay.style.display = 'none';
-        if(mainApp) mainApp.style.display = 'block';
+        loginOverlay.style.display = 'none';
+        mainApp.style.display = 'block';
         carregarDataWipe();
         carregarHistoricoWipes();
         carregarDados();
         carregarLogs();
     } else {
-        if(loginOverlay) loginOverlay.style.display = 'flex';
-        if(mainApp) mainApp.style.display = 'none';
+        loginOverlay.style.display = 'flex';
+        mainApp.style.display = 'none';
     }
 });
 
 function login() {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
-    auth.signInWithEmailAndPassword(email, pass).catch(error => {
-        Swal.fire({ icon: 'error', title: 'Erro no Login', text: error.message, background: '#1e293b', color: '#fff' });
+    auth.signInWithEmailAndPassword(email, pass).catch(err => {
+        Swal.fire({ icon: 'error', title: 'Erro', text: 'Acesso negado!', background: '#1a1f26', color: '#fff' });
     });
 }
 function logout() { auth.signOut(); }
 
 // ========================================================
-// 3. LOGS E WIPE
+// 3. LÓGICA DE CORES E CATEGORIAS (O QUE TINHA SAÍDO)
 // ========================================================
-function saveLog(acao, detalhe) {
-    const user = auth.currentUser ? auth.currentUser.email : "Desconhecido";
-    const timestamp = new Date().toLocaleString('pt-BR');
-    db.ref('logs').push({ user, acao, detalhe, timestamp });
-}
-
-function carregarLogs() {
-    db.ref('logs').limitToLast(10).on('value', snap => {
-        const display = document.getElementById('logDisplay');
-        if (!display) return;
-        display.innerHTML = "";
-        snap.forEach(child => {
-            const l = child.val();
-            display.innerHTML = `<div>[${l.timestamp}] <b>${l.user}</b> ${l.acao}: ${l.detalhe}</div>` + display.innerHTML;
-        });
-    });
-}
-
-function carregarDataWipe() {
-    db.ref('configuracoes/ultimoWipe').on('value', snap => {
-        let data = snap.val();
-        if (!data) {
-            data = new Date().toISOString().split('T')[0];
-            db.ref('configuracoes/ultimoWipe').set(data);
-        }
-        dataInicioWipe = data;
-        const span = document.getElementById('data-inicio-span');
-        if(span) span.innerText = data.split('-').reverse().join('/');
-        mostrarVips();
-    });
-}
-
-function carregarHistoricoWipes() {
-    db.ref('configuracoes/historicoWipes').on('value', snap => {
-        const wipes = snap.val();
-        const select = document.getElementById('filtroWipe');
-        if(!select) return;
-        select.innerHTML = '<option value="atual">Ciclo Ativo (Agora)</option>';
-        historicoWipes = [];
-        if (wipes) {
-            Object.keys(wipes).forEach(key => {
-                const w = wipes[key];
-                historicoWipes.push(w);
-                const option = document.createElement('option');
-                option.value = w.inicio; 
-                option.innerText = `Wipe: ${w.inicio.split('-').reverse().join('/')}`;
-                select.appendChild(option);
-            });
-        }
-    });
-}
-
-function marcarNovoWipe() {
-    Swal.fire({
-        title: 'Iniciar Novo Ciclo?',
-        text: "O faturamento atual será arquivado no histórico.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, Novo Wipe!',
-        background: '#1e293b', color: '#fff'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const hoje = new Date().toISOString().split('T')[0];
-            const faturamento = document.getElementById('faturamentoMes').innerText;
-            db.ref('configuracoes/historicoWipes').push({
-                inicio: dataInicioWipe,
-                fim: hoje,
-                faturamento: faturamento
-            });
-            db.ref('configuracoes/ultimoWipe').set(hoje);
-            saveLog("WIPE", "Iniciou um novo ciclo.");
-            Swal.fire({ icon: 'success', title: 'Ciclo Atualizado!', background: '#1e293b', color: '#fff' });
-        }
-    });
-}
-
-// ========================================================
-// 4. FILTROS E BUSCA
-// ========================================================
-function carregarDados() {
-    const hoje = new Date();
-    const inputData = document.getElementById('dataCompra');
-    if(inputData) inputData.value = hoje.toISOString().split('T')[0];
-    const dataDisplay = document.getElementById('data-atual');
-    if(dataDisplay) dataDisplay.innerText = hoje.toLocaleDateString('pt-BR', { dateStyle: 'full' });
-    
-    db.ref('vips').on('value', (snapshot) => {
-        const data = snapshot.val();
-        vipsGlobais = data ? Object.keys(data).map(key => ({...data[key], id: key})) : [];
-        mostrarVips();
-    });
-}
-
-function filtrarVencidos() {
-    modoFiltroVencidos = !modoFiltroVencidos;
-    mostrarVips();
-}
-
-function toggleAtivos() {
-    mostrarApenasAtivos = !mostrarApenasAtivos;
-    const btn = document.getElementById('btnFiltroAtivo');
-    if(btn) btn.innerText = mostrarApenasAtivos ? "Mostrando Ativos" : "Apenas Ativos";
-    mostrarVips();
-}
-
 function getVipClass(tipo) {
     const t = tipo?.toUpperCase() || '';
     if (t.includes('ELITE')) return 'tag-elite';
     if (t.includes('IMPERADOR')) return 'tag-imperador';
-    if (t.includes('LENDÁRIO')) return 'tag-lendario';
+    if (t.includes('LENDÁRIO') || t.includes('LENDARIO')) return 'tag-lendario';
     if (t.includes('EXTREME')) return 'tag-extreme';
     if (t.includes('SUPREMO')) return 'tag-supremo';
-    return 'tag-unloked';
+    if (t.includes('UNLOKED')) return 'tag-unloked';
+    return 'tag-outros';
 }
 
 // ========================================================
-// 5. PROCESSAMENTO (LANÇAR / EDITAR)
+// 4. PROCESSAMENTO E EDIÇÃO
 // ========================================================
 function processarVip() {
     const idEdit = document.getElementById('edit-id').value;
-    let nome = document.getElementById('nome').value.toUpperCase().trim() || "S/ ID";
-    const tipoVip = document.getElementById('tipoVip').value.toUpperCase();
+    const nome = document.getElementById('nome').value.toUpperCase().trim();
+    const tipoVip = document.getElementById('tipoVip').value;
     const dataCompra = document.getElementById('dataCompra').value;
     const valor = parseFloat(document.getElementById('valor').value) || 0;
     const duracao = parseInt(document.getElementById('duracao').value) || 0;
     const obs = document.getElementById('obs').value.toUpperCase();
 
-    if (!dataCompra) { Swal.fire("A Data é obrigatória!"); return; }
+    if (!nome || !dataCompra) {
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha ID e Data!', background: '#1a1f26', color: '#fff' });
+        return;
+    }
 
     let vencimentoStr = "-";
     if (duracao > 0) {
@@ -190,143 +87,23 @@ function processarVip() {
     }
 
     const id = idEdit || Date.now().toString();
-    
-    // Mantém status se for edição
-    let bAnt = false, pAnt = false, dAnt = 0;
-    if(idEdit) {
-        const ex = vipsGlobais.find(v => v.id == idEdit);
-        if(ex) { bAnt = ex.baixado || false; pAnt = ex.pausado || false; dAnt = ex.diasRestantesAoPausar || 0; }
-    }
-
     const reg = { 
         id, nome, tipoVip, valor, dataCompra, duracao, 
         vencimento: vencimentoStr, obs,
-        baixado: bAnt, pausado: pAnt, diasRestantesAoPausar: dAnt
+        baixado: false, pausado: false
     };
 
     db.ref('vips/' + id).set(reg).then(() => {
         saveLog(idEdit ? "EDITOU" : "LANÇOU", nome);
         limparCampos();
-        Swal.fire({ icon: 'success', title: 'Salvo!', timer: 1500, showConfirmButton: false, background: '#1e293b', color: '#fff' });
+        Swal.fire({ icon: 'success', title: 'Sucesso!', timer: 1000, showConfirmButton: false, background: '#1a1f26', color: '#fff' });
     });
 }
 
-// ========================================================
-// 6. RENDERIZAÇÃO DA TABELA (COMPLETA)
-// ========================================================
-function mostrarVips() {
-    const tabela = document.getElementById('tabelaVips');
-    if (!tabela || !vipsGlobais) return;
-    tabela.innerHTML = '';
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
-    
-    const wipeFiltro = document.getElementById('filtroWipe')?.value || "atual";
-    const anoF = parseInt(document.getElementById('filtroAno')?.value || hoje.getFullYear());
-    const busca = document.getElementById('buscaSteam')?.value.toUpperCase().trim() || "";
-
-    let totalSoma = 0, qtdVendas = 0, totalAno = 0, proximosVenc = 0;
-    let planosContagem = {};
-
-    let dInicioF = dataInicioWipe || "2000-01-01";
-    let dFimF = "9999-12-31";
-
-    if (wipeFiltro !== "atual") {
-        const wAntigo = historicoWipes.find(w => w.inicio === wipeFiltro);
-        if(wAntigo) { dInicioF = wAntigo.inicio; dFimF = wAntigo.fim; }
-    }
-
-    vipsGlobais.sort((a,b) => new Date(b.dataCompra) - new Date(a.dataCompra)).forEach(vip => {
-        const dCStr = vip.dataCompra;
-        const dC = new Date(dCStr + 'T12:00:00');
-        if (dC.getFullYear() === anoF) totalAno += (vip.valor || 0);
-
-        let diff = -999;
-        let vencFormatado = "ÚNICO";
-        let statusBadge = `<span class="badge status-perm">PERMANENTE</span>`;
-        let tempoBadge = `<span class="days-left days-perm">ITEM/KIT</span>`;
-        let cellGlow = "";
-        
-        if (vip.duracao > 0 && vip.vencimento !== "-") {
-            const dV = new Date(vip.vencimento + 'T12:00:00');
-            diff = Math.ceil((dV - hoje) / (1000 * 60 * 60 * 24));
-            vencFormatado = vip.vencimento.split('-').reverse().join('/');
-            if (diff <= 3 && diff >= 0) cellGlow = "glow-red";
-            statusBadge = `<span class="badge ${diff < 0 ? 'status-expired' : 'status-active'}">${diff < 0 ? 'VENCIDO' : 'ATIVO'}</span>`;
-            const dCls = diff <= 3 ? 'days-red' : (diff <= 5 ? 'days-orange' : 'days-green');
-            tempoBadge = `<span class="days-left ${dCls}">${diff < 0 ? 0 : diff} DIAS</span>`;
-        }
-
-        if (vip.pausado) {
-            statusBadge = `<span class="badge status-paused">PAUSADO</span>`;
-            tempoBadge = `<span class="days-left days-orange">${vip.diasRestantesAoPausar} DIAS</span>`;
-            vencFormatado = "CONGELADO";
-        }
-        
-        let exibir = false;
-        if (modoFiltroVencidos) { exibir = (vip.duracao > 0 && diff < 0 && !vip.pausado && !vip.baixado); }
-        else if (busca !== "") { exibir = vip.nome.includes(busca); }
-        else {
-            exibir = (dCStr >= dInicioF && dCStr <= dFimF);
-            if (mostrarApenasAtivos && diff < 0 && !vip.pausado) exibir = false;
-        }
-
-        if (exibir) {
-            totalSoma += (vip.valor || 0);
-            qtdVendas++;
-            if (!vip.pausado && vip.duracao > 0 && diff >= 0 && diff <= 3) proximosVenc++;
-            planosContagem[vip.tipoVip] = (planosContagem[vip.tipoVip] || 0) + 1;
-
-            let btnBaixa = (diff < 0 && vip.duracao > 0 && !vip.pausado) ? (vip.baixado ? `<button class="btn-mini btn-baixa done">✅ OK</button>` : `<button class="btn-mini btn-baixa" onclick="darBaixa('${vip.id}')">BAIXA</button>`) : "";
-            let btnPause = (vip.duracao > 0 && (diff >= 0 || vip.pausado)) ? (vip.pausado ? `<button class="btn-mini btn-baixa" onclick="retomarVip('${vip.id}')">▶ RETOMAR</button>` : `<button class="btn-mini btn-pause" onclick="pausarVip('${vip.id}', ${diff})">⏸ PAUSAR</button>`) : "";
-
-            tabela.innerHTML += `
-                <tr class="${vip.baixado ? 'row-baixa' : ''} ${vip.pausado ? 'row-paused' : ''}">
-                    <td class="${cellGlow}">
-                        <strong>${vip.nome}</strong> <span class="vip-tag ${getVipClass(vip.tipoVip)}">${vip.tipoVip}</span>
-                        <div style="font-size:0.75rem; color:var(--primary); font-weight:600;">${vip.obs || ''}</div>
-                    </td>
-                    <td style="font-weight:700; color:var(--success)">R$ ${vip.valor.toFixed(2)}</td>
-                    <td>${dCStr.split('-').reverse().join('/')}</td>
-                    <td>${vencFormatado}</td>
-                    <td>${statusBadge} ${tempoBadge}</td>
-                    <td>
-                        <div style="display:flex; gap:4px;">
-                            ${btnPause} ${btnBaixa}
-                            <button class="btn-mini" onclick="editarVip('${vip.id}')">EDITAR</button>
-                            <button class="btn-mini btn-del" onclick="removerVip('${vip.id}')">DEL</button>
-                        </div>
-                    </td>
-                </tr>`;
-        }
-    });
-
-    document.getElementById('faturamentoMes').innerText = `R$ ${totalSoma.toFixed(2)}`;
-    document.getElementById('totalVendasMes').innerText = qtdVendas;
-    document.getElementById('vencendoLogo').innerText = proximosVenc;
-    document.getElementById('resumoGeralHeader').innerText = `R$ ${totalAno.toFixed(2)}`;
-    const pop = Object.keys(planosContagem).reduce((a, b) => planosContagem[a] > planosContagem[b] ? a : b, "-");
-    document.getElementById('planoPopular').innerText = pop;
-}
-
-// ========================================================
-// 7. FUNÇÕES AUXILIARES
-// ========================================================
-function pausarVip(id, dias) { db.ref('vips/' + id).update({ pausado: true, diasRestantesAoPausar: dias }); }
-function retomarVip(id) {
-    const v = vipsGlobais.find(x => x.id == id);
-    const hoje = new Date();
-    let nV = new Date(); nV.setDate(hoje.getDate() + (v.diasRestantesAoPausar || 0));
-    db.ref('vips/' + id).update({ pausado: false, vencimento: nV.toISOString().split('T')[0], dataCompra: hoje.toISOString().split('T')[0] });
-}
-function darBaixa(id) { db.ref('vips/' + id).update({ baixado: true }); }
-function removerVip(id) { 
-    Swal.fire({ title: 'Remover?', icon: 'warning', showCancelButton: true, background: '#1e293b', color: '#fff' }).then(r => {
-        if(r.isConfirmed) db.ref('vips/' + id).remove();
-    });
-}
 function editarVip(id) {
     const v = vipsGlobais.find(v => v.id == id);
     if(!v) return;
+
     document.getElementById('edit-id').value = v.id;
     document.getElementById('nome').value = v.nome;
     document.getElementById('tipoVip').value = v.tipoVip;
@@ -334,10 +111,161 @@ function editarVip(id) {
     document.getElementById('valor').value = v.valor;
     document.getElementById('duracao').value = v.duracao;
     document.getElementById('obs').value = v.obs;
-    document.getElementById('btn-add').innerText = "ALTERAR DADOS";
+
+    // ALTERA O BOTÃO VISUALMENTE
+    const btn = document.getElementById('btn-add');
+    btn.innerText = "ALTERAR DADOS";
+    btn.style.background = "var(--warning)"; // Muda para amarelo na edição
+    window.scrollTo({ top: 500, behavior: 'smooth' });
 }
+
 function limparCampos() {
     ['edit-id', 'nome', 'valor', 'duracao', 'obs'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('dataCompra').value = new Date().toISOString().split('T')[0];
-    document.getElementById('btn-add').innerText = "LANÇAR REGISTRO";
+    const btn = document.getElementById('btn-add');
+    btn.innerText = "LANÇAR REGISTRO";
+    btn.style.background = "var(--primary)"; // Volta ao azul original
+}
+
+// ========================================================
+// 5. RENDERIZAÇÃO E BUSCA (FATURAMENTO POR ID)
+// ========================================================
+function mostrarVips() {
+    const tabela = document.getElementById('tabelaVips');
+    if (!tabela) return;
+    tabela.innerHTML = '';
+    
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const busca = document.getElementById('buscaSteam').value.toUpperCase().trim();
+    const wipeFiltro = document.getElementById('filtroWipe').value;
+
+    let totalCalculado = 0;
+    let vendasNoFiltro = 0;
+
+    vipsGlobais.forEach(vip => {
+        const dCStr = vip.dataCompra;
+        const dVStr = vip.vencimento;
+        let diff = -999;
+        
+        if (vip.duracao > 0 && dVStr !== "-") {
+            const dV = new Date(dVStr + 'T12:00:00');
+            diff = Math.ceil((dV - hoje) / (1000 * 60 * 60 * 24));
+        }
+
+        // LÓGICA DE EXIBIÇÃO
+        let pertenceAoWipe = (wipeFiltro === "atual") ? (dCStr >= dataInicioWipe) : (dCStr >= wipeFiltro);
+        let coincideComBusca = (busca === "" || vip.nome.includes(busca));
+        
+        if (coincideComBusca) {
+            // Se houver busca, somamos o valor de TODOS os wipes que esse ID aparece
+            totalCalculado += (vip.valor || 0);
+            
+            // Mas só mostramos na tabela se pertencer ao wipe selecionado
+            if (pertenceAoWipe) {
+                vendasNoFiltro++;
+                
+                let statusBadge = vip.duracao === 0 ? `<span class="badge status-perm">PERMANENTE</span>` : 
+                                 (diff < 0 ? `<span class="badge status-expired">VENCIDO</span>` : `<span class="badge status-active">ATIVO</span>`);
+                
+                let tempoBadge = vip.duracao === 0 ? `<span class="days-left days-perm">ITEM</span>` : 
+                                 `<span class="days-left ${diff < 3 ? 'days-red' : 'days-green'}">${diff < 0 ? 0 : diff} DIAS</span>`;
+
+                tabela.innerHTML += `
+                    <tr class="${vip.baixado ? 'row-baixa' : ''}">
+                        <td><strong>${vip.nome}</strong> <span class="vip-tag ${getVipClass(vip.tipoVip)}">${vip.tipoVip}</span></td>
+                        <td style="color:var(--success)">R$ ${vip.valor.toFixed(2)}</td>
+                        <td>${dCStr.split('-').reverse().join('/')}</td>
+                        <td>${dVStr === "-" ? "ÚNICO" : dVStr.split('-').reverse().join('/')}</td>
+                        <td>${statusBadge} ${tempoBadge}</td>
+                        <td>
+                            <button class="btn-mini btn-edit" onclick="editarVip('${vip.id}')">EDITAR</button>
+                            <button class="btn-mini btn-del" onclick="removerVip('${vip.id}')">DEL</button>
+                        </td>
+                    </tr>`;
+            }
+        }
+    });
+
+    // ATUALIZA OS CARDS
+    document.getElementById('faturamentoMes').innerText = `R$ ${totalCalculado.toFixed(2)}`;
+    document.getElementById('totalVendasMes').innerText = vendasNoFiltro;
+    
+    // Altera o label se estiver buscando
+    document.getElementById('labelFaturamento').innerText = busca !== "" ? "Total Gasto pelo ID" : "Faturamento do Ciclo";
+}
+
+// ========================================================
+// 6. FUNÇÕES DE APOIO (WIPE E LOGS)
+// ========================================================
+function carregarDataWipe() {
+    db.ref('configuracoes/ultimoWipe').on('value', snap => {
+        dataInicioWipe = snap.val() || new Date().toISOString().split('T')[0];
+        document.getElementById('data-inicio-span').innerText = dataInicioWipe.split('-').reverse().join('/');
+        mostrarVips();
+    });
+}
+
+function carregarDados() {
+    db.ref('vips').on('value', snap => {
+        const data = snap.val();
+        vipsGlobais = data ? Object.keys(data).map(k => ({...data[k], id: k})) : [];
+        mostrarVips();
+    });
+}
+
+function marcarNovoWipe() {
+    Swal.fire({
+        title: 'Novo Wipe?',
+        text: "Isso limpará a visão do ciclo atual!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#f43f5e',
+        confirmButtonText: 'Sim, Resetar!',
+        background: '#1a1f26', color: '#fff'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const hoje = new Date().toISOString().split('T')[0];
+            db.ref('configuracoes/ultimoWipe').set(hoje);
+            saveLog("WIPE", "Reiniciou o ciclo.");
+        }
+    });
+}
+
+function removerVip(id) {
+    Swal.fire({
+        title: 'Excluir?',
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, apagar',
+        background: '#1a1f26', color: '#fff'
+    }).then(r => { if(r.isConfirmed) db.ref('vips/' + id).remove(); });
+}
+
+function saveLog(acao, detalhe) {
+    const user = auth.currentUser ? auth.currentUser.email : "Admin";
+    db.ref('logs').push({ user, acao, detalhe, timestamp: new Date().toLocaleString() });
+}
+
+function carregarLogs() {
+    db.ref('logs').limitToLast(5).on('value', snap => {
+        const display = document.getElementById('logDisplay');
+        display.innerHTML = "";
+        snap.forEach(child => {
+            const l = child.val();
+            display.innerHTML = `<div>[${l.timestamp}] ${l.acao}: ${l.detalhe}</div>` + display.innerHTML;
+        });
+    });
+}
+
+function carregarHistoricoWipes() {
+    db.ref('configuracoes/historicoWipes').on('value', snap => {
+        const select = document.getElementById('filtroWipe');
+        select.innerHTML = '<option value="atual">Ciclo Ativo (Agora)</option>';
+        if(snap.exists()){
+            snap.forEach(w => {
+                const data = w.val();
+                select.innerHTML += `<option value="${data.inicio}">Wipe ${data.inicio}</option>`;
+            });
+        }
+    });
 }
