@@ -179,6 +179,14 @@
         .dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: pulse-dot 2s infinite; }
         @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
+        .notification-container:hover {
+            border-color: var(--primary) !important;
+            transform: scale(1.05);
+        }
+        .notification-container:active {
+            transform: scale(0.95);
+        }
+        
         /* --- AJUSTES PARA CELULAR (Telas menores que 768px) --- */
         @media (max-width: 768px) {
             body { padding: 10px; }
@@ -223,6 +231,7 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -236,11 +245,32 @@
 </div>
 
 <div class="container" id="main-app">
-    <header>
-        <div>
-            <h1>ARK<span>DEX</span></h1>
-            <p id="data-atual" style="color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin-top: 5px;"></p>
-            <button class="btn-mini" onclick="logout()" style="margin-top: 10px;">SAIR DO SISTEMA</button>
+<header>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            <div style="text-align: center;">
+                <h1 style="display: flex; align-items: center; gap: 15px; margin: 0;">
+                    ARK<span>DEX</span>
+                    <div class="notification-container" onclick="filtrarVencidos()" title="Ver Vencidos sem Baixa" style="position: relative; cursor: pointer; background: var(--input-bg); padding: 8px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; transition: 0.3s;">
+                        <span style="font-size: 1.4rem;">🔔</span>
+                        <span id="badge-vencidos" style="
+                            position: absolute;
+                            top: -5px;
+                            right: -5px;
+                            background: var(--danger);
+                            color: white;
+                            border-radius: 8px;
+                            padding: 2px 6px;
+                            font-size: 0.65rem;
+                            font-weight: 800;
+                            display: none;
+                            box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+                            border: 2px solid var(--bg);
+                        ">0</span>
+                    </div>
+                </h1>
+                <p id="data-atual" style="color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin-top: 5px;"></p>
+                <button class="btn-mini" onclick="logout()" style="margin-top: 10px;">SAIR DO SISTEMA</button>
+            </div>
         </div>
     </header>
 
@@ -692,6 +722,7 @@
     
 </body>
 </html>
+
 
 
 
