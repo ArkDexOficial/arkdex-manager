@@ -1,5 +1,5 @@
 // ========================================================
-// CONFIGURAÇÃO FIREBASE (MANTIDA)
+// CONFIGURAÇÃO FIREBASE
 // ========================================================
 const firebaseConfig = {
     apiKey: "AIzaSyCoObGx8rVkUVdau2zeU2azChGvmmidHcA",
@@ -23,46 +23,54 @@ let modoFiltroVencidos = false;
 // CONTROLE DE ACESSO E LOGIN
 // ========================================================
 auth.onAuthStateChanged(user => {
-    document.getElementById('login-overlay').style.display = user ? 'none' : 'flex';
-    document.getElementById('main-app').style.display = user ? 'block' : 'none';
+    const loginOverlay = document.getElementById('login-overlay');
+    const mainApp = document.getElementById('main-app');
+    
     if (user) {
+        loginOverlay.style.display = 'none';
+        mainApp.style.display = 'block';
         carregarDataWipe();
         carregarDados();
         carregarLogs();
         carregarHistoricoWipes();
+    } else {
+        loginOverlay.style.display = 'flex';
+        mainApp.style.display = 'none';
     }
 });
 
 function login() {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
+    
+    if(!email || !pass) {
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha todos os campos!', background: '#1a1f26', color: '#fff' });
+        return;
+    }
+
     auth.signInWithEmailAndPassword(email, pass).catch(err => {
-        Swal.fire({ icon: 'error', title: 'Erro', text: 'Acesso negado!', background: '#1a1f26', color: '#fff' });
+        Swal.fire({ icon: 'error', title: 'Erro', text: 'E-mail ou senha incorretos!', background: '#1a1f26', color: '#fff' });
     });
 }
-function logout() { auth.signOut(); }
+
+function logout() { 
+    auth.signOut(); 
+}
 
 // ========================================================
-// LANÇAMENTO E EDIÇÃO (SUPORTE A MULTI-ID)
+// PROCESSAMENTO DE REGISTROS
 // ========================================================
 function processarVip() {
     const idEdit = document.getElementById('edit-id').value;
-    const nomesRaw = document.getElementById('nome').value.trim(); // ID Steam
+    const nomesRaw = document.getElementById('nome').value.trim();
     const tipoVip = document.getElementById('tipoVip').value;
     const dataCompra = document.getElementById('dataCompra').value;
     const valor = parseFloat(document.getElementById('valor').value) || 0;
     const duracao = parseInt(document.getElementById('duracao').value) || 0;
     const obs = document.getElementById('obs').value.toUpperCase();
 
-    // AGORA APENAS A DATA É OBRIGATÓRIA
     if (!dataCompra) {
-        Swal.fire({ 
-            icon: 'warning', 
-            title: 'Atenção', 
-            text: 'A data da compra é obrigatória!', 
-            background: '#1a1f26', 
-            color: '#fff' 
-        });
+        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'A data da compra é obrigatória!', background: '#1a1f26', color: '#fff' });
         return;
     }
 
@@ -77,7 +85,6 @@ function processarVip() {
 
     const reg = { 
         id: idRef, 
-        // Se o ID estiver vazio, ele salva como "NÃO INFORMADO" para não ficar em branco na tabela
         nome: nomesRaw ? nomesRaw.toUpperCase() : "ID NÃO INFORMADO", 
         tipoVip, 
         valor, 
@@ -92,68 +99,13 @@ function processarVip() {
     db.ref('vips/' + idRef).set(reg).then(() => {
         saveLog(idEdit ? "EDITOU" : "LANÇOU", (nomesRaw ? nomesRaw.split('\n')[0] : "SEM ID") + "...");
         limparCampos();
-        Swal.fire({ 
-            icon: 'success', 
-            title: 'Sucesso!', 
-            timer: 800, 
-            showConfirmButton: false, 
-            background: '#1a1f26', 
-            color: '#fff' 
-        });
+        Swal.fire({ icon: 'success', title: 'Sucesso!', timer: 800, showConfirmButton: false, background: '#1a1f26', color: '#fff' });
     });
 }
 
-function editarVip(id) {
-    const v = vipsGlobais.find(v => v.id == id);
-    if(!v) return;
-
-    document.getElementById('edit-id').value = v.id;
-    document.getElementById('nome').value = v.nome;
-    document.getElementById('tipoVip').value = v.tipoVip;
-    document.getElementById('dataCompra').value = v.dataCompra;
-    document.getElementById('valor').value = v.valor;
-    document.getElementById('duracao').value = v.duracao;
-    document.getElementById('obs').value = v.obs;
-
-    const btn = document.getElementById('btn-add');
-    btn.innerText = "ALTERAR DADOS";
-    btn.style.background = "var(--warning)";
-    window.scrollTo({ top: 500, behavior: 'smooth' });
-}
-
 // ========================================================
-// FUNÇÕES DE PAUSA E BAIXA
+// RENDERIZAÇÃO DA TABELA (COM CORES PULSANTES)
 // ========================================================
-function togglePausa(id) {
-    const v = vipsGlobais.find(v => v.id == id);
-    db.ref('vips/' + id).update({ pausado: !v.pausado });
-}
-
-function marcarBaixa(id) {
-    const v = vipsGlobais.find(v => v.id == id);
-    db.ref('vips/' + id).update({ baixado: !v.baixado });
-}
-
-function limparCampos() {
-    ['edit-id', 'nome', 'valor', 'duracao', 'obs'].forEach(id => document.getElementById(id).value = '');
-    const btn = document.getElementById('btn-add');
-    btn.innerText = "LANÇAR REGISTRO";
-    btn.style.background = "var(--primary)";
-}
-
-// ========================================================
-// RENDERIZAÇÃO E BUSCA
-// ========================================================
-function getVipClass(tipo) {
-    const t = tipo?.toUpperCase() || '';
-    if (t.includes('ELITE')) return 'tag-elite';
-    if (t.includes('IMPERADOR')) return 'tag-imperador';
-    if (t.includes('LENDÁRIO') || t.includes('LENDARIO')) return 'tag-lendario';
-    if (t.includes('EXTREME')) return 'tag-extreme';
-    if (t.includes('SUPREMO')) return 'tag-supremo';
-    return 'tag-unloked';
-}
-
 function mostrarVips() {
     const tabela = document.getElementById('tabelaVips');
     const busca = document.getElementById('buscaSteam').value.toUpperCase().trim();
@@ -167,12 +119,11 @@ function mostrarVips() {
     let totalVencidosSemBaixa = 0;
 
     vipsGlobais.forEach(vip => {
-        const coincideBusca = (busca === "" || vip.nome.includes(busca));
-        if (coincideBusca) faturamentoSoma += (vip.valor || 0);
-
+        const coincideBusca = (busca === "" || vip.nome.includes(busca) || vip.obs.includes(busca));
         const pertenceWipe = (wipeFiltro === "atual") ? (vip.dataCompra >= dataInicioWipe) : (vip.dataCompra >= wipeFiltro);
         
         if (coincideBusca && pertenceWipe) {
+            faturamentoSoma += (vip.valor || 0);
             vendasContador++;
             
             let diff = -999;
@@ -181,13 +132,11 @@ function mostrarVips() {
                 diff = Math.ceil((dV - hoje) / (1000 * 60 * 60 * 24));
             }
 
-            // Contadores para os cards do topo
             if (diff >= 0 && diff <= 3 && !vip.pausado && vip.duracao > 0) vencendo3dias++;
             if (diff < 0 && !vip.baixado && vip.duracao > 0) totalVencidosSemBaixa++;
 
             if (modoFiltroVencidos && (diff >= 0 || vip.baixado)) return;
 
-            // --- LÓGICA DE STATUS E CORES SOLICITADA ---
             let statusBadge = "";
             let tempoBadge = "";
             let glowClass = ""; 
@@ -203,20 +152,18 @@ function mostrarVips() {
                 tempoBadge = `<span class="days-left days-perm">INFINITO</span>`;
             } else if (diff < 0) {
                 statusBadge = `<span class="badge status-expired">VENCIDO</span>`;
-                tempoBadge = `<span class="days-left days-red">0 DIAS</span>`;
-                glowClass = "glow-red"; // Vencido pulsa vermelho
+                tempoBadge = `<span class="days-left days-red">EXPIRADO</span>`;
+                glowClass = "glow-red"; 
             } else {
                 statusBadge = `<span class="badge status-active">ATIVO</span>`;
-                
                 if (diff <= 3) {
                     tempoBadge = `<span class="days-left days-red">${diff} DIAS</span>`;
-                    glowClass = "glow-red"; // PULSANTE VERMELHO
+                    glowClass = "glow-red";
                 } else if (diff <= 5) {
                     tempoBadge = `<span class="days-left days-orange">${diff} DIAS</span>`;
-                    glowClass = "glow-orange"; // PULSANTE AMARELO
+                    glowClass = "glow-orange";
                 } else {
                     tempoBadge = `<span class="days-left days-green">${diff} DIAS</span>`;
-                    glowClass = ""; // VERDE NORMAL
                 }
             }
             
@@ -250,23 +197,25 @@ function mostrarVips() {
     document.getElementById('vencendoLogo').innerText = vencendo3dias;
     
     const badge = document.getElementById('badge-vencidos');
-    badge.innerText = totalVencidosSemBaixa;
-    badge.style.display = totalVencidosSemBaixa > 0 ? 'block' : 'none';
-}
-
-    // Atualização dos Painéis e Badge
-    document.getElementById('faturamentoMes').innerText = `R$ ${faturamentoSoma.toFixed(2)}`;
-    document.getElementById('totalVendasMes').innerText = vendasContador;
-    document.getElementById('vencendoLogo').innerText = vencendo3dias;
-    
-    const badge = document.getElementById('badge-vencidos');
-    badge.innerText = totalVencidosSemBaixa;
-    badge.style.display = totalVencidosSemBaixa > 0 ? 'block' : 'none';
+    if(badge) {
+        badge.innerText = totalVencidosSemBaixa;
+        badge.style.display = totalVencidosSemBaixa > 0 ? 'block' : 'none';
+    }
 }
 
 // ========================================================
-// CARREGAMENTO DE DADOS (DATABASE)
+// DEMAIS FUNÇÕES DE SUPORTE
 // ========================================================
+function getVipClass(tipo) {
+    const t = tipo?.toUpperCase() || '';
+    if (t.includes('ELITE')) return 'tag-elite';
+    if (t.includes('IMPERADOR')) return 'tag-imperador';
+    if (t.includes('LENDÁRIO') || t.includes('LENDARIO')) return 'tag-lendario';
+    if (t.includes('EXTREME')) return 'tag-extreme';
+    if (t.includes('SUPREMO')) return 'tag-supremo';
+    return 'tag-unloked';
+}
+
 function carregarDataWipe() {
     db.ref('configuracoes/ultimoWipe').on('value', snap => {
         dataInicioWipe = snap.val() || new Date().toISOString().split('T')[0];
@@ -286,6 +235,7 @@ function carregarDados() {
 function carregarLogs() {
     db.ref('logs').limitToLast(5).on('value', snap => {
         const display = document.getElementById('logDisplay');
+        if(!display) return;
         display.innerHTML = "";
         snap.forEach(c => {
             const l = c.val();
@@ -295,7 +245,25 @@ function carregarLogs() {
 }
 
 function saveLog(acao, detalhe) {
-    db.ref('logs').push({ user: auth.currentUser.email, acao, detalhe, timestamp: new Date().toLocaleString() });
+    if(auth.currentUser) {
+        db.ref('logs').push({ user: auth.currentUser.email, acao, detalhe, timestamp: new Date().toLocaleString() });
+    }
+}
+
+function editarVip(id) {
+    const v = vipsGlobais.find(v => v.id == id);
+    if(!v) return;
+    document.getElementById('edit-id').value = v.id;
+    document.getElementById('nome').value = v.nome;
+    document.getElementById('tipoVip').value = v.tipoVip;
+    document.getElementById('dataCompra').value = v.dataCompra;
+    document.getElementById('valor').value = v.valor;
+    document.getElementById('duracao').value = v.duracao;
+    document.getElementById('obs').value = v.obs || '';
+    const btn = document.getElementById('btn-add');
+    btn.innerText = "ALTERAR DADOS";
+    btn.style.background = "var(--warning)";
+    window.scrollTo({ top: 500, behavior: 'smooth' });
 }
 
 function removerVip(id) {
@@ -303,11 +271,32 @@ function removerVip(id) {
     .then(r => { if(r.isConfirmed) db.ref('vips/' + id).remove(); });
 }
 
+function togglePausa(id) {
+    const v = vipsGlobais.find(v => v.id == id);
+    db.ref('vips/' + id).update({ pausado: !v.pausado });
+}
+
+function marcarBaixa(id) {
+    const v = vipsGlobais.find(v => v.id == id);
+    db.ref('vips/' + id).update({ baixado: !v.baixado });
+}
+
+function limparCampos() {
+    ['edit-id', 'nome', 'valor', 'duracao', 'obs'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.value = '';
+    });
+    const btn = document.getElementById('btn-add');
+    btn.innerText = "LANÇAR REGISTRO";
+    btn.style.background = "var(--primary)";
+}
+
 function filtrarVencidos() { modoFiltroVencidos = !modoFiltroVencidos; mostrarVips(); }
 
 function carregarHistoricoWipes() {
     db.ref('configuracoes/historicoWipes').on('value', snap => {
         const select = document.getElementById('filtroWipe');
+        if(!select) return;
         select.innerHTML = '<option value="atual">Ciclo Ativo (Agora)</option>';
         snap.forEach(w => {
             const d = w.val();
@@ -315,6 +304,3 @@ function carregarHistoricoWipes() {
         });
     });
 }
-
-
-
