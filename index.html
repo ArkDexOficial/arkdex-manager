@@ -384,7 +384,6 @@
 
     function carregarDados() {
         const hoje = new Date();
-        // Ajuste para pegar a data local no formato YYYY-MM-DD
         const dataLocal = hoje.toLocaleDateString('sv-SE'); 
         document.getElementById('dataCompra').value = dataLocal;
         
@@ -420,7 +419,7 @@
     function processarVip() {
         const idEdit = document.getElementById('edit-id').value;
         let nome = document.getElementById('nome').value.toUpperCase().trim();
-        if (nome === "") { nome = "S/ ID";}
+        if (nome === "") { nome = "S/ ID"; }
         
         const tipoVip = document.getElementById('tipoVip').value.toUpperCase();
         const dataCompra = document.getElementById('dataCompra').value;
@@ -475,7 +474,6 @@
         let totalSoma = 0, qtdVendas = 0, totalAno = 0, proximosVenc = 0;
         let planosContagem = {};
     
-        // --- AJUSTE DE LABELS (ETIQUETAS) ---
         const labelVendas = document.getElementById('labelVendas');
         const labelFaturamento = document.getElementById('labelFaturamento');
     
@@ -491,28 +489,20 @@
     
         vipsOrdenados.forEach(vip => {
             const dC = new Date(vip.dataCompra + 'T00:00:00');
-            
-            // Se houver busca, ignoramos o filtro de mês e focamos no ID em qualquer data
             let exibir = false;
+
             if (busca !== "") {
-                if (vip.nome.includes(busca)) {
-                    exibir = true;
-                }
+                if (vip.nome.includes(busca)) exibir = true;
             } else {
-                // Se não houver busca, volta ao normal: filtra por Mês e Ano selecionados
-                if (dC.getMonth() === mesF && dC.getFullYear() === anoF) {
-                    exibir = true;
-                }
+                if (dC.getMonth() === mesF && dC.getFullYear() === anoF) exibir = true;
             }
     
-            // Soma o faturamento anual (sempre baseado no ano selecionado no filtro)
             if (dC.getFullYear() === anoF) totalAno += (vip.valor || 0);
     
             if (exibir) {
                 totalSoma += (vip.valor || 0);
                 qtdVendas++;
                 
-                // Lógica de Status e Badges (Mantida igual ao seu original)
                 let diff = -999;
                 let vencFormatado = "ÚNICO";
                 let statusBadge = `<span class="badge status-perm">PERMANENTE</span>`;
@@ -536,7 +526,6 @@
                     vencFormatado = "CONGELADO";
                 }
     
-                // Adiciona na tabela
                 tabela.innerHTML += `
                     <tr class="${vip.baixado ? 'row-baixa' : ''} ${vip.pausado ? 'row-paused' : ''}">
                         <td class="${cellGlowClass}">
@@ -556,19 +545,13 @@
             }
         });
     
-        // Atualiza os cartões com os novos valores (seja do mês ou da busca)
-        document.getElementById('totalVendasMes').innerText = qtdVendas;
-        document.getElementById('faturamentoMes').innerText = `R$ ${totalSoma.toFixed(2)}`;
-        document.getElementById('resumoGeralHeader').innerText = `R$ ${totalAno.toFixed(2)}`;
-        document.getElementById('vencendoLogo').innerText = proximosVenc;
-    }
-
-        const planoMaisVendido = Object.keys(planosContagem).reduce((a, b) => planosContagem[a] > planosContagem[b] ? a : b, "-");
+        const planoMaisVendido = Object.keys(planosContagem).length > 0 ? Object.keys(planosContagem).reduce((a, b) => planosContagem[a] > planosContagem[b] ? a : b) : "-";
+        
         document.getElementById('planoPopular').innerText = planoMaisVendido;
-        document.getElementById('vencendoLogo').innerText = proximosVenc;
         document.getElementById('totalVendasMes').innerText = qtdVendas;
         document.getElementById('faturamentoMes').innerText = `R$ ${totalSoma.toFixed(2)}`;
         document.getElementById('resumoGeralHeader').innerText = `R$ ${totalAno.toFixed(2)}`;
+        document.getElementById('vencendoLogo').innerText = proximosVenc;
     }
 
     function pausarVip(id, diasRestantes) {
@@ -586,13 +569,6 @@
             novoVenc.setDate(hoje.getDate() + (vip.diasRestantesAoPausar || 0));
             db.ref('vips/' + id).update({ pausado: false, vencimento: novoVenc.toISOString().split('T')[0], dataCompra: hoje.toISOString().split('T')[0] });
             saveLog("RETOMOU", id);
-        }
-    }
-
-    function darBaixa(id) {
-        if(confirm("Confirmar baixa?")) {
-            db.ref('vips/' + id).update({ baixado: true });
-            saveLog("BAIXOU", id);
         }
     }
 
@@ -623,18 +599,13 @@
     
     function limparCampos() {
         ['edit-id', 'nome', 'valor', 'duracao', 'obs'].forEach(id => document.getElementById(id).value = '');
-        
         const btn = document.getElementById('btn-add');
         btn.innerText = "LANÇAR REGISTRO";
         btn.style.background = "var(--primary)";
-        
-        // Força a data de hoje local novamente
         const hoje = new Date().toLocaleDateString('sv-SE');
         document.getElementById('dataCompra').value = hoje;
-}
+    }
 </script>
+    
 </body>
-
 </html>
-
-
