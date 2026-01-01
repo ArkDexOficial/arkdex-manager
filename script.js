@@ -186,9 +186,10 @@ function mostrarVips() {
 
             if (modoFiltroVencidos && (diff >= 0 || vip.baixado)) return;
 
-            // --- LÓGICA DE STATUS: ITEM / PONTOS ---
+            // --- LÓGICA DE CORES E STATUS ---
             let statusBadge = "";
             let tempoBadge = "";
+            let glowClass = ""; // Classe para o efeito visual na linha
 
             if (vip.pausado) {
                 statusBadge = `<span class="badge status-paused">PAUSADO</span>`;
@@ -202,13 +203,23 @@ function mostrarVips() {
             } else if (diff < 0) {
                 statusBadge = `<span class="badge status-expired">VENCIDO</span>`;
                 tempoBadge = `<span class="days-left days-red">0 DIAS</span>`;
+                glowClass = "glow-red"; // Fica vermelho se venceu e não deu baixa
             } else {
                 statusBadge = `<span class="badge status-active">ATIVO</span>`;
-                tempoBadge = `<span class="days-left ${diff <= 5 ? 'days-orange' : 'days-green'}">${diff} DIAS</span>`;
+                
+                // --- NOVO SISTEMA DE CORES SOLICITADO ---
+                if (diff <= 3) {
+                    tempoBadge = `<span class="days-left days-red">${diff} DIAS</span>`;
+                    glowClass = "glow-red"; // VERMELHO PULSANTE
+                } else if (diff <= 5) {
+                    tempoBadge = `<span class="days-left days-orange">${diff} DIAS</span>`;
+                    glowClass = "glow-orange"; // AMARELO ALERTA
+                } else {
+                    tempoBadge = `<span class="days-left days-green">${diff} DIAS</span>`;
+                    glowClass = ""; // VERDE NORMAL (SEM EFEITO)
+                }
             }
             
-            let glowClass = (diff <= 3 && diff >= 0 && !vip.pausado && vip.duracao > 0) ? "glow-red" : "";
-
             // --- RENDERIZAÇÃO DA LINHA ---
             tabela.innerHTML += `
                 <tr class="${vip.baixado ? 'row-baixa' : ''} ${vip.pausado ? 'row-paused' : ''}">
@@ -235,11 +246,10 @@ function mostrarVips() {
         }
     });
 
-    // Atualização dos Painéis
+    // Atualização dos Painéis e Badge
     document.getElementById('faturamentoMes').innerText = `R$ ${faturamentoSoma.toFixed(2)}`;
     document.getElementById('totalVendasMes').innerText = vendasContador;
     document.getElementById('vencendoLogo').innerText = vencendo3dias;
-    document.getElementById('labelFaturamento').innerText = busca !== "" ? "Faturamento Histórico" : "Faturamento do Ciclo";
     
     const badge = document.getElementById('badge-vencidos');
     badge.innerText = totalVencidosSemBaixa;
@@ -297,4 +307,5 @@ function carregarHistoricoWipes() {
         });
     });
 }
+
 
