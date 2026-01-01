@@ -218,10 +218,10 @@
         <div class="card" style="min-width: 320px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <h3 id="labelFaturamento">Faturamento do Ciclo</h3>
-                <button onclick="marcarNovoWipe()" title="Finalizar e Salvar Ciclo" 
-                    style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; transition: 0.3s;">
-                    NOVO WIPE 🚀
-                </button>
+                    <button onclick="marcarNovoWipe()" title="Finalizar e Salvar Ciclo" 
+                        style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; transition: 0.3s; pointer-events: auto !important;">
+                        NOVO WIPE 🚀
+                    </button>
             </div>
             <div class="value" style="color: var(--success); margin: 10px 0;" id="faturamentoMes">R$ 0,00</div>
             <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
@@ -283,3 +283,4 @@
 <script src="script.js"></script>
 </body>
 </html>
+
