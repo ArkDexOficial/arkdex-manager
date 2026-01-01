@@ -384,14 +384,16 @@
 
     function carregarDados() {
         const hoje = new Date();
-        document.getElementById('dataCompra').valueAsDate = hoje;
+        // Ajuste para pegar a data local no formato YYYY-MM-DD
+        const dataLocal = hoje.toLocaleDateString('sv-SE'); 
+        document.getElementById('dataCompra').value = dataLocal;
+        
         document.getElementById('data-atual').innerText = hoje.toLocaleDateString('pt-BR', { dateStyle: 'full' });
         document.getElementById('filtroMes').value = hoje.getMonth();
         document.getElementById('filtroAno').value = hoje.getFullYear();
         
         db.ref('vips').on('value', (snapshot) => {
             const data = snapshot.val();
-            // Transformamos o objeto do Firebase em Array para o seu código funcionar
             vipsGlobais = data ? Object.keys(data).map(key => ({...data[key], id: key})) : [];
             mostrarVips();
         });
@@ -418,7 +420,7 @@
     function processarVip() {
         const idEdit = document.getElementById('edit-id').value;
         let nome = document.getElementById('nome').value.toUpperCase().trim();
-        if (nome === "") { alert("Por favor, insira um ID!"); return; }
+        if (nome === "") { nome = "NÃO INFORMADO";}
         
         const tipoVip = document.getElementById('tipoVip').value.toUpperCase();
         const dataCompra = document.getElementById('dataCompra').value;
@@ -604,12 +606,17 @@
     
     function limparCampos() {
         ['edit-id', 'nome', 'valor', 'duracao', 'obs'].forEach(id => document.getElementById(id).value = '');
+        
         const btn = document.getElementById('btn-add');
         btn.innerText = "LANÇAR REGISTRO";
         btn.style.background = "var(--primary)";
-        document.getElementById('dataCompra').valueAsDate = new Date();
-    }
+        
+        // Força a data de hoje local novamente
+        const hoje = new Date().toLocaleDateString('sv-SE');
+        document.getElementById('dataCompra').value = hoje;
+}
 </script>
 </body>
 
 </html>
+
