@@ -327,6 +327,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     const firebaseConfig = {
@@ -460,8 +461,24 @@
         db.ref('vips/' + id).set(reg).then(() => {
             saveLog(idEdit ? "EDITOU" : "LANÇOU", `${nome} (${tipoVip})`);
             limparCampos();
-            alert("Registro salvo com sucesso!");
-        }).catch(err => alert("Erro ao salvar: " + err.message));
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Registro salvo com sucesso!',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#1e293b',
+                color: '#fff'
+            });
+        }).catch(err => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao salvar: ' + err.message,
+                background: '#1e293b',
+                color: '#fff'
+            });
+        });
     }
 
     function mostrarVips() {
@@ -558,10 +575,20 @@
     }
 
     function pausarVip(id, diasRestantes) {
-        if(confirm(`Pausar VIP? Dias restantes: ${diasRestantes}`)) {
-            db.ref('vips/' + id).update({ pausado: true, diasRestantesAoPausar: diasRestantes });
-            saveLog("PAUSOU", id);
-        }
+        Swal.fire({
+            title: 'Pausar VIP?',
+            text: `O jogador ficará com ${diasRestantes} dias congelados.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, pausar',
+            background: '#1e293b',
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                db.ref('vips/' + id).update({ pausado: true, diasRestantesAoPausar: diasRestantes });
+                saveLog("PAUSOU", id);
+            }
+        });
     }
 
     function retomarVip(id) {
@@ -599,10 +626,24 @@
     }
 
     function removerVip(id) { 
-        if(confirm("Excluir permanentemente?")) { 
-            saveLog("DELETOU", id);
-            db.ref('vips/' + id).remove();
-        } 
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: "Esta ação não pode ser desfeita!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Sim, deletar!',
+            cancelButtonText: 'Cancelar',
+            background: '#1e293b',
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                saveLog("DELETOU", id);
+                db.ref('vips/' + id).remove();
+                Swal.fire({ title: 'Deletado!', icon: 'success', background: '#1e293b', color: '#fff', timer: 1500, showConfirmButton: false });
+            }
+        });
     }
     
     function limparCampos() {
@@ -616,5 +657,6 @@
     
 </body>
 </html>
+
 
 
