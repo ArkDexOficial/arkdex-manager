@@ -767,10 +767,92 @@
         btn.style.background = "var(--primary)";
         document.getElementById('dataCompra').value = new Date().toLocaleDateString('sv-SE');
     }
+
+    // 💾 FUNÇÃO: Exportar Backup (Backup Local)
+    function exportarDadosLocal() {
+        // Pegamos todo o conteúdo do Firebase (Vips e Logs)
+        db.ref().once('value').then(snapshot => {
+            const dados = snapshot.val();
+            if (!dados) {
+                Swal.fire("Erro", "Não há dados para exportar!", "error");
+                return;
+            }
+    
+            const dataRef = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+            const jsonString = JSON.stringify(dados, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `backup_arkdex_${dataRef}.json`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            saveLog("BACKUP", "Exportou banco de dados");
+        }).catch(err => {
+            console.error(err);
+            Swal.fire("Erro", "Falha ao exportar: " + err.message, "error");
+        });
+    }
+    
+    // 📂 FUNÇÃO: Importar JSON
+    function importarDados(event) {
+        const arquivo = event.target.files[0];
+        if (!arquivo) return;
+    
+        const leitor = new FileReader();
+        leitor.onload = function(e) {
+            try {
+                const dadosImportados = JSON.parse(e.target.result);
+    
+                Swal.fire({
+                    title: 'Restaurar Backup?',
+                    text: "Isso substituirá TODOS os VIPs e Logs atuais por este arquivo!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'Sim, substituir tudo!',
+                    cancelButtonText: 'Cancelar',
+                    background: '#1e293b',
+                    color: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // .set('/') na raiz do banco substitui tudo
+                        db.ref('/').set(dadosImportados)
+                            .then(() => {
+                                saveLog("IMPORTAÇÃO", "Restaurou backup via JSON");
+                                Swal.fire({
+                                    title: 'Sucesso!',
+                                    text: 'Banco de dados restaurado.',
+                                    icon: 'success',
+                                    background: '#1e293b',
+                                    color: '#fff'
+                                });
+                                // Limpa o input para permitir importar o mesmo arquivo de novo se necessário
+                                document.getElementById('importFile').value = '';
+                            })
+                            .catch(err => {
+                                Swal.fire("Erro", "Erro ao gravar no Firebase: " + err.message, "error");
+                            });
+                    } else {
+                        document.getElementById('importFile').value = '';
+                    }
+                });
+    
+            } catch (err) {
+                Swal.fire("Erro", "Arquivo JSON inválido ou corrompido!", "error");
+                document.getElementById('importFile').value = '';
+            }
+        };
+        leitor.readAsText(arquivo);
+    }
+    
 </script>
     
 </body>
 </html>
+
 
 
 
