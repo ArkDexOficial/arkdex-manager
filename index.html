@@ -592,21 +592,56 @@
     }
 
     function retomarVip(id) {
-        if(confirm("Retomar VIP a partir de hoje?")) {
-            const vip = vipsGlobais.find(v => v.id == id);
-            const hoje = new Date();
-            let novoVenc = new Date();
-            novoVenc.setDate(hoje.getDate() + (vip.diasRestantesAoPausar || 0));
-            db.ref('vips/' + id).update({ pausado: false, vencimento: novoVenc.toISOString().split('T')[0], dataCompra: hoje.toISOString().split('T')[0] });
-            saveLog("RETOMOU", id);
-        }
+        Swal.fire({
+            title: 'Retomar VIP?',
+            text: "O VIP será reativado a partir de hoje com os dias restantes.",
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#3b82f6',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Sim, retomar!',
+            cancelButtonText: 'Cancelar',
+            background: '#1e293b',
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const vip = vipsGlobais.find(v => v.id == id);
+                const hoje = new Date();
+                let novoVenc = new Date();
+                novoVenc.setDate(hoje.getDate() + (vip.diasRestantesAoPausar || 0));
+                
+                db.ref('vips/' + id).update({ 
+                    pausado: false, 
+                    vencimento: novoVenc.toISOString().split('T')[0], 
+                    dataCompra: hoje.toISOString().split('T')[0] 
+                }).then(() => {
+                    saveLog("RETOMOU", id);
+                    Swal.fire({ title: 'Ativado!', icon: 'success', background: '#1e293b', color: '#fff', timer: 1500, showConfirmButton: false });
+                });
+            }
+        });
     }
 
     function darBaixa(id) {
-        if(confirm("Confirmar baixa?")) {
-            db.ref('vips/' + id).update({ baixado: true });
-            saveLog("BAIXOU", id);
-        }
+        Swal.fire({
+            title: 'Confirmar Baixa?',
+            text: "Isso marcará que o jogador já recebeu os itens/kits.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Sim, dar baixa!',
+            cancelButtonText: 'Cancelar',
+            background: '#1e293b',
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                db.ref('vips/' + id).update({ baixado: true }).then(() => {
+                    saveLog("BAIXOU", id);
+                    Swal.fire({ title: 'Baixa Concluída!', icon: 'success', background: '#1e293b', color: '#fff', timer: 1500, showConfirmButton: false });
+                });
+            }
+        });
     }
 
     function editarVip(id) {
@@ -657,6 +692,7 @@
     
 </body>
 </html>
+
 
 
 
