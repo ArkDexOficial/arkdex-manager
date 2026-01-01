@@ -19,6 +19,7 @@ let mostrarApenasAtivos = false;
 let modoFiltroVencidos = false; 
 let dataInicioWipe = null;      
 let vipsGlobais = [];
+let historicoWipes = []; // Armazena os wipes antigos vindos do Firebase
 
 // ========================================================
 // 2. AUTENTICAÇÃO E INICIALIZAÇÃO
@@ -31,6 +32,7 @@ auth.onAuthStateChanged(user => {
         if(loginOverlay) loginOverlay.style.display = 'none';
         if(mainApp) mainApp.style.display = 'block';
         carregarDataWipe();
+        carregarHistoricoWipes(); // Nova função
         carregarDados();
         carregarLogs();
     } else {
@@ -43,14 +45,14 @@ function login() {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
     auth.signInWithEmailAndPassword(email, pass).catch(error => {
-        Swal.fire({ icon: 'error', title: 'Erro no Login', text: error.message, background: '#1e293b', color: '#fff' });
+        Swal.fire({ icon: 'error', title: 'Erro no Login', text: error.message, background: '#1a1f26', color: '#fff' });
     });
 }
 
 function logout() { auth.signOut(); }
 
 // ========================================================
-// 3. LOGS E WIPE
+// 3. LOGS E GESTÃO DE WIPE (HISTÓRICO)
 // ========================================================
 function saveLog(acao, detalhe) {
     const user = auth.currentUser ? auth.currentUser.email : "Desconhecido";
@@ -73,25 +75,62 @@ function carregarLogs() {
 function carregarDataWipe() {
     db.ref('configuracoes/ultimoWipe').on('value', snap => {
         dataInicioWipe = snap.val();
+        document.getElementById('data-inicio-span').innerText = dataInicioWipe ? dataInicioWipe.split('-').reverse().join('/') : "--/--/--";
         if (vipsGlobais.length > 0) mostrarVips();
+    });
+}
+
+// Carrega os wipes finalizados para o Select de Filtro
+function carregarHistoricoWipes() {
+    db.ref('configuracoes/historicoWipes').on('value', snap => {
+        const wipes = snap.val();
+        const select = document.getElementById('filtroWipe');
+        if(!select) return;
+        
+        select.innerHTML = '<option value="atual">Ciclo Ativo (Agora)</option>';
+        historicoWipes = [];
+
+        if (wipes) {
+            Object.keys(wipes).forEach(key => {
+                const w = wipes[key];
+                historicoWipes.push(w);
+                const option = document.createElement('option');
+                option.value = w.inicio; 
+                option.innerText = `Wipe: ${w.inicio.split('-').reverse().join('/')} até ${w.fim.split('-').reverse().join('/')}`;
+                select.appendChild(option);
+            });
+        }
     });
 }
 
 function marcarNovoWipe() {
     Swal.fire({
-        title: 'Iniciar Novo Ciclo?',
-        text: "A tabela passará a mostrar apenas vendas feitas a partir de hoje.",
+        title: 'Finalizar Ciclo Atual?',
+        text: "O faturamento atual será arquivado no histórico e um novo ciclo começará do zero.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sim, Novo Wipe!',
-        background: '#1e293b',
+        cancelButtonText: 'Cancelar',
+        background: '#1a1f26',
         color: '#fff'
     }).then((result) => {
         if (result.isConfirmed) {
             const hoje = new Date().toISOString().split('T')[0];
+            const faturamentoAtual = document.getElementById('faturamentoMes').innerText;
+            
+            // 1. Salva o ciclo que termina no histórico
+            const dadosWipeParaSalvar = {
+                inicio: dataInicioWipe,
+                fim: hoje,
+                faturamento: faturamentoAtual
+            };
+            db.ref('configuracoes/historicoWipes').push(dadosWipeParaSalvar);
+
+            // 2. Define a nova data de início
             db.ref('configuracoes/ultimoWipe').set(hoje);
-            saveLog("WIPE", "Iniciou um novo ciclo de wipe.");
-            Swal.fire({ icon: 'success', title: 'Ciclo Atualizado!', background: '#1e293b', color: '#fff' });
+            
+            saveLog("WIPE", `Novo ciclo iniciado em ${hoje}. Antigo arquivado.`);
+            Swal.fire({ icon: 'success', title: 'Novo Ciclo Ativo!', background: '#1a1f26', color: '#fff' });
         }
     });
 }
@@ -107,7 +146,6 @@ function filtrarVencidos() {
         btnSino.style.borderColor = "var(--danger)";
         btnSino.style.background = "rgba(244, 63, 94, 0.1)";
         document.getElementById('buscaSteam').value = ''; 
-        Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'Filtro: Vencidos sem Baixa', showConfirmButton: false, timer: 2000, background: '#1e293b', color: '#fff' });
     } else {
         btnSino.style.borderColor = "var(--border)";
         btnSino.style.background = "var(--input-bg)";
@@ -117,9 +155,8 @@ function filtrarVencidos() {
 
 function carregarDados() {
     const hoje = new Date();
-    document.getElementById('dataCompra').value = hoje.toLocaleDateString('sv-SE');
+    document.getElementById('dataCompra').value = hoje.toISOString().split('T')[0];
     document.getElementById('data-atual').innerText = hoje.toLocaleDateString('pt-BR', { dateStyle: 'full' });
-    document.getElementById('filtroMes').value = hoje.getMonth();
     document.getElementById('filtroAno').value = hoje.getFullYear();
     
     db.ref('vips').on('value', (snapshot) => {
@@ -144,7 +181,8 @@ function getVipClass(tipo) {
     if (t.includes('LENDÁRIO')) return 'tag-lendario';
     if (t.includes('EXTREME')) return 'tag-extreme';
     if (t.includes('SUPREMO')) return 'tag-supremo';
-    return 'tag-unloked';
+    if (t.includes('UNLOKED')) return 'tag-unloked';
+    return 'tag-outros';
 }
 
 // ========================================================
@@ -192,26 +230,39 @@ function processarVip() {
     db.ref('vips/' + id).set(reg).then(() => {
         saveLog(idEdit ? "EDITOU" : "LANÇOU", `${nome} (${tipoVip})`);
         limparCampos();
-        Swal.fire({ icon: 'success', title: 'Salvo!', timer: 1500, showConfirmButton: false, background: '#1e293b', color: '#fff' });
+        Swal.fire({ icon: 'success', title: 'Salvo!', timer: 1500, showConfirmButton: false, background: '#1a1f26', color: '#fff' });
     });
 }
 
 // ========================================================
-// 6. RENDERIZAÇÃO DA TABELA
+// 6. RENDERIZAÇÃO DA TABELA (LOGICA DE CICLOS)
 // ========================================================
 function mostrarVips() {
     const tabela = document.getElementById('tabelaVips');
     if (!tabela) return;
     tabela.innerHTML = '';
     const hoje = new Date(); hoje.setHours(0,0,0,0);
-    const mesF = parseInt(document.getElementById('filtroMes').value);
+    
+    const wipeFiltro = document.getElementById('filtroWipe').value;
     const anoF = parseInt(document.getElementById('filtroAno').value);
     const busca = document.getElementById('buscaSteam').value.toUpperCase().trim();
 
     let totalSoma = 0, qtdVendas = 0, totalAno = 0, proximosVenc = 0;
     let planosContagem = {};
 
-    // Notificação do Sino (Cálculo independente)
+    // 1. Determina as datas limite do filtro selecionado
+    let dataInicioFiltro = dataInicioWipe;
+    let dataFimFiltro = "9999-12-31"; 
+
+    if (wipeFiltro !== "atual") {
+        const wipeAntigo = historicoWipes.find(w => w.inicio === wipeFiltro);
+        if (wipeAntigo) {
+            dataInicioFiltro = wipeAntigo.inicio;
+            dataFimFiltro = wipeAntigo.fim;
+        }
+    }
+
+    // Badge do Sino (Vencidos gerais sem baixa)
     let totalVencidosSino = 0;
     vipsGlobais.forEach(v => {
         if (v.duracao > 0 && v.vencimento !== "-" && !v.pausado && !v.baixado) {
@@ -219,7 +270,6 @@ function mostrarVips() {
             if (dVenc < hoje) totalVencidosSino++;
         }
     });
-
     const badge = document.getElementById('badge-vencidos');
     if (badge) {
         badge.innerText = totalVencidosSino;
@@ -230,7 +280,11 @@ function mostrarVips() {
 
     vipsOrdenados.forEach(vip => {
         const dC = new Date(vip.dataCompra + 'T00:00:00');
-        if (dC.getFullYear() === anoF) totalAno += (vip.valor || 0);
+        
+        // SOMA ANUAL (Sempre soma tudo do ano selecionado, independente de wipe)
+        if (dC.getFullYear() === anoF) {
+            totalAno += (vip.valor || 0);
+        }
 
         let diff = -999;
         let vencFormatado = "ÚNICO";
@@ -256,14 +310,16 @@ function mostrarVips() {
             vencFormatado = "CONGELADO";
         }
         
-        // --- LÓGICA DE EXIBIÇÃO ---
+        // --- LÓGICA DE EXIBIÇÃO POR CICLO ---
         let exibir = false;
         if (modoFiltroVencidos) {
             exibir = (vip.duracao > 0 && diff < 0 && !vip.pausado && !vip.baixado);
         } else if (busca !== "") {
             exibir = vip.nome.includes(busca);
         } else {
-            exibir = dataInicioWipe ? (vip.dataCompra >= dataInicioWipe) : (dC.getMonth() === mesF && dC.getFullYear() === anoF);
+            // Filtra pela data de compra dentro do intervalo do Wipe
+            exibir = (vip.dataCompra >= dataInicioFiltro && vip.dataCompra <= dataFimFiltro);
+            
             if (mostrarApenasAtivos && diff < 0 && !vip.pausado) exibir = false;
         }
 
@@ -297,13 +353,17 @@ function mostrarVips() {
         }
     });
 
-    // Atualiza Resumos
+    // Atualiza Resumos e Labels
     const planoPopular = Object.keys(planosContagem).length > 0 ? Object.keys(planosContagem).reduce((a, b) => planosContagem[a] > planosContagem[b] ? a : b) : "-";
     document.getElementById('planoPopular').innerText = planoPopular;
     document.getElementById('vencendoLogo').innerText = proximosVenc;
     document.getElementById('totalVendasMes').innerText = qtdVendas;
     document.getElementById('faturamentoMes').innerText = `R$ ${totalSoma.toFixed(2)}`;
     document.getElementById('resumoGeralHeader').innerText = `R$ ${totalAno.toFixed(2)}`;
+    
+    // Altera o nome do card dependendo do wipe
+    const labelFaturamento = document.getElementById('labelFaturamento');
+    labelFaturamento.innerText = wipeFiltro === "atual" ? "Faturamento do Ciclo" : "Faturamento do Wipe Selecionado";
 }
 
 // ========================================================
@@ -374,7 +434,7 @@ function editarVip(id) {
 
 function removerVip(id) { 
     Swal.fire({
-        title: 'Deletar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Sim, deletar!', background: '#1e293b', color: '#fff'
+        title: 'Deletar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Sim, deletar!', background: '#1a1f26', color: '#fff'
     }).then((result) => {
         if (result.isConfirmed) {
             saveLog("DELETOU", id);
@@ -393,5 +453,5 @@ function limparCampos() {
         btn.innerText = "LANÇAR REGISTRO";
         btn.style.background = "var(--primary)";
     }
-    document.getElementById('dataCompra').value = new Date().toLocaleDateString('sv-SE');
+    document.getElementById('dataCompra').value = new Date().toISOString().split('T')[0];
 }
