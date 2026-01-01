@@ -307,16 +307,33 @@
     </div>
 
 	<div class="dashboard">
-        <div class="card">
-            <h3 id="labelVendas">Vendas no Mês</h3>
-            <div class="value" id="totalVendasMes">0</div>
-        </div>
-        <div class="card">
-            <h3 id="labelFaturamento">Faturamento no Mês</h3>
-            <div class="value" style="color: var(--success)" id="faturamentoMes">R$ 0,00</div>
-            <button onclick="marcarNovoWipe()" title="Resetar Ciclo (Wipe)" style="position: absolute; right: 15px; bottom: 15px; background: none; border: none; cursor: pointer; font-size: 1.2rem;">🚀</button>
-        </div>
-    </div>
+	    <div class="card">
+	        <h3 id="labelVendas">Vendas no Período</h3>
+	        <div class="value" id="totalVendasMes">0</div>
+	        <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 5px;">
+	            Registros filtrados no dashboard
+	        </div>
+	    </div>
+	
+	    <div class="card" style="min-width: 320px;">
+	        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+	            <h3 id="labelFaturamento">Faturamento do Ciclo</h3>
+	            <button onclick="marcarNovoWipe()" title="Reiniciar Ciclo" 
+	                style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; transition: 0.3s;">
+	                NOVO WIPE 🚀
+	            </button>
+	        </div>
+	        
+	        <div class="value" style="color: var(--success); margin: 10px 0;" id="faturamentoMes">R$ 0,00</div>
+	        
+	        <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); pt: 10px; margin-top: 10px; padding-top: 10px;">
+	            <div class="dot" style="width: 8px; height: 8px; background: var(--warning); box-shadow: 0 0 5px var(--warning);"></div>
+	            <span style="font-size: 0.7rem; color: var(--text-dim);">
+	                Início do Ciclo: <strong id="data-inicio-span" style="color: var(--text-main);">--/--/--</strong>
+	            </span>
+	        </div>
+	    </div>
+	</div>
 
     <div class="form-section">
         <div class="form-grid">
@@ -368,4 +385,5 @@
 <script src="script.js"></script>
 </body>
 </html>
+
 
