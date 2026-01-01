@@ -334,3 +334,27 @@ function limparCampos() {
 }
 
 function filtrarVencidos() { modoFiltroVencidos = !modoFiltroVencidos; mostrarVips(); }
+
+// Coloque isso no final do seu script.js
+window.onload = () => {
+    // Define o ano atual no filtro automaticamente
+    const anoAtual = new Date().getFullYear();
+    const filtroAno = document.getElementById('filtroAno');
+    if(filtroAno) filtroAno.value = anoAtual;
+    
+    // Atualiza a data no cabeçalho
+    const dataHeader = document.getElementById('data-atual');
+    if(dataHeader) dataHeader.innerText = new Date().toLocaleDateString('pt-br', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+};
+
+let faturamentoAnual = 0;
+const anoSelecionado = document.getElementById('filtroAno').value;
+
+vipsGlobais.forEach(v => {
+    // Se o VIP foi comprado no ano selecionado, soma no anual
+    if (v.dataCompra && v.dataCompra.startsWith(anoSelecionado)) {
+        faturamentoAnual += parseFloat(v.valor || 0);
+    }
+});
+// Exibe no card de Receita Anual
+document.getElementById('resumoGeralHeader').innerText = `R$ ${faturamentoAnual.toFixed(2)}`;
