@@ -36,7 +36,7 @@
             max-height: 100px; overflow-y: auto; text-align: left; border: 1px solid var(--border);
         }
 
-        /* --- CSS ORIGINAL --- */
+        /* --- CSS BASE --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg); color: var(--text-main); padding: 20px; line-height: 1.6; }
         .container { max-width: 1240px; margin: auto; display: none; }
@@ -179,59 +179,16 @@
         .dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); animation: pulse-dot 2s infinite; }
         @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        .notification-container:hover {
-            border-color: var(--primary) !important;
-            transform: scale(1.05);
-        }
-        .notification-container:active {
-            transform: scale(0.95);
-        }
-        
-        /* --- AJUSTES PARA CELULAR (Telas menores que 768px) --- */
         @media (max-width: 768px) {
             body { padding: 10px; }
-            
             header h1 { font-size: 1.8rem; }
-        
-            /* Cards do topo em coluna única */
-            .insights-grid { grid-template-columns: 1fr; }
-            .dashboard { grid-template-columns: 1fr; }
-        
-            /* Ajuste do formulário */
-            .form-grid { 
-                grid-template-columns: 1fr !important; /* Tudo vira uma coluna só */
-                gap: 10px;
-            }
-            
-            .filter-group { grid-column: span 1 !important; }
-        
-            /* Filtros e botões de ação */
-            .filter-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-group select, .filter-group input { width: 100%; }
-            
-            .action-buttons-wrap {
-                justify-content: center;
-                margin-top: 10px;
-            }
-        
-            /* O SEGREDO PARA A TABELA NÃO QUEBRAR: Scroll Horizontal */
-            .table-container {
-                margin: 0 -10px; /* Encosta nas bordas da tela do celular */
-                border-radius: 0;
-            }
-        
-            /* Aumentar botões para facilitar o toque com o dedo */
-            .btn-mini {
-                padding: 12px 15px;
-                font-size: 0.8rem;
-            }
+            .insights-grid, .dashboard { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr !important; gap: 10px; }
+            .filter-section { flex-direction: column; align-items: stretch; }
+            .table-container { margin: 0 -10px; border-radius: 0; }
+            .btn-mini { padding: 12px 15px; font-size: 0.8rem; }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
@@ -245,27 +202,14 @@
 </div>
 
 <div class="container" id="main-app">
-<header>
+    <header>
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
             <div style="text-align: center;">
                 <h1 style="display: flex; align-items: center; gap: 15px; margin: 0;">
                     ARK<span>DEX</span>
                     <div class="notification-container" onclick="filtrarVencidos()" title="Ver Vencidos sem Baixa" style="position: relative; cursor: pointer; background: var(--input-bg); padding: 8px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; transition: 0.3s;">
                         <span style="font-size: 1.4rem;">🔔</span>
-                        <span id="badge-vencidos" style="
-                            position: absolute;
-                            top: -5px;
-                            right: -5px;
-                            background: var(--danger);
-                            color: white;
-                            border-radius: 8px;
-                            padding: 2px 6px;
-                            font-size: 0.65rem;
-                            font-weight: 800;
-                            display: none;
-                            box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
-                            border: 2px solid var(--bg);
-                        ">0</span>
+                        <span id="badge-vencidos" style="position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; border-radius: 8px; padding: 2px 6px; font-size: 0.65rem; font-weight: 800; display: none; box-shadow: 0 0 10px rgba(244, 63, 94, 0.5); border: 2px solid var(--bg);">0</span>
                     </div>
                 </h1>
                 <p id="data-atual" style="color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin-top: 5px;"></p>
@@ -281,22 +225,23 @@
     </div>
 
     <div class="filter-section">
-        <div class="filter-group"><label>Mês</label>
-            <select id="filtroMes" onchange="mostrarVips()">
-                <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
-                <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
-                <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
-                <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
-            </select>
+        <div class="filter-group">
+            <label>Histórico de Ciclo (Wipe)</label>
+            <select id="filtroWipe" onchange="mostrarVips()" style="min-width: 200px;">
+                <option value="atual">Ciclo Ativo (Agora)</option>
+                </select>
         </div>
-        <div class="filter-group"><label>Ano</label>
+        <div class="filter-group">
+            <label>Ano</label>
             <select id="filtroAno" onchange="mostrarVips()" style="width: 100px;">
-                <option value="2024">2024</option><option value="2025" selected>2025</option>
-                <option value="2026">2026</option><option value="2027">2027</option>
+                <option value="2024">2024</option>
+                <option value="2025" selected>2025</option>
+                <option value="2026">2026</option>
             </select>
         </div>
-        <div class="filter-group" style="flex-grow: 1;"><label>Pesquisar ID Steam</label>
-            <input type="text" id="buscaSteam" placeholder="Pesquisar histórico..." oninput="mostrarVips()">
+        <div class="filter-group" style="flex-grow: 1;">
+            <label>Pesquisar ID Steam</label>
+            <input type="text" id="buscaSteam" placeholder="Pesquisar no ciclo selecionado..." oninput="mostrarVips()">
         </div>
         <button id="btnFiltroAtivo" class="toggle-btn" onclick="toggleAtivos()">Apenas Ativos</button>
         <div class="action-buttons-wrap">
@@ -306,34 +251,34 @@
         </div>
     </div>
 
-	<div class="dashboard">
-	    <div class="card">
-	        <h3 id="labelVendas">Vendas no Período</h3>
-	        <div class="value" id="totalVendasMes">0</div>
-	        <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 5px;">
-	            Registros filtrados no dashboard
-	        </div>
-	    </div>
-	
-	    <div class="card" style="min-width: 320px;">
-	        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-	            <h3 id="labelFaturamento">Faturamento do Ciclo</h3>
-	            <button onclick="marcarNovoWipe()" title="Reiniciar Ciclo" 
-	                style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; transition: 0.3s;">
-	                NOVO WIPE 🚀
-	            </button>
-	        </div>
-	        
-	        <div class="value" style="color: var(--success); margin: 10px 0;" id="faturamentoMes">R$ 0,00</div>
-	        
-	        <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); pt: 10px; margin-top: 10px; padding-top: 10px;">
-	            <div class="dot" style="width: 8px; height: 8px; background: var(--warning); box-shadow: 0 0 5px var(--warning);"></div>
-	            <span style="font-size: 0.7rem; color: var(--text-dim);">
-	                Início do Ciclo: <strong id="data-inicio-span" style="color: var(--text-main);">--/--/--</strong>
-	            </span>
-	        </div>
-	    </div>
-	</div>
+    <div class="dashboard">
+        <div class="card">
+            <h3 id="labelVendas">Vendas no Ciclo</h3>
+            <div class="value" id="totalVendasMes">0</div>
+            <div style="font-size: 0.65rem; color: var(--text-dim); margin-top: 5px;">
+                Registros totais deste wipe
+            </div>
+        </div>
+    
+        <div class="card" style="min-width: 320px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h3 id="labelFaturamento">Faturamento do Ciclo</h3>
+                <button onclick="marcarNovoWipe()" title="Finalizar e Salvar Ciclo" 
+                    style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--danger); padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.6rem; font-weight: 800; transition: 0.3s;">
+                    NOVO WIPE 🚀
+                </button>
+            </div>
+            
+            <div class="value" style="color: var(--success); margin: 10px 0;" id="faturamentoMes">R$ 0,00</div>
+            
+            <div style="display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px;">
+                <div class="dot" style="width: 8px; height: 8px; background: var(--warning); box-shadow: 0 0 5px var(--warning);"></div>
+                <span style="font-size: 0.7rem; color: var(--text-dim);">
+                    Iniciado em: <strong id="data-inicio-span" style="color: var(--text-main);">--/--/--</strong>
+                </span>
+            </div>
+        </div>
+    </div>
 
     <div class="form-section">
         <div class="form-grid">
@@ -373,7 +318,7 @@
     <footer class="main-footer">
         <div class="footer-content">
             <div class="footer-brand"><h2>ARK<span>DEX</span></h2><p>Gerenciamento Profissional de Ativos.</p></div>
-            <div class="footer-status"><div class="status-item"><span class="dot"></span><span>SISTEMA CLOUD ATIVO</span> | &copy; 2025</div></div>
+            <div class="footer-status"><div class="status-item"><span class="dot"></span><span>SISTEMA CLOUD ATIVO</span> | &copy; 2026</div></div>
         </div>
     </footer>
 </div>
@@ -385,5 +330,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
-
