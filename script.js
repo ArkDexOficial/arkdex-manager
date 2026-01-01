@@ -181,21 +181,22 @@ function mostrarVips() {
                 diff = Math.ceil((dV - hoje) / (1000 * 60 * 60 * 24));
             }
 
-            if (diff >= 0 && diff <= 3) vencendo3dias++;
-            if (diff < 0 && !vip.baixado) totalVencidosSemBaixa++;
+            // Contadores para os cards do topo
+            if (diff >= 0 && diff <= 3 && !vip.pausado && vip.duracao > 0) vencendo3dias++;
+            if (diff < 0 && !vip.baixado && vip.duracao > 0) totalVencidosSemBaixa++;
 
             if (modoFiltroVencidos && (diff >= 0 || vip.baixado)) return;
 
-            // --- LÓGICA DE CORES E STATUS ---
+            // --- LÓGICA DE STATUS E CORES SOLICITADA ---
             let statusBadge = "";
             let tempoBadge = "";
-            let glowClass = ""; // Classe para o efeito visual na linha
+            let glowClass = ""; 
 
             if (vip.pausado) {
                 statusBadge = `<span class="badge status-paused">PAUSADO</span>`;
                 tempoBadge = `<span class="days-left days-orange">CONGELADO</span>`;
             } else if (vip.tipoVip === "OUTROS" && vip.duracao === 0) {
-                statusBadge = `<span class="badge status-perm" style="background: var(--primary); color: #000;">ITEM / PONTOS</span>`;
+                statusBadge = `<span class="badge" style="background: var(--primary); color: #000;">ITEM / PONTOS</span>`;
                 tempoBadge = `<span class="days-left days-perm">ENTREGUE</span>`;
             } else if (vip.duracao === 0) {
                 statusBadge = `<span class="badge status-perm">PERMANENTE</span>`;
@@ -203,28 +204,26 @@ function mostrarVips() {
             } else if (diff < 0) {
                 statusBadge = `<span class="badge status-expired">VENCIDO</span>`;
                 tempoBadge = `<span class="days-left days-red">0 DIAS</span>`;
-                glowClass = "glow-red"; // Fica vermelho se venceu e não deu baixa
+                glowClass = "glow-red"; // Vencido pulsa vermelho
             } else {
                 statusBadge = `<span class="badge status-active">ATIVO</span>`;
                 
-                // --- NOVO SISTEMA DE CORES SOLICITADO ---
                 if (diff <= 3) {
                     tempoBadge = `<span class="days-left days-red">${diff} DIAS</span>`;
-                    glowClass = "glow-red"; // VERMELHO PULSANTE
+                    glowClass = "glow-red"; // PULSANTE VERMELHO
                 } else if (diff <= 5) {
                     tempoBadge = `<span class="days-left days-orange">${diff} DIAS</span>`;
-                    glowClass = "glow-orange"; // AMARELO ALERTA
+                    glowClass = "glow-orange"; // PULSANTE AMARELO
                 } else {
                     tempoBadge = `<span class="days-left days-green">${diff} DIAS</span>`;
-                    glowClass = ""; // VERDE NORMAL (SEM EFEITO)
+                    glowClass = ""; // VERDE NORMAL
                 }
             }
             
-            // --- RENDERIZAÇÃO DA LINHA ---
             tabela.innerHTML += `
                 <tr class="${vip.baixado ? 'row-baixa' : ''} ${vip.pausado ? 'row-paused' : ''}">
                     <td class="steam-id-wrap ${glowClass}">
-                        <div style="font-weight:800; color:var(--text-main); white-space: pre-line;">${vip.nome}</div>
+                        <div style="font-weight:800; color:var(--text-main);">${vip.nome}</div>
                         <div style="margin-top:6px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">
                             <span class="vip-tag ${getVipClass(vip.tipoVip)}">${vip.tipoVip}</span>
                             ${vip.obs ? `<span style="font-size:0.7rem; color:var(--warning); background: rgba(251,191,36,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(251,191,36,0.2);">Obs: ${vip.obs}</span>` : ''}
@@ -245,6 +244,15 @@ function mostrarVips() {
                 </tr>`;
         }
     });
+
+    document.getElementById('faturamentoMes').innerText = `R$ ${faturamentoSoma.toFixed(2)}`;
+    document.getElementById('totalVendasMes').innerText = vendasContador;
+    document.getElementById('vencendoLogo').innerText = vencendo3dias;
+    
+    const badge = document.getElementById('badge-vencidos');
+    badge.innerText = totalVencidosSemBaixa;
+    badge.style.display = totalVencidosSemBaixa > 0 ? 'block' : 'none';
+}
 
     // Atualização dos Painéis e Badge
     document.getElementById('faturamentoMes').innerText = `R$ ${faturamentoSoma.toFixed(2)}`;
@@ -307,5 +315,6 @@ function carregarHistoricoWipes() {
         });
     });
 }
+
 
 
