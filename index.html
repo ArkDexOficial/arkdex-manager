@@ -374,6 +374,7 @@
     const auth = firebase.auth();
 
     let mostrarApenasAtivos = false;
+    let modoFiltroVencidos = false;
     let vipsGlobais = [];
 
     function login() {
@@ -414,40 +415,33 @@
     }
 
     function filtrarVencidos() {
-        const hoje = new Date();
-        hoje.setHours(0, 0, 0, 0);
-    
-        // Filtra no banco todo quem venceu e não tem baixa
-        const listaVencidos = vipsGlobais.filter(v => {
-            if (v.duracao > 0 && v.vencimento !== "-" && !v.pausado && !v.baixado) {
-                const dV = new Date(v.vencimento + 'T12:00:00');
-                return dV < hoje;
-            }
-            return false;
-        });
-    
-        if (listaVencidos.length === 0) {
+        modoFiltroVencidos = !modoFiltroVencidos; // Liga/Desliga o modo sino
+        
+        const btnSino = document.querySelector('.notification-container');
+        
+        if (modoFiltroVencidos) {
+            // Estilo visual para indicar que o filtro está ativo
+            btnSino.style.borderColor = "var(--danger)";
+            btnSino.style.background = "rgba(244, 63, 94, 0.1)";
+            document.getElementById('buscaSteam').value = ''; // Limpa busca
+            
             Swal.fire({
-                icon: 'success',
-                title: 'Tudo em dia!',
-                text: 'Não há VIPs vencidos aguardando baixa.',
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: 'Mostrando apenas VIPs vencidos (Global)',
+                showConfirmButton: false,
+                timer: 2000,
                 background: '#1e293b',
                 color: '#fff'
             });
-            return;
+        } else {
+            // Volta ao normal
+            btnSino.style.borderColor = "var(--border)";
+            btnSino.style.background = "var(--input-bg)";
         }
-    
-        // Se clicar no sino, ele preenche a busca com o primeiro nome da lista para "filtrar"
-        // Ou você pode apenas listar os nomes em um alerta:
-        const nomes = listaVencidos.map(v => v.nome).join('<br>');
-        Swal.fire({
-            title: 'VIPs Pendentes de Baixa',
-            html: `<div style="text-align:left; font-size:0.9rem;">${nomes}</div>`,
-            icon: 'warning',
-            background: '#1e293b',
-            color: '#fff',
-            confirmButtonText: 'Entendido'
-        });
+        
+        mostrarVips(); // Recarrega a tabela com o novo filtro
     }
     
     function carregarDados() {
@@ -594,7 +588,7 @@
                 const dClass = diff <= 3 ? 'days-red' : (diff <= 5 ? 'days-orange' : 'days-green');
                 
                 if (diff <= 3 && diff >= 0) cellGlowClass = "glow-red";
-                else if (diff < 0) cellGlowClass = ""; // Vencidos não brilham, ficam apagados na baixa
+                else if (diff < 0) cellGlowClass = ""; 
     
                 statusBadge = `<span class="badge ${diff < 0 ? 'status-expired' : 'status-active'}">${diff < 0 ? 'VENCIDO' : 'ATIVO'}</span>`;
                 tempoBadge = `<span class="days-left ${dClass}">${diff < 0 ? 0 : diff} DIAS</span>`;
@@ -606,8 +600,16 @@
                 vencFormatado = "CONGELADO";
             }
             
-            let exibir = busca !== "" ? vip.nome.includes(busca) : (dC.getMonth() === mesF && dC.getFullYear() === anoF);
-            if (mostrarApenasAtivos && vip.duracao > 0 && diff < 0 && !vip.pausado) exibir = false;
+            // --- NOVA LÓGICA DE EXIBIÇÃO ---
+            let exibir = false;
+            if (modoFiltroVencidos) {
+                // Se o sino estiver ativo, ignora filtros e mostra apenas vencidos sem baixa
+                exibir = (vip.duracao > 0 && diff < 0 && !vip.pausado && !vip.baixado);
+            } else {
+                // Filtro normal por busca ou por data (mês/ano)
+                exibir = busca !== "" ? vip.nome.includes(busca) : (dC.getMonth() === mesF && dC.getFullYear() === anoF);
+                if (mostrarApenasAtivos && vip.duracao > 0 && diff < 0 && !vip.pausado) exibir = false;
+            }
     
             if (exibir) {
                 totalSoma += (vip.valor || 0);
@@ -639,7 +641,6 @@
             }
         });
     
-        // MENSAGEM DE "NÃO ENCONTRADO"
         if (qtdVendas === 0) {
             tabela.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--text-dim); font-style: italic;">Nenhum VIP encontrado.</td></tr>`;
         }
@@ -703,7 +704,7 @@
     function darBaixa(id) {
         Swal.fire({
             title: 'Confirmar Baixa?',
-            text: "Isso marcará que o jogador já recebeu os itens/kits.",
+            text: "Isso marcará que o VIP já foi removido.",
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#10b981',
@@ -770,6 +771,7 @@
     
 </body>
 </html>
+
 
 
 
