@@ -413,6 +413,43 @@
         });
     }
 
+    function filtrarVencidos() {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+    
+        // Filtra no banco todo quem venceu e não tem baixa
+        const listaVencidos = vipsGlobais.filter(v => {
+            if (v.duracao > 0 && v.vencimento !== "-" && !v.pausado && !v.baixado) {
+                const dV = new Date(v.vencimento + 'T12:00:00');
+                return dV < hoje;
+            }
+            return false;
+        });
+    
+        if (listaVencidos.length === 0) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Tudo em dia!',
+                text: 'Não há VIPs vencidos aguardando baixa.',
+                background: '#1e293b',
+                color: '#fff'
+            });
+            return;
+        }
+    
+        // Se clicar no sino, ele preenche a busca com o primeiro nome da lista para "filtrar"
+        // Ou você pode apenas listar os nomes em um alerta:
+        const nomes = listaVencidos.map(v => v.nome).join('<br>');
+        Swal.fire({
+            title: 'VIPs Pendentes de Baixa',
+            html: `<div style="text-align:left; font-size:0.9rem;">${nomes}</div>`,
+            icon: 'warning',
+            background: '#1e293b',
+            color: '#fff',
+            confirmButtonText: 'Entendido'
+        });
+    }
+    
     function carregarDados() {
         const hoje = new Date();
         const dataLocal = hoje.toLocaleDateString('sv-SE'); 
@@ -519,27 +556,31 @@
         const mesF = parseInt(document.getElementById('filtroMes').value);
         const anoF = parseInt(document.getElementById('filtroAno').value);
         const busca = document.getElementById('buscaSteam').value.toUpperCase().trim();
-
+    
         let totalSoma = 0, qtdVendas = 0, totalAno = 0, proximosVenc = 0;
         let planosContagem = {};
-
-        // Labels dinâmicas
-        const labelVendas = document.getElementById('labelVendas');
-        const labelFaturamento = document.getElementById('labelFaturamento');
-        if (busca !== "") {
-            labelVendas.innerText = "Compras deste ID";
-            labelFaturamento.innerText = "Total Gasto pelo ID";
-        } else {
-            labelVendas.innerText = "Vendas no Mês";
-            labelFaturamento.innerText = "Faturamento no Mês";
+    
+        // 🔔 LÓGICA DO SINO: Contagem Global de Vencidos sem Baixa
+        let totalVencidosSino = 0;
+        vipsGlobais.forEach(v => {
+            if (v.duracao > 0 && v.vencimento !== "-" && !v.pausado && !v.baixado) {
+                const dVenc = new Date(v.vencimento + 'T12:00:00');
+                if (dVenc < hoje) totalVencidosSino++;
+            }
+        });
+    
+        const badge = document.getElementById('badge-vencidos');
+        if (badge) {
+            badge.innerText = totalVencidosSino;
+            badge.style.display = totalVencidosSino > 0 ? 'block' : 'none';
         }
-
+    
         const vipsOrdenados = [...vipsGlobais].sort((a,b) => new Date(b.dataCompra) - new Date(a.dataCompra));
-
+    
         vipsOrdenados.forEach(vip => {
             const dC = new Date(vip.dataCompra + 'T00:00:00');
             if (dC.getFullYear() === anoF) totalAno += (vip.valor || 0);
-
+    
             let diff = -999;
             let vencFormatado = "ÚNICO";
             let statusBadge = `<span class="badge status-perm">PERMANENTE</span>`;
@@ -551,12 +592,14 @@
                 diff = Math.ceil((dV - hoje) / (1000 * 60 * 60 * 24));
                 vencFormatado = vip.vencimento.split('-').reverse().join('/');
                 const dClass = diff <= 3 ? 'days-red' : (diff <= 5 ? 'days-orange' : 'days-green');
-                if (diff <= 3) cellGlowClass = "glow-red";
-                else if (diff <= 5) cellGlowClass = "glow-orange";
+                
+                if (diff <= 3 && diff >= 0) cellGlowClass = "glow-red";
+                else if (diff < 0) cellGlowClass = ""; // Vencidos não brilham, ficam apagados na baixa
+    
                 statusBadge = `<span class="badge ${diff < 0 ? 'status-expired' : 'status-active'}">${diff < 0 ? 'VENCIDO' : 'ATIVO'}</span>`;
                 tempoBadge = `<span class="days-left ${dClass}">${diff < 0 ? 0 : diff} DIAS</span>`;
             }
-
+    
             if (vip.pausado) {
                 statusBadge = `<span class="badge status-paused">PAUSADO</span>`;
                 tempoBadge = `<span class="days-left days-orange">${vip.diasRestantesAoPausar} DIAS</span>`;
@@ -565,16 +608,16 @@
             
             let exibir = busca !== "" ? vip.nome.includes(busca) : (dC.getMonth() === mesF && dC.getFullYear() === anoF);
             if (mostrarApenasAtivos && vip.duracao > 0 && diff < 0 && !vip.pausado) exibir = false;
-
+    
             if (exibir) {
                 totalSoma += (vip.valor || 0);
                 qtdVendas++;
                 if (!vip.pausado && vip.duracao > 0 && diff >= 0 && diff <= 3) proximosVenc++;
                 planosContagem[vip.tipoVip] = (planosContagem[vip.tipoVip] || 0) + 1;
-
+    
                 let btnBaixa = (diff < 0 && vip.duracao > 0 && !vip.pausado) ? (vip.baixado ? `<button class="btn-mini btn-baixa done">✅ OK</button>` : `<button class="btn-mini btn-baixa" onclick="darBaixa('${vip.id}')">BAIXA</button>`) : "";
                 let btnPause = (vip.duracao > 0 && (diff >= 0 || vip.pausado)) ? (vip.pausado ? `<button class="btn-mini btn-baixa" onclick="retomarVip('${vip.id}')">▶ RETOMAR</button>` : `<button class="btn-mini btn-pause" onclick="pausarVip('${vip.id}', ${diff})">⏸ PAUSAR</button>`) : "";
-
+    
                 tabela.innerHTML += `
                     <tr class="${vip.baixado ? 'row-baixa' : ''} ${vip.pausado ? 'row-paused' : ''}">
                         <td class="${cellGlowClass}">
@@ -595,7 +638,12 @@
                     </tr>`;
             }
         });
-
+    
+        // MENSAGEM DE "NÃO ENCONTRADO"
+        if (qtdVendas === 0) {
+            tabela.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--text-dim); font-style: italic;">Nenhum VIP encontrado.</td></tr>`;
+        }
+    
         const planoMaisVendido = Object.keys(planosContagem).length > 0 ? Object.keys(planosContagem).reduce((a, b) => planosContagem[a] > planosContagem[b] ? a : b) : "-";
         document.getElementById('planoPopular').innerText = planoMaisVendido;
         document.getElementById('vencendoLogo').innerText = proximosVenc;
@@ -722,6 +770,7 @@
     
 </body>
 </html>
+
 
 
 
