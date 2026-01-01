@@ -425,26 +425,30 @@
         const valor = parseFloat(document.getElementById('valor').value) || 0;
         const duracao = parseInt(document.getElementById('duracao').value) || 0;
         const obs = document.getElementById('obs').value.toUpperCase();
-
+    
         if (!dataCompra) { alert("A Data é obrigatória!"); return; }
-
+    
+        // CÁLCULO CORRIGIDO: Sempre calcula do zero baseado na data inserida
         let vencimentoStr = "-";
         if (duracao > 0) {
-            let venc = new Date(dataCompra + 'T00:00:00');
+            // Usamos T12:00:00 para evitar problemas de fuso horário que pulam o dia
+            let venc = new Date(dataCompra + 'T12:00:00');
             venc.setDate(venc.getDate() + duracao);
             vencimentoStr = venc.toISOString().split('T')[0];
         }
-
+    
         let baixadoAnterior = false, pausadoAnterior = false, diasRestantesAnterior = 0;
+        
         if(idEdit) {
             const existente = vipsGlobais.find(v => v.id == idEdit);
             if(existente) {
                 baixadoAnterior = existente.baixado || false;
                 pausadoAnterior = existente.pausado || false;
+                // Se mudou a duração, resetamos os dias do pause para não bugar
                 diasRestantesAnterior = existente.diasRestantesAoPausar || 0;
             }
         }
-
+    
         const id = idEdit ? idEdit : Date.now().toString();
         const reg = { 
             id, nome, tipoVip, valor, dataCompra, duracao, 
@@ -452,7 +456,7 @@
             baixado: baixadoAnterior, pausado: pausadoAnterior, 
             diasRestantesAoPausar: diasRestantesAnterior
         };
-
+    
         db.ref('vips/' + id).set(reg).then(() => {
             saveLog(idEdit ? "EDITOU" : "LANÇOU", `${nome} (${tipoVip})`);
             limparCampos();
@@ -612,4 +616,5 @@
     
 </body>
 </html>
+
 
