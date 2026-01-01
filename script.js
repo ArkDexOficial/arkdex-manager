@@ -47,19 +47,25 @@ function logout() { auth.signOut(); }
 // ========================================================
 function processarVip() {
     const idEdit = document.getElementById('edit-id').value;
-    const nomesRaw = document.getElementById('nome').value.trim(); // Pega o conteúdo do textarea
+    const nomesRaw = document.getElementById('nome').value.trim(); // ID Steam
     const tipoVip = document.getElementById('tipoVip').value;
     const dataCompra = document.getElementById('dataCompra').value;
     const valor = parseFloat(document.getElementById('valor').value) || 0;
     const duracao = parseInt(document.getElementById('duracao').value) || 0;
     const obs = document.getElementById('obs').value.toUpperCase();
 
-    if (!nomesRaw || !dataCompra) {
-        Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha os IDs e a Data!', background: '#1a1f26', color: '#fff' });
+    // AGORA APENAS A DATA É OBRIGATÓRIA
+    if (!dataCompra) {
+        Swal.fire({ 
+            icon: 'warning', 
+            title: 'Atenção', 
+            text: 'A data da compra é obrigatória!', 
+            background: '#1a1f26', 
+            color: '#fff' 
+        });
         return;
     }
 
-    // Se for edição, mantém o ID original. Se for novo, gera um.
     const idRef = idEdit || Date.now().toString();
     
     let vencimentoStr = "-";
@@ -71,16 +77,29 @@ function processarVip() {
 
     const reg = { 
         id: idRef, 
-        nome: nomesRaw.toUpperCase(), // Salva o texto do textarea com as quebras de linha
-        tipoVip, valor, dataCompra, duracao, 
-        vencimento: vencimentoStr, obs, 
-        baixado: false, pausado: false 
+        // Se o ID estiver vazio, ele salva como "NÃO INFORMADO" para não ficar em branco na tabela
+        nome: nomesRaw ? nomesRaw.toUpperCase() : "ID NÃO INFORMADO", 
+        tipoVip, 
+        valor, 
+        dataCompra, 
+        duracao, 
+        vencimento: vencimentoStr, 
+        obs, 
+        baixado: false, 
+        pausado: false 
     };
 
     db.ref('vips/' + idRef).set(reg).then(() => {
-        saveLog(idEdit ? "EDITOU" : "LANÇOU", nomesRaw.split('\n')[0] + "...");
+        saveLog(idEdit ? "EDITOU" : "LANÇOU", (nomesRaw ? nomesRaw.split('\n')[0] : "SEM ID") + "...");
         limparCampos();
-        Swal.fire({ icon: 'success', title: 'Sucesso!', timer: 800, showConfirmButton: false, background: '#1a1f26', color: '#fff' });
+        Swal.fire({ 
+            icon: 'success', 
+            title: 'Sucesso!', 
+            timer: 800, 
+            showConfirmButton: false, 
+            background: '#1a1f26', 
+            color: '#fff' 
+        });
     });
 }
 
@@ -149,11 +168,10 @@ function mostrarVips() {
 
     vipsGlobais.forEach(vip => {
         const coincideBusca = (busca === "" || vip.nome.includes(busca));
-        
-        // Se houver busca, somar faturamento histórico desse ID em todos os wipes
         if (coincideBusca) faturamentoSoma += (vip.valor || 0);
 
         const pertenceWipe = (wipeFiltro === "atual") ? (vip.dataCompra >= dataInicioWipe) : (vip.dataCompra >= wipeFiltro);
+        
         if (coincideBusca && pertenceWipe) {
             vendasContador++;
             
@@ -166,31 +184,50 @@ function mostrarVips() {
             if (diff >= 0 && diff <= 3) vencendo3dias++;
             if (diff < 0 && !vip.baixado) totalVencidosSemBaixa++;
 
-            // Filtro da Badge do Sino
             if (modoFiltroVencidos && (diff >= 0 || vip.baixado)) return;
 
-            let statusBadge = vip.pausado ? `<span class="badge status-paused">PAUSADO</span>` :
-                             (vip.duracao === 0 ? `<span class="badge status-perm">PERMANENTE</span>` : 
-                             (diff < 0 ? `<span class="badge status-expired">VENCIDO</span>` : `<span class="badge status-active">ATIVO</span>`));
-            
-            let tempoBadge = `<span class="days-left ${diff < 0 ? 'days-red' : (diff <= 5 ? 'days-orange' : 'days-green')}">${diff < 0 ? 0 : (vip.duracao === 0 ? 'ITEM' : diff)} DIAS</span>`;
-            let glowClass = (diff <= 3 && diff >= 0 && !vip.pausado) ? "glow-red" : "";
+            // --- LÓGICA DE STATUS: ITEM / PONTOS ---
+            let statusBadge = "";
+            let tempoBadge = "";
 
+            if (vip.pausado) {
+                statusBadge = `<span class="badge status-paused">PAUSADO</span>`;
+                tempoBadge = `<span class="days-left days-orange">CONGELADO</span>`;
+            } else if (vip.tipoVip === "OUTROS" && vip.duracao === 0) {
+                statusBadge = `<span class="badge status-perm" style="background: var(--primary); color: #000;">ITEM / PONTOS</span>`;
+                tempoBadge = `<span class="days-left days-perm">ENTREGUE</span>`;
+            } else if (vip.duracao === 0) {
+                statusBadge = `<span class="badge status-perm">PERMANENTE</span>`;
+                tempoBadge = `<span class="days-left days-perm">INFINITO</span>`;
+            } else if (diff < 0) {
+                statusBadge = `<span class="badge status-expired">VENCIDO</span>`;
+                tempoBadge = `<span class="days-left days-red">0 DIAS</span>`;
+            } else {
+                statusBadge = `<span class="badge status-active">ATIVO</span>`;
+                tempoBadge = `<span class="days-left ${diff <= 5 ? 'days-orange' : 'days-green'}">${diff} DIAS</span>`;
+            }
+            
+            let glowClass = (diff <= 3 && diff >= 0 && !vip.pausado && vip.duracao > 0) ? "glow-red" : "";
+
+            // --- RENDERIZAÇÃO DA LINHA ---
             tabela.innerHTML += `
                 <tr class="${vip.baixado ? 'row-baixa' : ''} ${vip.pausado ? 'row-paused' : ''}">
                     <td class="steam-id-wrap ${glowClass}">
-                        <strong>${vip.nome}</strong><br>
-                        <span class="vip-tag ${getVipClass(vip.tipoVip)}">${vip.tipoVip}</span>
+                        <div style="font-weight:800; color:var(--text-main); white-space: pre-line;">${vip.nome}</div>
+                        <div style="margin-top:6px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">
+                            <span class="vip-tag ${getVipClass(vip.tipoVip)}">${vip.tipoVip}</span>
+                            ${vip.obs ? `<span style="font-size:0.7rem; color:var(--warning); background: rgba(251,191,36,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(251,191,36,0.2);">Obs: ${vip.obs}</span>` : ''}
+                        </div>
                     </td>
                     <td style="color:var(--success); font-weight:800">R$ ${vip.valor.toFixed(2)}</td>
                     <td>${vip.dataCompra.split('-').reverse().join('/')}</td>
                     <td>${vip.vencimento === "-" ? "ÚNICO" : vip.vencimento.split('-').reverse().join('/')}</td>
-                    <td>${statusBadge} ${tempoBadge}</td>
+                    <td><div style="display:flex; flex-direction:column; gap:5px;">${statusBadge} ${tempoBadge}</div></td>
                     <td>
                         <div class="action-buttons-wrap">
                             <button class="btn-mini btn-edit" onclick="editarVip('${vip.id}')">EDITAR</button>
-                            <button class="btn-mini btn-pause" onclick="togglePausa('${vip.id}')">${vip.pausado ? 'VOLTAR' : 'PAUSAR'}</button>
-                            <button class="btn-mini btn-baixa ${vip.baixado ? 'done' : ''}" onclick="marcarBaixa('${vip.id}')">${vip.baixado ? 'CONCLUÍDO' : 'DAR BAIXA'}</button>
+                            <button class="btn-mini btn-pause" onclick="togglePausa('${vip.id}')">${vip.pausado ? 'RETOMAR' : 'PAUSAR'}</button>
+                            <button class="btn-mini btn-baixa ${vip.baixado ? 'done' : ''}" onclick="marcarBaixa('${vip.id}')">${vip.baixado ? 'FINALIZADO' : 'BAIXA'}</button>
                             <button class="btn-mini btn-del" onclick="removerVip('${vip.id}')">DEL</button>
                         </div>
                     </td>
@@ -202,7 +239,7 @@ function mostrarVips() {
     document.getElementById('faturamentoMes').innerText = `R$ ${faturamentoSoma.toFixed(2)}`;
     document.getElementById('totalVendasMes').innerText = vendasContador;
     document.getElementById('vencendoLogo').innerText = vencendo3dias;
-    document.getElementById('labelFaturamento').innerText = busca !== "" ? "Faturamento Total do ID" : "Faturamento do Ciclo";
+    document.getElementById('labelFaturamento').innerText = busca !== "" ? "Faturamento Histórico" : "Faturamento do Ciclo";
     
     const badge = document.getElementById('badge-vencidos');
     badge.innerText = totalVencidosSemBaixa;
@@ -260,3 +297,4 @@ function carregarHistoricoWipes() {
         });
     });
 }
+
