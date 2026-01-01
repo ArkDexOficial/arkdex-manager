@@ -386,7 +386,6 @@
         const hoje = new Date();
         const dataLocal = hoje.toLocaleDateString('sv-SE'); 
         document.getElementById('dataCompra').value = dataLocal;
-        
         document.getElementById('data-atual').innerText = hoje.toLocaleDateString('pt-BR', { dateStyle: 'full' });
         document.getElementById('filtroMes').value = hoje.getMonth();
         document.getElementById('filtroAno').value = hoje.getFullYear();
@@ -465,18 +464,17 @@
         const tabela = document.getElementById('tabelaVips');
         if (!tabela) return;
         tabela.innerHTML = '';
-        
         const hoje = new Date(); hoje.setHours(0,0,0,0);
         const mesF = parseInt(document.getElementById('filtroMes').value);
         const anoF = parseInt(document.getElementById('filtroAno').value);
         const busca = document.getElementById('buscaSteam').value.toUpperCase().trim();
-    
+
         let totalSoma = 0, qtdVendas = 0, totalAno = 0, proximosVenc = 0;
         let planosContagem = {};
-    
+
+        // Labels dinâmicas
         const labelVendas = document.getElementById('labelVendas');
         const labelFaturamento = document.getElementById('labelFaturamento');
-    
         if (busca !== "") {
             labelVendas.innerText = "Compras deste ID";
             labelFaturamento.innerText = "Total Gasto pelo ID";
@@ -484,48 +482,48 @@
             labelVendas.innerText = "Vendas no Mês";
             labelFaturamento.innerText = "Faturamento no Mês";
         }
-    
+
         const vipsOrdenados = [...vipsGlobais].sort((a,b) => new Date(b.dataCompra) - new Date(a.dataCompra));
-    
+
         vipsOrdenados.forEach(vip => {
             const dC = new Date(vip.dataCompra + 'T00:00:00');
-            let exibir = false;
-
-            if (busca !== "") {
-                if (vip.nome.includes(busca)) exibir = true;
-            } else {
-                if (dC.getMonth() === mesF && dC.getFullYear() === anoF) exibir = true;
-            }
-    
             if (dC.getFullYear() === anoF) totalAno += (vip.valor || 0);
-    
+
+            let diff = -999;
+            let vencFormatado = "ÚNICO";
+            let statusBadge = `<span class="badge status-perm">PERMANENTE</span>`;
+            let tempoBadge = `<span class="days-left days-perm">ITEM/KIT</span>`;
+            let cellGlowClass = "";
+            
+            if (vip.duracao > 0 && vip.vencimento !== "-") {
+                const dV = new Date(vip.vencimento + 'T00:00:00');
+                diff = Math.ceil((dV - hoje) / (1000 * 60 * 60 * 24));
+                vencFormatado = vip.vencimento.split('-').reverse().join('/');
+                const dClass = diff <= 3 ? 'days-red' : (diff <= 5 ? 'days-orange' : 'days-green');
+                if (diff <= 3) cellGlowClass = "glow-red";
+                else if (diff <= 5) cellGlowClass = "glow-orange";
+                statusBadge = `<span class="badge ${diff < 0 ? 'status-expired' : 'status-active'}">${diff < 0 ? 'VENCIDO' : 'ATIVO'}</span>`;
+                tempoBadge = `<span class="days-left ${dClass}">${diff < 0 ? 0 : diff} DIAS</span>`;
+            }
+
+            if (vip.pausado) {
+                statusBadge = `<span class="badge status-paused">PAUSADO</span>`;
+                tempoBadge = `<span class="days-left days-orange">${vip.diasRestantesAoPausar} DIAS</span>`;
+                vencFormatado = "CONGELADO";
+            }
+            
+            let exibir = busca !== "" ? vip.nome.includes(busca) : (dC.getMonth() === mesF && dC.getFullYear() === anoF);
+            if (mostrarApenasAtivos && vip.duracao > 0 && diff < 0 && !vip.pausado) exibir = false;
+
             if (exibir) {
                 totalSoma += (vip.valor || 0);
                 qtdVendas++;
-                
-                let diff = -999;
-                let vencFormatado = "ÚNICO";
-                let statusBadge = `<span class="badge status-perm">PERMANENTE</span>`;
-                let tempoBadge = `<span class="days-left days-perm">ITEM/KIT</span>`;
-                let cellGlowClass = "";
-                
-                if (vip.duracao > 0 && vip.vencimento !== "-") {
-                    const dV = new Date(vip.vencimento + 'T00:00:00');
-                    diff = Math.ceil((dV - hoje) / (1000 * 60 * 60 * 24));
-                    vencFormatado = vip.vencimento.split('-').reverse().join('/');
-                    const dClass = diff <= 3 ? 'days-red' : (diff <= 5 ? 'days-orange' : 'days-green');
-                    if (diff <= 3) cellGlowClass = "glow-red";
-                    else if (diff <= 5) cellGlowClass = "glow-orange";
-                    statusBadge = `<span class="badge ${diff < 0 ? 'status-expired' : 'status-active'}">${diff < 0 ? 'VENCIDO' : 'ATIVO'}</span>`;
-                    tempoBadge = `<span class="days-left ${dClass}">${diff < 0 ? 0 : diff} DIAS</span>`;
-                    if (!vip.pausado && diff >= 0 && diff <= 3) proximosVenc++;
-                }
-    
-                if (vip.pausado) {
-                    statusBadge = `<span class="badge status-paused">PAUSADO</span>`;
-                    vencFormatado = "CONGELADO";
-                }
-    
+                if (!vip.pausado && vip.duracao > 0 && diff >= 0 && diff <= 3) proximosVenc++;
+                planosContagem[vip.tipoVip] = (planosContagem[vip.tipoVip] || 0) + 1;
+
+                let btnBaixa = (diff < 0 && vip.duracao > 0 && !vip.pausado) ? (vip.baixado ? `<button class="btn-mini btn-baixa done">✅ OK</button>` : `<button class="btn-mini btn-baixa" onclick="darBaixa('${vip.id}')">BAIXA</button>`) : "";
+                let btnPause = (vip.duracao > 0 && (diff >= 0 || vip.pausado)) ? (vip.pausado ? `<button class="btn-mini btn-baixa" onclick="retomarVip('${vip.id}')">▶ RETOMAR</button>` : `<button class="btn-mini btn-pause" onclick="pausarVip('${vip.id}', ${diff})">⏸ PAUSAR</button>`) : "";
+
                 tabela.innerHTML += `
                     <tr class="${vip.baixado ? 'row-baixa' : ''} ${vip.pausado ? 'row-paused' : ''}">
                         <td class="${cellGlowClass}">
@@ -537,21 +535,22 @@
                         <td style="font-weight:700">${vencFormatado}</td>
                         <td>${statusBadge} ${tempoBadge}</td>
                         <td>
-                            <button class="btn-mini btn-edit" onclick="editarVip('${vip.id}')">EDITAR</button>
+                            <div style="display:flex; gap:5px;">
+                                ${btnPause} ${btnBaixa}
+                                <button class="btn-mini btn-edit" onclick="editarVip('${vip.id}')">EDITAR</button>
+                                <button class="btn-mini btn-del" onclick="removerVip('${vip.id}')">DEL</button>
+                            </div>
                         </td>
                     </tr>`;
-                
-                planosContagem[vip.tipoVip] = (planosContagem[vip.tipoVip] || 0) + 1;
             }
         });
-    
+
         const planoMaisVendido = Object.keys(planosContagem).length > 0 ? Object.keys(planosContagem).reduce((a, b) => planosContagem[a] > planosContagem[b] ? a : b) : "-";
-        
         document.getElementById('planoPopular').innerText = planoMaisVendido;
+        document.getElementById('vencendoLogo').innerText = proximosVenc;
         document.getElementById('totalVendasMes').innerText = qtdVendas;
         document.getElementById('faturamentoMes').innerText = `R$ ${totalSoma.toFixed(2)}`;
         document.getElementById('resumoGeralHeader').innerText = `R$ ${totalAno.toFixed(2)}`;
-        document.getElementById('vencendoLogo').innerText = proximosVenc;
     }
 
     function pausarVip(id, diasRestantes) {
@@ -572,6 +571,13 @@
         }
     }
 
+    function darBaixa(id) {
+        if(confirm("Confirmar baixa?")) {
+            db.ref('vips/' + id).update({ baixado: true });
+            saveLog("BAIXOU", id);
+        }
+    }
+
     function editarVip(id) {
         const v = vipsGlobais.find(v => v.id == id);
         if(!v) return;
@@ -582,11 +588,9 @@
         document.getElementById('valor').value = v.valor;
         document.getElementById('duracao').value = v.duracao;
         document.getElementById('obs').value = v.obs;
-        
         const btn = document.getElementById('btn-add');
         btn.innerText = "ALTERAR DADOS";
         btn.style.background = "#fbbf24";
-        
         window.scrollTo({top: 0, behavior: 'smooth'});
     }
 
@@ -602,10 +606,10 @@
         const btn = document.getElementById('btn-add');
         btn.innerText = "LANÇAR REGISTRO";
         btn.style.background = "var(--primary)";
-        const hoje = new Date().toLocaleDateString('sv-SE');
-        document.getElementById('dataCompra').value = hoje;
+        document.getElementById('dataCompra').value = new Date().toLocaleDateString('sv-SE');
     }
 </script>
     
 </body>
 </html>
+
