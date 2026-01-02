@@ -505,7 +505,7 @@
         dVenc.setDate(dVenc.getDate() + dias);
         const dados = { ids, tipo, dataCompra, valor, vencimento: dVenc.toISOString(), dias, obs, pausado: false, tempoRestanteAoPausar: null, baixado: false };
         let targetList = (selectedWipeIndex === "current") ? currentVipeList : wipeHistory[selectedWipeIndex].vips;
-        if (index === -1) targetList.push(dados);
+        if (index === -1) targetList.unshift(dados);
         else { targetList[index] = { ...targetList[index], ...dados }; document.getElementById('editIndex').value = "-1"; }
         salvarGeral();
     }
@@ -682,3 +682,4 @@
 </script>
 </body>
 </html>
+
