@@ -523,10 +523,19 @@
         listExibida.forEach(v => fWipeVisualizado += v.valor);
 
 	const createCard = (v, i, isFromSearchHist = false, wHistIndex = -1, wDate = "") => {
-	    const dVenc = new Date(v.vencimento);
-	    const agora = new Date();
-	    let diffMs = v.pausado ? v.tempoRestanteAoPausar : dVenc.getTime() - agora.getTime();
-	    let diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+		const dVenc = new Date(v.vencimento);
+		const agora = new Date();
+		agora.setHours(0, 0, 0, 0);
+		const vencZero = new Date(v.vencimento);
+		vencZero.setHours(0, 0, 0, 0);
+		
+		let diffDias;
+		if (v.pausado) {
+		    diffDias = v.tempoRestanteAoPausar;
+		} else {
+		    let diffMs = vencZero.getTime() - agora.getTime();
+		    diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+		}
 	    
 	    let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
 	    let statusHTML = (v.tipo === 'OUTROS' && v.dias === 0) ? `<span class="status-badge color-outros">ITENS / PONTOS</span>` : 
@@ -575,15 +584,34 @@
         lucide.createIcons();
     }
 
-    function togglePausa(index, wipeIdx) {
-        let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
-        const v = list[index];
-        const agora = new Date();
-        const venc = new Date(v.vencimento);
-        if (!v.pausado) { v.tempoRestanteAoPausar = venc.getTime() - agora.getTime(); v.pausado = true; }
-        else { v.vencimento = new Date(agora.getTime() + v.tempoRestanteAoPausar).toISOString(); v.pausado = false; }
-        salvarGeral();
-    }
+	function togglePausa(index, wipeIdx) {
+	    let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
+	    const v = list[index];
+	    
+	    const hoje = new Date();
+	    hoje.setHours(0, 0, 0, 0);
+	
+	    if (!v.pausado) {
+	        const vencimento = new Date(v.vencimento);
+	        vencimento.setHours(0, 0, 0, 0);
+	
+	        const diffMs = vencimento.getTime() - hoje.getTime();
+	        let diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+	
+	        v.tempoRestanteAoPausar = diasRestantes < 0 ? 0 : diasRestantes;
+	        v.pausado = true;
+	    } else {
+	        const novaDataVencimento = new Date();
+	        novaDataVencimento.setHours(0, 0, 0, 0);
+	        novaDataVencimento.setDate(novaDataVencimento.getDate() + v.tempoRestanteAoPausar);
+	
+	        v.vencimento = novaDataVencimento.toISOString();
+	        v.pausado = false;
+	        v.tempoRestanteAoPausar = null;
+	    }
+	
+	    salvarGeral();
+	}
 
     function darBaixa(index, wipeIdx) { 
         customConfirm("DAR BAIXA", "Marcar como concluído?", () => {
@@ -629,18 +657,20 @@
 		if(!steamId || steamId === "S / ID") return;
 		
 		let total = 0, html = '';
-		const buscarId = steamId.toUpperCase().trim();
+		// O ID que você clicou (limpo e em maiúsculo)
+		const buscarId = steamId.trim().toUpperCase(); 
 
 		const search = (list, label) => {
 			list.forEach(v => {
-				const idsNoRegistro = v.ids.toUpperCase().split(/[,/ ]+/);
-				
-				if(idsNoRegistro.includes(buscarId)) {
+				const idsArray = v.ids.toUpperCase().split(/[,/ ]+/).map(item => item.trim());
+				if(idsArray.includes(buscarId)) {
 					total += v.valor;
+					const dataFormatada = new Date(v.dataCompra + 'T12:00:00').toLocaleDateString('pt-BR');
+					
 					html += `<tr>
 								<td>${label}</td>
 								<td>${v.tipo}</td>
-								<td>${new Date(v.dataCompra + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
+								<td>${dataFormatada}</td>
 								<td>R$ ${v.valor.toFixed(2)}</td>
 							 </tr>`;
 				}
@@ -650,9 +680,10 @@
 		search(currentVipeList, "ATUAL");
 		wipeHistory.forEach(w => search(w.vips, w.date));
 
-		document.getElementById('modalPlayerId').innerText = "HISTÓRICO DO ID: " + steamId;
+		document.getElementById('modalPlayerId').innerText = "HISTÓRICO DO ID: " + buscarId;
 		document.getElementById('modalPlayerTotal').innerText = "INVESTIMENTO TOTAL: R$ " + total.toFixed(2);
-		document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center">NENHUM OUTRO REGISTRO ENCONTRADO</td></tr>';
+		document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center">NENHUM REGISTRO ENCONTRADO</td></tr>';
+		
 		document.getElementById('modalDossie').style.display = 'flex';
 	}
 
@@ -720,5 +751,6 @@
 </script>
 </body>
 </html>
+
 
 
