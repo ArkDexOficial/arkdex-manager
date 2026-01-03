@@ -522,16 +522,42 @@
         const listExibida = (selectedWipeIndex === "current") ? currentVipeList : wipeHistory[selectedWipeIndex].vips;
         listExibida.forEach(v => fWipeVisualizado += v.valor);
 
-        const createCard = (v, i, isFromSearchHist = false, wHistIndex = -1, wDate = "") => {
-            const dVenc = new Date(v.vencimento);
-            const agora = new Date();
-            let diffMs = v.pausado ? v.tempoRestanteAoPausar : dVenc.getTime() - agora.getTime();
-            let diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-            let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
-            let statusHTML = (v.tipo === 'OUTROS' && v.dias === 0) ? `<span class="status-badge color-outros">ITENS / PONTOS</span>` : (v.pausado) ? `<span class="status-badge color-yellow">PAUSADO - RESTA ${diffDias} DIAS</span>` : (v.baixado) ? `<span class="status-badge" style="background:#555">CONCLUÍDO (BAIXA)</span>` : (diffDias <= 0) ? `<span class="status-badge color-red">VENCIDO</span>` : `<span class="status-badge ${corClasse}">ATIVO - ${diffDias} DIAS</span>`;
-            let listIdx = isFromSearchHist ? wHistIndex : selectedWipeIndex;
-            return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''}" style="border-left-color: ${configVip[v.tipo].color}"><div class="info-group"><span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span><span class="info-value clickable-id" onclick="showPlayerInfo('${v.ids}')">${v.ids}</span><div><span class="badge ${configVip[v.tipo].class}">${v.tipo}</span></div>${v.obs ? `<div class="obs-text">OBS: ${v.obs}</div>` : ''}</div><div class="info-group"><span class="info-label">VALOR</span><span class="info-value" style="color:var(--primary)">R$ ${v.valor.toFixed(2)}</span></div><div class="info-group"><span class="info-label">COMPRA</span><span class="info-value">${new Date(v.dataCompra + 'T00:00:00').toLocaleDateString('pt-BR')}</span></div><div class="info-group"><span class="info-label">VENCIMENTO</span><span class="info-value">${(v.pausado || (v.tipo === 'OUTROS' && v.dias === 0)) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span><div style="margin-top:5px">${statusHTML}</div></div><div class="actions">${!v.baixado ? `<button onclick="editar(${i}, '${listIdx}')" class="btn-action btn-edit">EDITAR</button>` : ''}${(v.tipo === 'OUTROS' && v.dias === 0) || v.baixado ? '' : `<button onclick="togglePausa(${i}, '${listIdx}')" class="btn-action ${v.pausado ? 'btn-play' : 'btn-pause'}">${v.pausado ? 'RETOMAR' : 'PAUSAR'}</button>`}${v.baixado ? `<button onclick="restaurarBaixa(${i}, '${listIdx}')" class="btn-action btn-restaurar">RESTAURAR</button>` : `<button onclick="darBaixa(${i}, '${listIdx}')" class="btn-action btn-baixa">BAIXA</button>`}<button onclick="deletar(${i}, '${listIdx}')" class="btn-action btn-del">DELETAR</button></div></div>`;
-        };
+	const createCard = (v, i, isFromSearchHist = false, wHistIndex = -1, wDate = "") => {
+	    const dVenc = new Date(v.vencimento);
+	    const agora = new Date();
+	    let diffMs = v.pausado ? v.tempoRestanteAoPausar : dVenc.getTime() - agora.getTime();
+	    let diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+	    
+	    let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
+	    let statusHTML = (v.tipo === 'OUTROS' && v.dias === 0) ? `<span class="status-badge color-outros">ITENS / PONTOS</span>` : 
+	                     (v.pausado) ? `<span class="status-badge color-yellow">PAUSADO - RESTA ${diffDias} DIAS</span>` :
+	                     (v.baixado) ? `<span class="status-badge" style="background:#555">CONCLUÍDO (BAIXA)</span>` :
+	                     (diffDias <= 0) ? `<span class="status-badge color-red">VENCIDO</span>` : `<span class="status-badge ${corClasse}">ATIVO - ${diffDias} DIAS</span>`;
+	
+	    let listIdx = isFromSearchHist ? wHistIndex : selectedWipeIndex;
+	
+	    const idsSeparados = v.ids.split(/[,/ ]+/).filter(id => id.trim() !== "");
+	    const idsHTML = idsSeparados.map(id => 
+	        `<span class="clickable-id" onclick="showPlayerInfo('${id.trim()}')">${id.trim()}</span>`
+	    ).join(', ');
+
+	    return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''}" style="border-left-color: ${configVip[v.tipo].color}">
+	        <div class="info-group">
+	            <span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span>
+	            <span class="info-value">${idsHTML}</span> <div><span class="badge ${configVip[v.tipo].class}">${v.tipo}</span></div>
+	            ${v.obs ? `<div class="obs-text">OBS: ${v.obs}</div>` : ''}
+	        </div>
+	        <div class="info-group"><span class="info-label">VALOR</span><span class="info-value" style="color:var(--primary)">R$ ${v.valor.toFixed(2)}</span></div>
+	        <div class="info-group"><span class="info-label">COMPRA</span><span class="info-value">${new Date(v.dataCompra + 'T00:00:00').toLocaleDateString('pt-BR')}</span></div>
+	        <div class="info-group"><span class="info-label">VENCIMENTO</span><span class="info-value">${(v.pausado || (v.tipo === 'OUTROS' && v.dias === 0)) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span><div style="margin-top:5px">${statusHTML}</div></div>
+	        <div class="actions">
+	            ${!v.baixado ? `<button onclick="editar(${i}, '${listIdx}')" class="btn-action btn-edit">EDITAR</button>` : ''}
+	            ${(v.tipo === 'OUTROS' && v.dias === 0) || v.baixado ? '' : `<button onclick="togglePausa(${i}, '${listIdx}')" class="btn-action ${v.pausado ? 'btn-play' : 'btn-pause'}">${v.pausado ? 'RETOMAR' : 'PAUSAR'}</button>`}
+	            ${v.baixado ? `<button onclick="restaurarBaixa(${i}, '${listIdx}')" class="btn-action btn-restaurar">RESTAURAR</button>` : `<button onclick="darBaixa(${i}, '${listIdx}')" class="btn-action btn-baixa">BAIXA</button>`}
+	            <button onclick="deletar(${i}, '${listIdx}')" class="btn-action btn-del">DELETAR</button>
+	        </div>
+	    </div>`;
+	};
 
         if (busca !== "") {
             lista.innerHTML += `<div class="section-divider">NO WIPE SELECIONADO</div>`;
@@ -599,24 +625,36 @@
         });
     }
 
-    function showPlayerInfo(steamId) {
-        if(steamId === "S / ID") return;
-        let total = 0, html = '';
-        const search = (list, label) => {
-            list.forEach(v => {
-                if(v.ids.toUpperCase().includes(steamId.toUpperCase())) {
-                    total += v.valor;
-                    html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${v.dataCompra}</td><td>R$ ${v.valor.toFixed(2)}</td></tr>`;
-                }
-            });
-        };
-        search(currentVipeList, "ATUAL");
-        wipeHistory.forEach(w => search(w.vips, w.date));
-        document.getElementById('modalPlayerId').innerText = "JOGADOR: " + steamId;
-        document.getElementById('modalPlayerTotal').innerText = "FATURAMENTO TOTAL: R$ " + total.toFixed(2);
-        document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4">NENHUM REGISTRO</td></tr>';
-        document.getElementById('modalDossie').style.display = 'flex';
-    }
+	function showPlayerInfo(steamId) {
+		if(!steamId || steamId === "S / ID") return;
+		
+		let total = 0, html = '';
+		const buscarId = steamId.toUpperCase().trim();
+
+		const search = (list, label) => {
+			list.forEach(v => {
+				const idsNoRegistro = v.ids.toUpperCase().split(/[,/ ]+/);
+				
+				if(idsNoRegistro.includes(buscarId)) {
+					total += v.valor;
+					html += `<tr>
+								<td>${label}</td>
+								<td>${v.tipo}</td>
+								<td>${new Date(v.dataCompra + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
+								<td>R$ ${v.valor.toFixed(2)}</td>
+							 </tr>`;
+				}
+			});
+		};
+
+		search(currentVipeList, "ATUAL");
+		wipeHistory.forEach(w => search(w.vips, w.date));
+
+		document.getElementById('modalPlayerId').innerText = "HISTÓRICO DO ID: " + steamId;
+		document.getElementById('modalPlayerTotal').innerText = "INVESTIMENTO TOTAL: R$ " + total.toFixed(2);
+		document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center">NENHUM OUTRO REGISTRO ENCONTRADO</td></tr>';
+		document.getElementById('modalDossie').style.display = 'flex';
+	}
 
     function closeModal() { document.getElementById('modalDossie').style.display = 'none'; }
 
@@ -682,4 +720,5 @@
 </script>
 </body>
 </html>
+
 
