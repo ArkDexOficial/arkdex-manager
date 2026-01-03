@@ -568,21 +568,48 @@
 	    </div>`;
 	};
 
-        if (busca !== "") {
+	if (busca !== "") {
             lista.innerHTML += `<div class="section-divider">NO WIPE SELECIONADO</div>`;
-            [...listExibida].reverse().forEach((v, i) => { const origIdx = listExibida.length - 1 - i; if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, origIdx); });
+            // Percorre a lista normalmente (O mais novo já é o primeiro)
+            listExibida.forEach((v, i) => { 
+                if(v.ids.toUpperCase().includes(busca)) {
+                    lista.innerHTML += createCard(v, i); 
+                }
+            });
+
             lista.innerHTML += `<div class="section-divider">OUTROS WIPES</div>`;
-            if(selectedWipeIndex !== "current") { [...currentVipeList].reverse().forEach((v, i) => { const origIdx = currentVipeList.length - 1 - i; if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, origIdx, false, "current", "ATUAL"); }); }
-            [...wipeHistory].reverse().forEach((w, revWIdx) => { const wIdx = wipeHistory.length - 1 - revWIdx; if(selectedWipeIndex != wIdx) { [...w.vips].reverse().forEach((v, i) => { const origIdx = w.vips.length - 1 - i; if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, origIdx, true, wIdx, w.date); }); } });
+            if(selectedWipeIndex !== "current") { 
+                currentVipeList.forEach((v, i) => { 
+                    if(v.ids.toUpperCase().includes(busca)) {
+                        lista.innerHTML += createCard(v, i, false, "current", "ATUAL"); 
+                    }
+                }); 
+            }
+
+            // Histórico de wipes (Wipes antigos)
+            [...wipeHistory].reverse().forEach((w, revWIdx) => { 
+                const wIdx = wipeHistory.length - 1 - revWIdx; 
+                if(selectedWipeIndex != wIdx) { 
+                    w.vips.forEach((v, i) => { 
+                        if(v.ids.toUpperCase().includes(busca)) {
+                            lista.innerHTML += createCard(v, i, true, wIdx, w.date); 
+                        }
+                    }); 
+                } 
+            });
         } else {
-            [...listExibida].reverse().forEach((v, i) => { const origIdx = listExibida.length - 1 - i; lista.innerHTML += createCard(v, origIdx); });
+            // MOSTRAR TUDO: Sem reverse, pois o unshift já colocou o novo no topo
+            listExibida.forEach((v, i) => { 
+                lista.innerHTML += createCard(v, i); 
+            });
         }
+
         document.getElementById('faturamentoAtivo').innerText = `R$ ${fWipeVisualizado.toFixed(2)}`;
         document.getElementById('totalProtocolos').innerText = listExibida.length;
         document.getElementById('faturamentoAnual').innerText = `R$ ${fAnualTotal.toFixed(2)}`;
         document.getElementById('wipeStatsLabel').innerText = (selectedWipeIndex === "current") ? "VENDAS NO WIPE" : "VENDAS NESTE ARQUIVO";
         lucide.createIcons();
-    }
+	}
 
 	function togglePausa(index, wipeIdx) {
 	    let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
@@ -751,6 +778,7 @@
 </script>
 </body>
 </html>
+
 
 
 
