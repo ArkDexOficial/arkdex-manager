@@ -467,7 +467,12 @@
                 const diff = dVenc.getTime() - new Date().getTime();
                 if (!v.baixado && v.dias > 0 && diff <= 0 && !v.pausado) {
                     totalVencidos++;
-                    notifList.innerHTML += `<div class="notif-item"><span style="flex:1">[${wipeLabel}] <b style="color:var(--primary)">${v.ids}</b></span><span class="notif-urgent" style="margin-right:10px">VENCIDO</span><button onclick="editar(${i}, '${wipeIdx}'); toggleNotificacoes();" class="btn-action btn-edit">IR</button></div>`;
+					notifList.innerHTML += `
+						<div class="notif-item">
+							<span style="flex:1">[${wipeLabel}] <b style="color:var(--primary)">${v.ids}</b></span>
+							<span class="notif-urgent" style="margin-right:10px">VENCIDO</span>
+							<button onclick="localizarVip(${i}, '${wipeIdx}', '${v.ids}')" class="btn-action btn-edit">IR</button>
+						</div>`;
                 }
             });
         };
@@ -765,6 +770,37 @@
         limpar(); 
     }
 
+	function localizarVip(index, wipeIdx, steamId) {
+	    // 1. Troca o Wipe se necessário
+	    if(wipeIdx !== selectedWipeIndex) {
+	        selectedWipeIndex = wipeIdx;
+	        document.getElementById('wipeSelector').value = wipeIdx;
+	        const label = document.getElementById('currentWipeName');
+	        if (label) label.innerText = (wipeIdx === "current") ? "WIPE EM CURSO" : "ARQUIVO: " + wipeHistory[wipeIdx].date;
+	    }
+	
+	    // 2. Filtra a lista pelo ID (pega o primeiro ID se houver vários)
+	    const idParaBusca = steamId.split(/[,/ ]+/)[0];
+	    document.getElementById('inputBusca').value = idParaBusca;
+	
+	    // 3. Renderiza a tela filtrada
+	    render();
+	
+	    // 4. Fecha a janelinha de notificações
+	    toggleNotificacoes();
+	
+	    // 5. Rola suavemente até o card localizado
+	    setTimeout(() => {
+	        const cards = document.querySelectorAll('.vip-card');
+	        if(cards.length > 0) {
+	            cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+	            // Efeito visual de destaque temporário
+	            cards[0].style.boxShadow = "0 0 20px var(--primary)";
+	            setTimeout(() => cards[0].style.boxShadow = "", 2000);
+	        }
+	    }, 100);
+	}
+
     function limpar() { 
         document.getElementById('idsSteam').value = ''; 
         document.getElementById('valor').value = ''; 
@@ -778,6 +814,7 @@
 </script>
 </body>
 </html>
+
 
 
 
