@@ -209,7 +209,18 @@
             border-radius: 30px;
             border: 1px solid var(--border);
         }
-
+		/* Tela de Login */
+		.login-overlay { 
+		    position: fixed; top:0; left:0; width:100%; height:100%; 
+		    background: var(--bg); z-index: 9999; display: flex; 
+		    justify-content: center; align-items: center; 
+		}
+		.login-box { 
+		    background: var(--card-bg); padding: 40px; border-radius: 16px; 
+		    border: 1px solid var(--primary); width: 100%; max-width: 350px; text-align: center; 
+		}
+		.login-box input { width: 100%; margin-bottom: 15px; }
+		
         /* AJUSTE MOBILE */
         @media (max-width: 768px) {
             .footer-content {
@@ -270,6 +281,19 @@
     </style>
 </head>
 <body>
+
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+        <div class="logo-area" style="margin-bottom: 20px; justify-content: center;">
+            <div class="logo-icon"><i data-lucide="lock"></i></div>
+            <div class="logo-text"><h1>ARK<span>LOCK</span></h1></div>
+        </div>
+        <input type="email" id="loginEmail" placeholder="E-mail de acesso">
+        <input type="password" id="loginSenha" placeholder="Senha">
+        <button onclick="fazerLogin()" class="btn-main" id="btnLogin">ACESSAR PAINEL</button>
+        <p id="loginErro" style="color: var(--danger); font-size: 10px; margin-top: 10px; display: none;">ACESSO NEGADO!</p>
+    </div>
+</div>
 
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content confirm-modal">
@@ -418,13 +442,50 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth(); // Adicionado para o Login
 
-    lucide.createIcons();
-    document.getElementById('dataCompra').valueAsDate = new Date();
-    
+    // --- NOVO: FUNÇÃO DE LOGIN ---
+    function fazerLogin() {
+        const email = document.getElementById('loginEmail').value;
+        const senha = document.getElementById('loginSenha').value;
+        const btn = document.getElementById('btnLogin');
+        const erro = document.getElementById('loginErro');
+
+        btn.innerText = "AUTENTICANDO...";
+        erro.style.display = 'none';
+
+        auth.signInWithEmailAndPassword(email, senha)
+            .catch(e => {
+                erro.style.display = 'block';
+                btn.innerText = "ENTRAR NO SISTEMA";
+            });
+    }
+
+    // --- NOVO: MONITOR DE ACESSO ---
+    // Ele decide se mostra o login ou o seu sistema
+    auth.onAuthStateChanged(user => {
+        const loginTela = document.getElementById('loginOverlay');
+        const sistemaTela = document.getElementById('mainContent');
+
+        if (user) {
+            // Se logou: esconde login e mostra seu sistema
+            loginTela.style.display = 'none';
+            sistemaTela.style.display = 'block';
+            
+            // Inicia suas funções originais
+            lucide.createIcons();
+            document.getElementById('dataCompra').valueAsDate = new Date();
+            iniciarSincronizacao(); 
+        } else {
+            // Se não logou: mostra tela de login
+            loginTela.style.display = 'flex';
+            sistemaTela.style.display = 'none';
+        }
+    });
+
     // --- 2. VARIÁVEIS GLOBAIS (IGUAIS ÀS SUAS) ---
-    let currentVipeList = []; // Começa vazio, Firebase vai preencher
-    let wipeHistory = [];     // Começa vazio, Firebase vai preencher
+    let currentVipeList = []; 
+    let wipeHistory = [];     
     let selectedWipeIndex = "current";
     let confirmCallback = null;
 
@@ -438,19 +499,20 @@
         'OUTROS': { class: 'tag-outros', color: '#ffffff' }
     };
 
-    // --- 3. SINCRONIZAÇÃO EM TEMPO REAL (O "PULO DO GATO") ---
-    // Essa função substitui o JSON.parse do LocalStorage
-    db.ref('arkdex_v22').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            currentVipeList = data.current || [];
-            wipeHistory = data.history || [];
-            updateWipeSelector();
-            render(); // Atualiza a tela automaticamente quando algo muda no banco
-        }
-    });
+    // --- 3. SINCRONIZAÇÃO EM TEMPO REAL ---
+    function iniciarSincronizacao() {
+        db.ref('arkdex_v22').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                currentVipeList = data.current || [];
+                wipeHistory = data.history || [];
+                updateWipeSelector();
+                render(); 
+            }
+        });
+    }
 
-    /* --- SUAS FUNÇÕES ORIGINAIS (SEM ALTERAÇÃO) --- */
+    /* --- SUAS FUNÇÕES ORIGINAIS (MANTIDAS EXATAMENTE IGUAIS) --- */
     function toggleNotificacoes() {
         const panel = document.getElementById('notif-list');
         if (panel) panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
@@ -575,7 +637,6 @@
 
 	if (busca !== "") {
             lista.innerHTML += `<div class="section-divider">NO WIPE SELECIONADO</div>`;
-            // Percorre a lista normalmente (O mais novo já é o primeiro)
             listExibida.forEach((v, i) => { 
                 if(v.ids.toUpperCase().includes(busca)) {
                     lista.innerHTML += createCard(v, i); 
@@ -591,7 +652,6 @@
                 }); 
             }
 
-            // Histórico de wipes (Wipes antigos)
             [...wipeHistory].reverse().forEach((w, revWIdx) => { 
                 const wIdx = wipeHistory.length - 1 - revWIdx; 
                 if(selectedWipeIndex != wIdx) { 
@@ -603,7 +663,6 @@
                 } 
             });
         } else {
-            // MOSTRAR TUDO: Sem reverse, pois o unshift já colocou o novo no topo
             listExibida.forEach((v, i) => { 
                 lista.innerHTML += createCard(v, i); 
             });
@@ -619,29 +678,24 @@
 	function togglePausa(index, wipeIdx) {
 	    let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
 	    const v = list[index];
-	    
 	    const hoje = new Date();
 	    hoje.setHours(0, 0, 0, 0);
 	
 	    if (!v.pausado) {
 	        const vencimento = new Date(v.vencimento);
 	        vencimento.setHours(0, 0, 0, 0);
-	
 	        const diffMs = vencimento.getTime() - hoje.getTime();
 	        let diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-	
 	        v.tempoRestanteAoPausar = diasRestantes < 0 ? 0 : diasRestantes;
 	        v.pausado = true;
 	    } else {
 	        const novaDataVencimento = new Date();
 	        novaDataVencimento.setHours(0, 0, 0, 0);
 	        novaDataVencimento.setDate(novaDataVencimento.getDate() + v.tempoRestanteAoPausar);
-	
 	        v.vencimento = novaDataVencimento.toISOString();
 	        v.pausado = false;
 	        v.tempoRestanteAoPausar = null;
 	    }
-	
 	    salvarGeral();
 	}
 
@@ -687,35 +741,23 @@
 
 	function showPlayerInfo(steamId) {
 		if(!steamId || steamId === "S / ID") return;
-		
 		let total = 0, html = '';
-		// O ID que você clicou (limpo e em maiúsculo)
 		const buscarId = steamId.trim().toUpperCase(); 
-
 		const search = (list, label) => {
 			list.forEach(v => {
 				const idsArray = v.ids.toUpperCase().split(/[,/ ]+/).map(item => item.trim());
 				if(idsArray.includes(buscarId)) {
 					total += v.valor;
 					const dataFormatada = new Date(v.dataCompra + 'T12:00:00').toLocaleDateString('pt-BR');
-					
-					html += `<tr>
-								<td>${label}</td>
-								<td>${v.tipo}</td>
-								<td>${dataFormatada}</td>
-								<td>R$ ${v.valor.toFixed(2)}</td>
-							 </tr>`;
+					html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${dataFormatada}</td><td>R$ ${v.valor.toFixed(2)}</td></tr>`;
 				}
 			});
 		};
-
 		search(currentVipeList, "ATUAL");
 		wipeHistory.forEach(w => search(w.vips, w.date));
-
 		document.getElementById('modalPlayerId').innerText = "HISTÓRICO DO ID: " + buscarId;
 		document.getElementById('modalPlayerTotal').innerText = "INVESTIMENTO TOTAL: R$ " + total.toFixed(2);
 		document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center">NENHUM REGISTRO ENCONTRADO</td></tr>';
-		
 		document.getElementById('modalDossie').style.display = 'flex';
 	}
 
@@ -760,9 +802,7 @@
         sel.value = selectedWipeIndex;
     }
 
-    // --- 4. FUNÇÃO SALVAR (ALTERADA PARA FIREBASE) ---
     function salvarGeral() { 
-        // Em vez de LocalStorage, enviamos para a nuvem
         db.ref('arkdex_v22').set({
             current: currentVipeList,
             history: wipeHistory
@@ -771,30 +811,20 @@
     }
 
 	function localizarVip(index, wipeIdx, steamId) {
-	    // 1. Troca o Wipe se necessário
 	    if(wipeIdx !== selectedWipeIndex) {
 	        selectedWipeIndex = wipeIdx;
 	        document.getElementById('wipeSelector').value = wipeIdx;
 	        const label = document.getElementById('currentWipeName');
 	        if (label) label.innerText = (wipeIdx === "current") ? "WIPE EM CURSO" : "ARQUIVO: " + wipeHistory[wipeIdx].date;
 	    }
-	
-	    // 2. Filtra a lista pelo ID (pega o primeiro ID se houver vários)
 	    const idParaBusca = steamId.split(/[,/ ]+/)[0];
 	    document.getElementById('inputBusca').value = idParaBusca;
-	
-	    // 3. Renderiza a tela filtrada
 	    render();
-	
-	    // 4. Fecha a janelinha de notificações
 	    toggleNotificacoes();
-	
-	    // 5. Rola suavemente até o card localizado
 	    setTimeout(() => {
 	        const cards = document.querySelectorAll('.vip-card');
 	        if(cards.length > 0) {
 	            cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-	            // Efeito visual de destaque temporário
 	            cards[0].style.boxShadow = "0 0 20px var(--primary)";
 	            setTimeout(() => cards[0].style.boxShadow = "", 2000);
 	        }
@@ -814,6 +844,7 @@
 </script>
 </body>
 </html>
+
 
 
 
