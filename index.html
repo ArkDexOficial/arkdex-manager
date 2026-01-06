@@ -663,6 +663,7 @@
         document.getElementById('obs').value = v.obs;
         document.getElementById('editIndex').value = index;
         document.getElementById('btn-add').innerText = "ATUALIZAR REGISTRO";
+		btn.classList.add('btn-update'); // <--- ISSO FAZ FICAR AMARELO
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -755,11 +756,13 @@
         document.getElementById('obs').value = ''; 
         document.getElementById('dataCompra').valueAsDate = new Date(); 
         document.getElementById('btn-add').innerText = "LANÇA VIP";
+		btn.classList.remove('btn-update'); // <--- ISSO VOLTA PRO AZUL ORIGINAL
         document.getElementById('editIndex').value = "-1"; 
     }
 </script>
 </body>
 </html>
+
 
 
 
