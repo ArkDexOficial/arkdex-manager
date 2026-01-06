@@ -296,51 +296,14 @@
 </div>
 
 <div class="container" id="mainContent" style="display: none;">
-    
-    <header> ... </header>
-    <div class="notification-bar"> ... </div>
-    <div class="wipe-manager"> ... </div>
-    <div class="stats-grid"> ... </div>
-    <div class="form-section"> ... </div>
-    <div id="cardsLista"> ... </div>
-
-    <footer class="main-footer"> ... </footer>
-</div>
-
-<div id="confirmModal" class="modal-overlay"> ... </div>
-<div id="modalDossie" class="modal-overlay"> ... </div>
-
-<div id="confirmModal" class="modal-overlay">
-    <div class="modal-content confirm-modal">
-        <div class="confirm-title" id="confirmTitle">ATENÇÃO</div>
-        <div class="confirm-text" id="confirmText">Deseja realmente realizar esta ação?</div>
-        <div class="confirm-buttons">
-            <button class="btn-confirm btn-no" onclick="closeConfirm(false)">CANCELAR</button>
-            <button class="btn-confirm btn-yes" onclick="closeConfirm(true)">CONFIRMAR</button>
-        </div>
-    </div>
-</div>
-
-<div id="modalDossie" class="modal-overlay">
-    <div class="modal-content">
-        <span class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></span>
-        <h2 id="modalPlayerId" style="color: var(--primary); font-size: 1.2rem;">---</h2>
-        <p id="modalPlayerTotal" style="font-weight: 800; margin: 10px 0;">TOTAL: R$ 0,00</p>
-        <table class="modal-table">
-            <thead><tr><th>WIPE</th><th>VIP</th><th>DATA</th><th>VALOR</th></tr></thead>
-            <tbody id="modalTableBody"></tbody>
-        </table>
-    </div>
-</div>
-
-<div class="container">
     <header>
         <div class="logo-area">
             <div class="logo-icon"><i data-lucide="shield-check"></i></div>
             <div class="logo-text"><h1>ARK<span>DEX</span></h1><p>Cloud Management System</p></div>
         </div>
     </header>
-	<div class="notification-bar" onclick="toggleNotificacoes()" id="notifBar">
+
+    <div class="notification-bar" onclick="toggleNotificacoes()" id="notifBar">
         <div style="display: flex; align-items: center; gap: 10px;">
             <i data-lucide="alert-triangle" style="color: var(--danger)"></i>
             <span id="notif-count" class="notif-badge">0</span>
@@ -417,35 +380,55 @@
     </div>
 
     <div id="cardsLista" class="cards-container"></div>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-brand">
+                    <span class="brand-dot"></span>
+                    <span class="brand-name">ARKDEX <span class="v-tag">V1.0</span></span>
+                </div>
+                <p class="footer-status">Cloud Sync: <span class="status-online">ATIVO</span></p>
+            </div>
+            <div class="footer-center"><p>© 2026 ARKDEX | GESTOR DE VIPS</p></div>
+            <div class="footer-right">
+                <div class="dev-info">
+                    <span>DEVELOPED FOR</span>
+                    <img src="https://img.icons8.com/color/48/ark-survival-evolved.png" alt="ARK" style="width: 20px; height: 20px;">
+                </div>
+            </div>
+        </div>
+    </footer>
 </div>
 
-<footer class="main-footer">
-    <div class="footer-content">
-        <div class="footer-left">
-            <div class="footer-brand">
-                <span class="brand-dot"></span>
-                <span class="brand-name">ARKDEX <span class="v-tag">V1.0</span></span>
-            </div>
-            <p class="footer-status">Cloud Sync: <span class="status-online">ATIVO</span></p>
-        </div>
-
-        <div class="footer-center">
-            <p>© 2026 ARKDEX | GESTOR DE VIPS</p>
-        </div>
-
-        <div class="footer-right">
-            <div class="dev-info">
-                <span>DEVELOPED FOR</span>
-                <img src="https://img.icons8.com/color/48/ark-survival-evolved.png" alt="ARK" style="width: 20px; height: 20px;">
-            </div>
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-content confirm-modal">
+        <div class="confirm-title" id="confirmTitle">ATENÇÃO</div>
+        <div class="confirm-text" id="confirmText">Deseja realmente realizar esta ação?</div>
+        <div class="confirm-buttons">
+            <button class="btn-confirm btn-no" onclick="closeConfirm(false)">CANCELAR</button>
+            <button class="btn-confirm btn-yes" onclick="closeConfirm(true)">CONFIRMAR</button>
         </div>
     </div>
-</footer>
+</div>
+
+<div id="modalDossie" class="modal-overlay">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></span>
+        <h2 id="modalPlayerId" style="color: var(--primary); font-size: 1.2rem;">---</h2>
+        <p id="modalPlayerTotal" style="font-weight: 800; margin: 10px 0;">TOTAL: R$ 0,00</p>
+        <table class="modal-table">
+            <thead><tr><th>WIPE</th><th>VIP</th><th>DATA</th><th>VALOR</th></tr></thead>
+            <tbody id="modalTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
 
 <script>
-    // --- 1. CONFIGURAÇÃO FIREBASE (CONEXÃO) ---
     const firebaseConfig = {
         apiKey: "AIzaSyCoObGx8rVkUVdau2zeU2azChGvmmidHcA",
         authDomain: "arkdex-3ce32.firebaseapp.com",
@@ -459,38 +442,27 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    // --- NOVO: FUNÇÃO DE LOGIN ---
     function fazerLogin() {
         const email = document.getElementById('loginEmail').value;
         const senha = document.getElementById('loginSenha').value;
         const btn = document.getElementById('btnLogin');
         const erro = document.getElementById('loginErro');
-
         btn.innerText = "AUTENTICANDO...";
         erro.style.display = 'none';
-
-        auth.signInWithEmailAndPassword(email, senha)
-            .catch(e => {
-                erro.style.display = 'block';
-                btn.innerText = "ENTRAR NO SISTEMA";
-            });
+        auth.signInWithEmailAndPassword(email, senha).catch(e => {
+            erro.style.display = 'block';
+            btn.innerText = "ACESSAR PAINEL";
+        });
     }
 
-    // --- NOVO: MONITOR DE ACESSO ---
     auth.onAuthStateChanged(user => {
         const loginTela = document.getElementById('loginOverlay');
         const sistemaTela = document.getElementById('mainContent');
-
         if (user) {
             loginTela.style.display = 'none';
             sistemaTela.style.display = 'block';
-            
-            // Inicia os ícones e a data APÓS o login ter sucesso
             lucide.createIcons();
-            if(document.getElementById('dataCompra')) {
-                document.getElementById('dataCompra').valueAsDate = new Date();
-            }
-            
+            if(document.getElementById('dataCompra')) document.getElementById('dataCompra').valueAsDate = new Date();
             iniciarSincronizacao(); 
         } else {
             loginTela.style.display = 'flex';
@@ -498,7 +470,6 @@
         }
     });
 
-    // --- 2. VARIÁVEIS GLOBAIS (IDÊNTICAS ÀS SUAS) ---
     let currentVipeList = []; 
     let wipeHistory = [];     
     let selectedWipeIndex = "current";
@@ -514,7 +485,6 @@
         'OUTROS': { class: 'tag-outros', color: '#ffffff' }
     };
 
-    // --- 3. SINCRONIZAÇÃO EM TEMPO REAL ---
     function iniciarSincronizacao() {
         db.ref('arkdex_v22').on('value', (snapshot) => {
             const data = snapshot.val();
@@ -527,7 +497,6 @@
         });
     }
 
-    /* --- SUAS FUNÇÕES ORIGINAIS (MANTIDAS EXATAMENTE IGUAIS) --- */
     function toggleNotificacoes() {
         const panel = document.getElementById('notif-list');
         if (panel) panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
@@ -544,12 +513,12 @@
                 const diff = dVenc.getTime() - new Date().getTime();
                 if (!v.baixado && v.dias > 0 && diff <= 0 && !v.pausado) {
                     totalVencidos++;
-					notifList.innerHTML += `
-						<div class="notif-item">
-							<span style="flex:1">[${wipeLabel}] <b style="color:var(--primary)">${v.ids}</b></span>
-							<span class="notif-urgent" style="margin-right:10px">VENCIDO</span>
-							<button onclick="localizarVip(${i}, '${wipeIdx}', '${v.ids}')" class="btn-action btn-edit">IR</button>
-						</div>`;
+                    notifList.innerHTML += `
+                        <div class="notif-item">
+                            <span style="flex:1">[${wipeLabel}] <b style="color:var(--primary)">${v.ids}</b></span>
+                            <span class="notif-urgent" style="margin-right:10px">VENCIDO</span>
+                            <button onclick="localizarVip(${i}, '${wipeIdx}', '${v.ids}')" class="btn-action btn-edit">IR</button>
+                        </div>`;
                 }
             });
         };
@@ -598,139 +567,90 @@
         const busca = document.getElementById('inputBusca').value.toUpperCase();
         if(!lista) return; 
         lista.innerHTML = '';
-        let fWipeVisualizado = 0;
-        let fAnualTotal = 0;
+        let fWipeVisualizado = 0, fAnualTotal = 0;
         wipeHistory.forEach(w => w.vips.forEach(v => fAnualTotal += v.valor));
         currentVipeList.forEach(v => fAnualTotal += v.valor);
         const listExibida = (selectedWipeIndex === "current") ? currentVipeList : wipeHistory[selectedWipeIndex].vips;
         listExibida.forEach(v => fWipeVisualizado += v.valor);
 
-	const createCard = (v, i, isFromSearchHist = false, wHistIndex = -1, wDate = "") => {
-		const dVenc = new Date(v.vencimento);
-		const agora = new Date();
-		agora.setHours(0, 0, 0, 0);
-		const vencZero = new Date(v.vencimento);
-		vencZero.setHours(0, 0, 0, 0);
-		
-		let diffDias;
-		if (v.pausado) {
-		    diffDias = v.tempoRestanteAoPausar;
-		} else {
-		    let diffMs = vencZero.getTime() - agora.getTime();
-		    diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-		}
-	    
-	    let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
-	    let statusHTML = (v.tipo === 'OUTROS' && v.dias === 0) ? `<span class="status-badge color-outros">ITENS / PONTOS</span>` : 
-	                     (v.pausado) ? `<span class="status-badge color-yellow">PAUSADO - RESTA ${diffDias} DIAS</span>` :
-	                     (v.baixado) ? `<span class="status-badge" style="background:#555">CONCLUÍDO (BAIXA)</span>` :
-	                     (diffDias <= 0) ? `<span class="status-badge color-red">VENCIDO</span>` : `<span class="status-badge ${corClasse}">ATIVO - ${diffDias} DIAS</span>`;
-	
-	    let listIdx = isFromSearchHist ? wHistIndex : selectedWipeIndex;
-	
-	    const idsSeparados = v.ids.split(/[,/ ]+/).filter(id => id.trim() !== "");
-	    const idsHTML = idsSeparados.map(id => 
-	        `<span class="clickable-id" onclick="showPlayerInfo('${id.trim()}')">${id.trim()}</span>`
-	    ).join(', ');
+        const createCard = (v, i, isFromSearchHist = false, wHistIndex = -1, wDate = "") => {
+            const dVenc = new Date(v.vencimento);
+            const agora = new Date();
+            agora.setHours(0,0,0,0);
+            const vencZero = new Date(v.vencimento);
+            vencZero.setHours(0,0,0,0);
+            let diffDias = v.pausado ? v.tempoRestanteAoPausar : Math.ceil((vencZero - agora) / (1000 * 60 * 60 * 24));
+            let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
+            let statusHTML = (v.tipo === 'OUTROS' && v.dias === 0) ? `<span class="status-badge color-outros">ITENS / PONTOS</span>` : 
+                             (v.pausado) ? `<span class="status-badge color-yellow">PAUSADO - RESTA ${diffDias} DIAS</span>` :
+                             (v.baixado) ? `<span class="status-badge" style="background:#555">CONCLUÍDO (BAIXA)</span>` :
+                             (diffDias <= 0) ? `<span class="status-badge color-red">VENCIDO</span>` : `<span class="status-badge ${corClasse}">ATIVO - ${diffDias} DIAS</span>`;
+            
+            let listIdx = isFromSearchHist ? wHistIndex : selectedWipeIndex;
+            const idsHTML = v.ids.split(/[,/ ]+/).filter(id => id.trim() !== "").map(id => `<span class="clickable-id" onclick="showPlayerInfo('${id.trim()}')">${id.trim()}</span>`).join(', ');
 
-	    return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''}" style="border-left-color: ${configVip[v.tipo].color}">
-	        <div class="info-group">
-	            <span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span>
-	            <span class="info-value">${idsHTML}</span> <div><span class="badge ${configVip[v.tipo].class}">${v.tipo}</span></div>
-	            ${v.obs ? `<div class="obs-text">OBS: ${v.obs}</div>` : ''}
-	        </div>
-	        <div class="info-group"><span class="info-label">VALOR</span><span class="info-value" style="color:var(--primary)">R$ ${v.valor.toFixed(2)}</span></div>
-	        <div class="info-group"><span class="info-label">COMPRA</span><span class="info-value">${new Date(v.dataCompra + 'T00:00:00').toLocaleDateString('pt-BR')}</span></div>
-	        <div class="info-group"><span class="info-label">VENCIMENTO</span><span class="info-value">${(v.pausado || (v.tipo === 'OUTROS' && v.dias === 0)) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span><div style="margin-top:5px">${statusHTML}</div></div>
-	        <div class="actions">
-	            ${!v.baixado ? `<button onclick="editar(${i}, '${listIdx}')" class="btn-action btn-edit">EDITAR</button>` : ''}
-	            ${(v.tipo === 'OUTROS' && v.dias === 0) || v.baixado ? '' : `<button onclick="togglePausa(${i}, '${listIdx}')" class="btn-action ${v.pausado ? 'btn-play' : 'btn-pause'}">${v.pausado ? 'RETOMAR' : 'PAUSAR'}</button>`}
-	            ${v.baixado ? `<button onclick="restaurarBaixa(${i}, '${listIdx}')" class="btn-action btn-restaurar">RESTAURAR</button>` : `<button onclick="darBaixa(${i}, '${listIdx}')" class="btn-action btn-baixa">BAIXA</button>`}
-	            <button onclick="deletar(${i}, '${listIdx}')" class="btn-action btn-del">DELETAR</button>
-	        </div>
-	    </div>`;
-	};
+            return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''}" style="border-left-color: ${configVip[v.tipo].color}">
+                <div class="info-group">
+                    <span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span>
+                    <span class="info-value">${idsHTML}</span> <div><span class="badge ${configVip[v.tipo].class}">${v.tipo}</span></div>
+                    ${v.obs ? `<div class="obs-text">OBS: ${v.obs}</div>` : ''}
+                </div>
+                <div class="info-group"><span class="info-label">VALOR</span><span class="info-value" style="color:var(--primary)">R$ ${v.valor.toFixed(2)}</span></div>
+                <div class="info-group"><span class="info-label">COMPRA</span><span class="info-value">${new Date(v.dataCompra + 'T00:00:00').toLocaleDateString('pt-BR')}</span></div>
+                <div class="info-group"><span class="info-label">VENCIMENTO</span><span class="info-value">${(v.pausado || (v.tipo === 'OUTROS' && v.dias === 0)) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span><div style="margin-top:5px">${statusHTML}</div></div>
+                <div class="actions">
+                    ${!v.baixado ? `<button onclick="editar(${i}, '${listIdx}')" class="btn-action btn-edit">EDITAR</button>` : ''}
+                    ${(v.tipo === 'OUTROS' && v.dias === 0) || v.baixado ? '' : `<button onclick="togglePausa(${i}, '${listIdx}')" class="btn-action ${v.pausado ? 'btn-play' : 'btn-pause'}">${v.pausado ? 'RETOMAR' : 'PAUSAR'}</button>`}
+                    ${v.baixado ? `<button onclick="restaurarBaixa(${i}, '${listIdx}')" class="btn-action btn-restaurar">RESTAURAR</button>` : `<button onclick="darBaixa(${i}, '${listIdx}')" class="btn-action btn-baixa">BAIXA</button>`}
+                    <button onclick="deletar(${i}, '${listIdx}')" class="btn-action btn-del">DELETAR</button>
+                </div>
+            </div>`;
+        };
 
-	if (busca !== "") {
+        if (busca !== "") {
             lista.innerHTML += `<div class="section-divider">NO WIPE SELECIONADO</div>`;
-            listExibida.forEach((v, i) => { 
-                if(v.ids.toUpperCase().includes(busca)) {
-                    lista.innerHTML += createCard(v, i); 
-                }
-            });
-
+            listExibida.forEach((v, i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, i); });
             lista.innerHTML += `<div class="section-divider">OUTROS WIPES</div>`;
-            if(selectedWipeIndex !== "current") { 
-                currentVipeList.forEach((v, i) => { 
-                    if(v.ids.toUpperCase().includes(busca)) {
-                        lista.innerHTML += createCard(v, i, false, "current", "ATUAL"); 
-                    }
-                }); 
-            }
-
+            if(selectedWipeIndex !== "current") currentVipeList.forEach((v, i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, i, false, "current", "ATUAL"); });
             [...wipeHistory].reverse().forEach((w, revWIdx) => { 
                 const wIdx = wipeHistory.length - 1 - revWIdx; 
-                if(selectedWipeIndex != wIdx) { 
-                    w.vips.forEach((v, i) => { 
-                        if(v.ids.toUpperCase().includes(busca)) {
-                            lista.innerHTML += createCard(v, i, true, wIdx, w.date); 
-                        }
-                    }); 
-                } 
+                if(selectedWipeIndex != wIdx) w.vips.forEach((v, i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, i, true, wIdx, w.date); });
             });
         } else {
-            listExibida.forEach((v, i) => { 
-                lista.innerHTML += createCard(v, i); 
-            });
+            listExibida.forEach((v, i) => { lista.innerHTML += createCard(v, i); });
         }
-
         document.getElementById('faturamentoAtivo').innerText = `R$ ${fWipeVisualizado.toFixed(2)}`;
         document.getElementById('totalProtocolos').innerText = listExibida.length;
         document.getElementById('faturamentoAnual').innerText = `R$ ${fAnualTotal.toFixed(2)}`;
         document.getElementById('wipeStatsLabel').innerText = (selectedWipeIndex === "current") ? "VENDAS NO WIPE" : "VENDAS NESTE ARQUIVO";
         lucide.createIcons();
-	}
-
-	function togglePausa(index, wipeIdx) {
-	    let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
-	    const v = list[index];
-	    const hoje = new Date();
-	    hoje.setHours(0, 0, 0, 0);
-	
-	    if (!v.pausado) {
-	        const vencimento = new Date(v.vencimento);
-	        vencimento.setHours(0, 0, 0, 0);
-	        const diffMs = vencimento.getTime() - hoje.getTime();
-	        let diasRestantes = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-	        v.tempoRestanteAoPausar = diasRestantes < 0 ? 0 : diasRestantes;
-	        v.pausado = true;
-	    } else {
-	        const novaDataVencimento = new Date();
-	        novaDataVencimento.setHours(0, 0, 0, 0);
-	        novaDataVencimento.setDate(novaDataVencimento.getDate() + v.tempoRestanteAoPausar);
-	        v.vencimento = novaDataVencimento.toISOString();
-	        v.pausado = false;
-	        v.tempoRestanteAoPausar = null;
-	    }
-	    salvarGeral();
-	}
-
-    function darBaixa(index, wipeIdx) { 
-        customConfirm("DAR BAIXA", "Marcar como concluído?", () => {
-            let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
-            list[index].baixado = true; 
-            salvarGeral();
-        });
     }
 
-    function restaurarBaixa(index, wipeIdx) {
-        customConfirm("RESTAURAR", "Remover a baixa?", () => {
-            let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
-            list[index].baixado = false; 
-            salvarGeral();
-        });
+    function togglePausa(index, wipeIdx) {
+        let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
+        const v = list[index];
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        if (!v.pausado) {
+            const vencimento = new Date(v.vencimento);
+            vencimento.setHours(0, 0, 0, 0);
+            let diasRestantes = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
+            v.tempoRestanteAoPausar = diasRestantes < 0 ? 0 : diasRestantes;
+            v.pausado = true;
+        } else {
+            const novaDataVencimento = new Date();
+            novaDataVencimento.setHours(0, 0, 0, 0);
+            novaDataVencimento.setDate(novaDataVencimento.getDate() + v.tempoRestanteAoPausar);
+            v.vencimento = novaDataVencimento.toISOString();
+            v.pausado = false;
+        }
+        salvarGeral();
     }
-    
+
+    function darBaixa(index, wipeIdx) { customConfirm("DAR BAIXA", "Marcar como concluído?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list[index].baixado = true; salvarGeral(); }); }
+    function restaurarBaixa(index, wipeIdx) { customConfirm("RESTAURAR", "Remover a baixa?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list[index].baixado = false; salvarGeral(); }); }
+    function deletar(index, wipeIdx) { customConfirm("EXCLUIR", "Deseja apagar permanentemente?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list.splice(index, 1); salvarGeral(); }); }
+
     function editar(index, wipeIdx) {
         if(wipeIdx !== selectedWipeIndex) { changeWipe(wipeIdx); document.getElementById('wipeSelector').value = wipeIdx; }
         let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
@@ -742,40 +662,29 @@
         document.getElementById('dias').value = v.dias;
         document.getElementById('obs').value = v.obs;
         document.getElementById('editIndex').value = index;
-        const btn = document.getElementById('btn-add');
-        btn.innerText = "ATUALIZAR REGISTRO"; btn.classList.add('btn-update');
+        document.getElementById('btn-add').innerText = "ATUALIZAR REGISTRO";
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function deletar(index, wipeIdx) { 
-        customConfirm("EXCLUIR", "Deseja apagar permanentemente?", () => {
-            let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
-            list.splice(index, 1); 
-            salvarGeral();
-        });
+    function showPlayerInfo(steamId) {
+        if(!steamId || steamId === "S / ID") return;
+        let total = 0, html = '';
+        const buscarId = steamId.trim().toUpperCase(); 
+        const search = (list, label) => {
+            list.forEach(v => {
+                if(v.ids.toUpperCase().split(/[,/ ]+/).map(item => item.trim()).includes(buscarId)) {
+                    total += v.valor;
+                    html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${new Date(v.dataCompra + 'T12:00:00').toLocaleDateString('pt-BR')}</td><td>R$ ${v.valor.toFixed(2)}</td></tr>`;
+                }
+            });
+        };
+        search(currentVipeList, "ATUAL");
+        wipeHistory.forEach(w => search(w.vips, w.date));
+        document.getElementById('modalPlayerId').innerText = "HISTÓRICO DO ID: " + buscarId;
+        document.getElementById('modalPlayerTotal').innerText = "INVESTIMENTO TOTAL: R$ " + total.toFixed(2);
+        document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center">NENHUM REGISTRO ENCONTRADO</td></tr>';
+        document.getElementById('modalDossie').style.display = 'flex';
     }
-
-	function showPlayerInfo(steamId) {
-		if(!steamId || steamId === "S / ID") return;
-		let total = 0, html = '';
-		const buscarId = steamId.trim().toUpperCase(); 
-		const search = (list, label) => {
-			list.forEach(v => {
-				const idsArray = v.ids.toUpperCase().split(/[,/ ]+/).map(item => item.trim());
-				if(idsArray.includes(buscarId)) {
-					total += v.valor;
-					const dataFormatada = new Date(v.dataCompra + 'T12:00:00').toLocaleDateString('pt-BR');
-					html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${dataFormatada}</td><td>R$ ${v.valor.toFixed(2)}</td></tr>`;
-				}
-			});
-		};
-		search(currentVipeList, "ATUAL");
-		wipeHistory.forEach(w => search(w.vips, w.date));
-		document.getElementById('modalPlayerId').innerText = "HISTÓRICO DO ID: " + buscarId;
-		document.getElementById('modalPlayerTotal').innerText = "INVESTIMENTO TOTAL: R$ " + total.toFixed(2);
-		document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center">NENHUM REGISTRO ENCONTRADO</td></tr>';
-		document.getElementById('modalDossie').style.display = 'flex';
-	}
 
     function closeModal() { document.getElementById('modalDossie').style.display = 'none'; }
 
@@ -819,33 +728,24 @@
     }
 
     function salvarGeral() { 
-        db.ref('arkdex_v22').set({
-            current: currentVipeList,
-            history: wipeHistory
-        });
+        db.ref('arkdex_v22').set({ current: currentVipeList, history: wipeHistory });
         limpar(); 
     }
 
-	function localizarVip(index, wipeIdx, steamId) {
-	    if(wipeIdx !== selectedWipeIndex) {
-	        selectedWipeIndex = wipeIdx;
-	        document.getElementById('wipeSelector').value = wipeIdx;
-	        const label = document.getElementById('currentWipeName');
-	        if (label) label.innerText = (wipeIdx === "current") ? "WIPE EM CURSO" : "ARQUIVO: " + wipeHistory[wipeIdx].date;
-	    }
-	    const idParaBusca = steamId.split(/[,/ ]+/)[0];
-	    document.getElementById('inputBusca').value = idParaBusca;
-	    render();
-	    toggleNotificacoes();
-	    setTimeout(() => {
-	        const cards = document.querySelectorAll('.vip-card');
-	        if(cards.length > 0) {
-	            cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-	            cards[0].style.boxShadow = "0 0 20px var(--primary)";
-	            setTimeout(() => cards[0].style.boxShadow = "", 2000);
-	        }
-	    }, 100);
-	}
+    function localizarVip(index, wipeIdx, steamId) {
+        if(wipeIdx !== selectedWipeIndex) changeWipe(wipeIdx);
+        document.getElementById('inputBusca').value = steamId.split(/[,/ ]+/)[0];
+        render();
+        toggleNotificacoes();
+        setTimeout(() => {
+            const cards = document.querySelectorAll('.vip-card');
+            if(cards.length > 0) {
+                cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                cards[0].style.boxShadow = "0 0 20px var(--primary)";
+                setTimeout(() => cards[0].style.boxShadow = "", 2000);
+            }
+        }, 100);
+    }
 
     function limpar() { 
         if(!document.getElementById('idsSteam')) return;
@@ -854,13 +754,13 @@
         document.getElementById('dias').value = ''; 
         document.getElementById('obs').value = ''; 
         document.getElementById('dataCompra').valueAsDate = new Date(); 
-        const btn = document.getElementById('btn-add');
-        btn.innerText = "LANÇA VIP"; btn.classList.remove('btn-update');
+        document.getElementById('btn-add').innerText = "LANÇA VIP";
         document.getElementById('editIndex').value = "-1"; 
     }
 </script>
 </body>
 </html>
+
 
 
 
