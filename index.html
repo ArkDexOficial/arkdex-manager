@@ -651,21 +651,31 @@
     function restaurarBaixa(index, wipeIdx) { customConfirm("RESTAURAR", "Remover a baixa?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list[index].baixado = false; salvarGeral(); }); }
     function deletar(index, wipeIdx) { customConfirm("EXCLUIR", "Deseja apagar permanentemente?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list.splice(index, 1); salvarGeral(); }); }
 
-    function editar(index, wipeIdx) {
-        if(wipeIdx !== selectedWipeIndex) { changeWipe(wipeIdx); document.getElementById('wipeSelector').value = wipeIdx; }
-        let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
-        const v = list[index];
-        document.getElementById('idsSteam').value = v.ids === "S / ID" ? "" : v.ids;
-        document.getElementById('tipoVip').value = v.tipo;
-        document.getElementById('dataCompra').value = v.dataCompra;
-        document.getElementById('valor').value = v.valor;
-        document.getElementById('dias').value = v.dias;
-        document.getElementById('obs').value = v.obs;
-        document.getElementById('editIndex').value = index;
-        document.getElementById('btn-add').innerText = "ATUALIZAR REGISTRO";
-		btn.classList.add('btn-update'); // <--- ISSO FAZ FICAR AMARELO
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+	function editar(index, wipeIdx) {
+	    if(wipeIdx !== selectedWipeIndex) { 
+	        changeWipe(wipeIdx); 
+	        document.getElementById('wipeSelector').value = wipeIdx; 
+	    }
+	    
+	    let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
+	    const v = list[index];
+	
+	    // Preenche os campos
+	    document.getElementById('idsSteam').value = v.ids === "S / ID" ? "" : v.ids;
+	    document.getElementById('tipoVip').value = v.tipo;
+	    document.getElementById('dataCompra').value = v.dataCompra;
+	    document.getElementById('valor').value = v.valor;
+	    document.getElementById('dias').value = v.dias;
+	    document.getElementById('obs').value = v.obs;
+	    document.getElementById('editIndex').value = index;
+	
+	    // --- AJUSTE DO BOTÃO ---
+	    const btn = document.getElementById('btn-add');
+	    btn.innerText = "ATUALIZAR REGISTRO";
+	    btn.classList.add('btn-update'); // <--- ISSO FAZ FICAR AMARELO
+	    
+	    window.scrollTo({ top: 0, behavior: 'smooth' });
+	}
 
     function showPlayerInfo(steamId) {
         if(!steamId || steamId === "S / ID") return;
@@ -748,20 +758,26 @@
         }, 100);
     }
 
-    function limpar() { 
-        if(!document.getElementById('idsSteam')) return;
-        document.getElementById('idsSteam').value = ''; 
-        document.getElementById('valor').value = ''; 
-        document.getElementById('dias').value = ''; 
-        document.getElementById('obs').value = ''; 
-        document.getElementById('dataCompra').valueAsDate = new Date(); 
-        document.getElementById('btn-add').innerText = "LANÇA VIP";
-		btn.classList.remove('btn-update'); // <--- ISSO VOLTA PRO AZUL ORIGINAL
-        document.getElementById('editIndex').value = "-1"; 
-    }
+	function limpar() { 
+	    if(!document.getElementById('idsSteam')) return;
+	    
+	    document.getElementById('idsSteam').value = ''; 
+	    document.getElementById('valor').value = ''; 
+	    document.getElementById('dias').value = ''; 
+	    document.getElementById('obs').value = ''; 
+	    document.getElementById('dataCompra').valueAsDate = new Date(); 
+	    
+	    // --- RESET DO BOTÃO ---
+	    const btn = document.getElementById('btn-add');
+	    btn.innerText = "LANÇA VIP";
+	    btn.classList.remove('btn-update'); // <--- ISSO VOLTA PRO AZUL ORIGINAL
+	    
+	    document.getElementById('editIndex').value = "-1"; 
+	}
 </script>
 </body>
 </html>
+
 
 
 
