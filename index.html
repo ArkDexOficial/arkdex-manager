@@ -286,14 +286,29 @@
     <div class="login-box">
         <div class="logo-area" style="margin-bottom: 20px; justify-content: center;">
             <div class="logo-icon"><i data-lucide="lock"></i></div>
-            <div class="logo-text"><h1>ARK<span>LOCK</span></h1></div>
+            <div class="logo-text"><h1>ARK<span>DEX</span></h1></div>
         </div>
         <input type="email" id="loginEmail" placeholder="E-mail de acesso">
         <input type="password" id="loginSenha" placeholder="Senha">
         <button onclick="fazerLogin()" class="btn-main" id="btnLogin">ACESSAR PAINEL</button>
-        <p id="loginErro" style="color: var(--danger); font-size: 10px; margin-top: 10px; display: none;">ACESSO NEGADO!</p>
+        <p id="loginErro" style="color: var(--danger); font-size: 11px; margin-top: 10px; display: none; font-weight: 800;">ACESSO NEGADO: VERIFIQUE SUAS CREDENCIAIS</p>
     </div>
 </div>
+
+<div class="container" id="mainContent" style="display: none;">
+    
+    <header> ... </header>
+    <div class="notification-bar"> ... </div>
+    <div class="wipe-manager"> ... </div>
+    <div class="stats-grid"> ... </div>
+    <div class="form-section"> ... </div>
+    <div id="cardsLista"> ... </div>
+
+    <footer class="main-footer"> ... </footer>
+</div>
+
+<div id="confirmModal" class="modal-overlay"> ... </div>
+<div id="modalDossie" class="modal-overlay"> ... </div>
 
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content confirm-modal">
@@ -442,7 +457,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const auth = firebase.auth(); // Adicionado para o Login
+    const auth = firebase.auth();
 
     // --- NOVO: FUNÇÃO DE LOGIN ---
     function fazerLogin() {
@@ -462,28 +477,28 @@
     }
 
     // --- NOVO: MONITOR DE ACESSO ---
-    // Ele decide se mostra o login ou o seu sistema
     auth.onAuthStateChanged(user => {
         const loginTela = document.getElementById('loginOverlay');
         const sistemaTela = document.getElementById('mainContent');
 
         if (user) {
-            // Se logou: esconde login e mostra seu sistema
             loginTela.style.display = 'none';
             sistemaTela.style.display = 'block';
             
-            // Inicia suas funções originais
+            // Inicia os ícones e a data APÓS o login ter sucesso
             lucide.createIcons();
-            document.getElementById('dataCompra').valueAsDate = new Date();
+            if(document.getElementById('dataCompra')) {
+                document.getElementById('dataCompra').valueAsDate = new Date();
+            }
+            
             iniciarSincronizacao(); 
         } else {
-            // Se não logou: mostra tela de login
             loginTela.style.display = 'flex';
             sistemaTela.style.display = 'none';
         }
     });
 
-    // --- 2. VARIÁVEIS GLOBAIS (IGUAIS ÀS SUAS) ---
+    // --- 2. VARIÁVEIS GLOBAIS (IDÊNTICAS ÀS SUAS) ---
     let currentVipeList = []; 
     let wipeHistory = [];     
     let selectedWipeIndex = "current";
@@ -581,6 +596,7 @@
         atualizarMonitor();
         const lista = document.getElementById('cardsLista');
         const busca = document.getElementById('inputBusca').value.toUpperCase();
+        if(!lista) return; 
         lista.innerHTML = '';
         let fWipeVisualizado = 0;
         let fAnualTotal = 0;
@@ -832,6 +848,7 @@
 	}
 
     function limpar() { 
+        if(!document.getElementById('idsSteam')) return;
         document.getElementById('idsSteam').value = ''; 
         document.getElementById('valor').value = ''; 
         document.getElementById('dias').value = ''; 
@@ -844,6 +861,7 @@
 </script>
 </body>
 </html>
+
 
 
 
