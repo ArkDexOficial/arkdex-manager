@@ -700,25 +700,41 @@
     function closeModal() { document.getElementById('modalDossie').style.display = 'none'; }
 
 	function finalizeWipe() {
-        if(currentVipeList.length === 0) return;
-        
-        // Pergunta o nome/data do Wipe para o usuário
-        const nomePersonalizado = prompt("DIGITE O NOME/DATA DESTE WIPE (Ex: 12/12/25 A 16/01/26):", new Date().toLocaleDateString('pt-BR'));
-        
-        // Se o usuário cancelar ou deixar vazio, interrompe o processo
-        if (nomePersonalizado === null || nomePersonalizado.trim() === "") {
-            alert("FINALIZAÇÃO CANCELADA: É necessário um título para arquivar.");
+        // 1. Verifica se há algo para finalizar
+        if (currentVipeList.length === 0) {
+            alert("NÃO HÁ REGISTROS NO WIPE ATUAL PARA FINALIZAR.");
             return;
         }
 
-        customConfirm("FINALIZAR WIPE", `Deseja arquivar como: "${nomePersonalizado}"?`, () => {
+        // 2. Abre a caixa para você digitar o título personalizado
+        const sugestaoData = new Date().toLocaleDateString('pt-BR');
+        const nomePersonalizado = prompt("DIGITE O NOME OU PERÍODO DESTE WIPE:", "WIPE " + sugestaoData);
+
+        // 3. Se você clicar em 'Cancelar' ou fechar o prompt, ele para aqui
+        if (nomePersonalizado === null) return;
+
+        // 4. Se deixar vazio, ele avisa
+        if (nomePersonalizado.trim() === "") {
+            alert("VOCÊ PRECISA DEFINIR UM NOME PARA O ARQUIVO.");
+            return;
+        }
+
+        // 5. Abre o seu modal de confirmação visual (o que já tinha no código)
+        customConfirm("FINALIZAR WIPE", `ARQUIVAR COMO: "${nomePersonalizado.toUpperCase()}"?`, () => {
+            // Move os dados para o histórico com o seu título
             wipeHistory.push({ 
-                date: nomePersonalizado.toUpperCase(), // Salva o nome que você digitou
+                date: nomePersonalizado.toUpperCase(), 
                 vips: [...currentVipeList] 
             });
+
+            // Limpa o wipe atual
             currentVipeList = [];
+            
+            // Salva no Firebase e atualiza a tela
             salvarGeral();
             updateWipeSelector();
+            
+            alert("WIPE ARQUIVADO COM SUCESSO!");
         });
     }
 
@@ -790,6 +806,7 @@
 </script>
 </body>
 </html>
+
 
 
 
