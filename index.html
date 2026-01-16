@@ -416,7 +416,7 @@
     <div class="modal-content confirm-modal">
         <div class="confirm-title">NOME DO ARQUIVO</div>
         <div class="confirm-text">DIGITE O PERÍODO OU NOME DESTE WIPE:</div>
-        <input type="text" id="inputWipeName" style="width: 100%; margin-bottom: 20px; text-align: center;" placeholder="Ex: 12/12 A 16/01">
+        <input type="text" id="inputWipeName" style="width: 100%; margin-bottom: 20px; text-align: center; background: var(--input-bg); color: white; border: 1px solid var(--border); padding: 10px; border-radius: 8px; outline: none; border-color: var(--primary);">
         <div class="confirm-buttons">
             <button class="btn-confirm btn-no" onclick="fecharModalWipe()">CANCELAR</button>
             <button class="btn-confirm btn-yes" style="background: var(--primary); color: #000;" onclick="confirmarFinalizacao()">FINALIZAR E SALVAR</button>
@@ -541,10 +541,25 @@
         if (totalVencidos === 0) notifList.innerHTML = '<p style="font-size:10px; padding:10px; color:var(--text-dim); text-align:center;">NENHUM VIP VENCIDO NO SISTEMA.</p>';
     }
 
-    function customConfirm(title, text, callback) {
+	function alertCustom(titulo, texto) {
+        document.getElementById('confirmTitle').innerText = titulo;
+        document.getElementById('confirmText').innerText = texto;
+        document.getElementById('confirmModal').style.display = 'flex';
+        
+        document.getElementById('btnCancel')?.style.setProperty('display', 'none'); 
+        const btnYes = document.querySelector('#confirmModal .btn-yes');
+        btnYes.innerText = 'ENTENDI';
+        confirmCallback = null; 
+    }
+	
+	function customConfirm(title, text, callback) {
         document.getElementById('confirmTitle').innerText = title;
         document.getElementById('confirmText').innerText = text;
         document.getElementById('confirmModal').style.display = 'flex';
+        
+        document.getElementById('btnCancel')?.style.setProperty('display', 'block');
+        const btnYes = document.querySelector('#confirmModal .btn-yes');
+        btnYes.innerText = 'CONFIRMAR';
         confirmCallback = callback;
     }
 
@@ -711,42 +726,33 @@
 
     function closeModal() { document.getElementById('modalDossie').style.display = 'none'; }
 
-function finalizeWipe() {
-        // 1. Verifica se há algo para finalizar
+	function finalizeWipe() {
+        // Se estiver vazio, usa o novo aviso profissional
         if (currentVipeList.length === 0) {
-            alert("NÃO HÁ REGISTROS NO WIPE ATUAL PARA FINALIZAR.");
+            alertCustom("SISTEMA VAZIO", "NÃO HÁ REGISTROS NO WIPE ATUAL PARA FINALIZAR.");
             return;
         }
+        document.getElementById('wipeNameModal').style.display = 'flex';
+        document.getElementById('inputWipeName').value = "WIPE " + new Date().toLocaleDateString('pt-BR');
+        setTimeout(() => document.getElementById('inputWipeName').select(), 100);
+    }
 
-        // 2. Abre a caixa para você digitar o título personalizado
-        const sugestaoData = new Date().toLocaleDateString('pt-BR');
-        const nomePersonalizado = prompt("DIGITE O NOME OU PERÍODO DESTE WIPE:", "WIPE " + sugestaoData);
+    function fecharModalWipe() {
+        document.getElementById('wipeNameModal').style.display = 'none';
+    }
 
-        // 3. Se você clicar em 'Cancelar' ou fechar o prompt, ele para aqui
-        if (nomePersonalizado === null) return;
-
-        // 4. Se deixar vazio, ele avisa
-        if (nomePersonalizado.trim() === "") {
-            alert("VOCÊ PRECISA DEFINIR UM NOME PARA O ARQUIVO.");
+    function confirmarFinalizacao() {
+        const nome = document.getElementById('inputWipeName').value.trim().toUpperCase();
+        if (nome === "") {
+            alertCustom("CAMPO VAZIO", "POR FAVOR, DIGITE UM NOME PARA O ARQUIVO.");
             return;
         }
-
-        // 5. Abre o seu modal de confirmação visual (o que já tinha no código)
-        customConfirm("FINALIZAR WIPE", `ARQUIVAR COMO: "${nomePersonalizado.toUpperCase()}"?`, () => {
-            // Move os dados para o histórico com o seu título
-            wipeHistory.push({ 
-                date: nomePersonalizado.toUpperCase(), 
-                vips: [...currentVipeList] 
-            });
-
-            // Limpa o wipe atual
+        fecharModalWipe();
+        customConfirm("CONCLUIR ARQUIVAMENTO", `ARQUIVAR COMO: ${nome}?`, () => {
+            wipeHistory.push({ date: nome, vips: [...currentVipeList] });
             currentVipeList = [];
-            
-            // Salva no Firebase e atualiza a tela
             salvarGeral();
             updateWipeSelector();
-            
-            alert("WIPE ARQUIVADO COM SUCESSO!");
         });
     }
 
@@ -818,6 +824,7 @@ function finalizeWipe() {
 </script>
 </body>
 </html>
+
 
 
 
