@@ -699,10 +699,23 @@
 
     function closeModal() { document.getElementById('modalDossie').style.display = 'none'; }
 
-    function finalizeWipe() {
+	function finalizeWipe() {
         if(currentVipeList.length === 0) return;
-        customConfirm("FINALIZAR WIPE", "Deseja realmente arquivar este wipe?", () => {
-            wipeHistory.push({ date: new Date().toLocaleDateString('pt-BR'), vips: [...currentVipeList] });
+        
+        // Pergunta o nome/data do Wipe para o usuário
+        const nomePersonalizado = prompt("DIGITE O NOME/DATA DESTE WIPE (Ex: 12/12/25 A 16/01/26):", new Date().toLocaleDateString('pt-BR'));
+        
+        // Se o usuário cancelar ou deixar vazio, interrompe o processo
+        if (nomePersonalizado === null || nomePersonalizado.trim() === "") {
+            alert("FINALIZAÇÃO CANCELADA: É necessário um título para arquivar.");
+            return;
+        }
+
+        customConfirm("FINALIZAR WIPE", `Deseja arquivar como: "${nomePersonalizado}"?`, () => {
+            wipeHistory.push({ 
+                date: nomePersonalizado.toUpperCase(), // Salva o nome que você digitou
+                vips: [...currentVipeList] 
+            });
             currentVipeList = [];
             salvarGeral();
             updateWipeSelector();
@@ -777,6 +790,7 @@
 </script>
 </body>
 </html>
+
 
 
 
