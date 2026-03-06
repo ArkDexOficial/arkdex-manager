@@ -529,17 +529,25 @@
         'OUTROS': { class: 'tag-outros', color: '#ffffff' }
     };
 
-    function iniciarSincronizacao() {
-        db.ref('arkdex_v22').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                currentVipeList = data.current || [];
-                wipeHistory = data.history || [];
-                updateWipeSelector();
-                render(); 
-            }
-        });
-    }
+	function iniciarSincronizacao() {
+		const user = auth.currentUser; // Pega o usuário logado
+		
+		if (user) {
+			// Só tenta ler se houver um usuário autenticado
+			db.ref('arkdex_v22').on('value', (snapshot) => {
+				const data = snapshot.val();
+				if (data) {
+					currentVipeList = data.current || [];
+					wipeHistory = data.history || [];
+					updateWipeSelector();
+					render(); 
+				}
+			}, (error) => {
+				console.error("Erro de permissão: ", error);
+				alert("Erro de permissão: Verifique se o seu UID está correto nas regras do Firebase.");
+			});
+		}
+	}
 
     function toggleNotificacoes() {
         const panel = document.getElementById('notif-list');
