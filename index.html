@@ -692,7 +692,7 @@
                 idsHTML = '<span style="color:var(--text-dim)">S/ ID</span>';
             } else {
                 idsHTML = idsSplit.map(id => 
-                    `<span class="clickable-id" onclick="showPlayerInfo('${id.replace(/'/g,"\\'")}'">${id}</span>`
+                    `<span class="clickable-id" data-steamid="${id}">${id}</span>`
                 ).join(', ');
             }
 
@@ -731,6 +731,11 @@
         document.getElementById('faturamentoAnual').innerText = `R$ ${fAnualTotal.toFixed(2)}`;
         document.getElementById('wipeStatsLabel').innerText = (selectedWipeIndex === "current") ? "VENDAS NO WIPE" : "VENDAS NESTE ARQUIVO";
         lucide.createIcons();
+        // Event delegation: um único listener no container, sem onclick inline
+        document.getElementById('cardsLista').onclick = function(e) {
+            const el = e.target.closest('.clickable-id');
+            if (el) showPlayerInfo(el.dataset.steamid);
+        };
     }
 
     function togglePausa(index, wipeIdx) {
