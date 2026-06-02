@@ -72,7 +72,11 @@
         .tag-lendario { background: #ec4899; }
         .tag-extreme { background: #f43f5e; }
         .tag-unloked { background: #64748b; }
-        .tag-outros { background: #ffffff; color: #000; }
+        /* NOVO: tags para as novas classes */
+        .tag-pontos   { background: #16a34a; color: #fff; }
+        .tag-kitbase  { background: #b45309; color: #fff; }
+        .tag-lootbox  { background: #7c3aed; color: #fff; }
+        .tag-outros   { background: #ffffff; color: #000; }
 
         .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 9px; font-weight: 800; }
         .color-green { background: #238636; color: #fff; }
@@ -374,6 +378,10 @@
                     <option value="LENDÁRIO">VIP LENDÁRIO</option>
                     <option value="EXTREME">VIP EXTREME</option>
                     <option value="SUPREMO">VIP SUPREMO</option>
+                    <!-- NOVO: novas classes adicionadas -->
+                    <option value="PONTOS">PONTOS</option>
+                    <option value="KIT BASE">KIT BASE</option>
+                    <option value="LOOT BOX">LOOT BOX</option>
                     <option value="OUTROS">OUTROS</option>
                 </select>
             </div>
@@ -402,7 +410,7 @@
             <div class="footer-left">
                 <div class="footer-brand">
                     <span class="brand-dot"></span>
-                    <span class="brand-name">ARKDEX <span class="v-tag">V1.1</span></span>
+                    <span class="brand-name">ARKDEX <span class="v-tag">V1.2</span></span>
                 </div>
                 <p class="footer-status">Cloud Sync: <span class="status-online">ATIVO</span></p>
             </div>
@@ -501,7 +509,6 @@
             loginTela.style.display = 'none';
             sistemaTela.style.display = 'block';
             lucide.createIcons();
-            // FIX: usa getDataHoje() em vez de valueAsDate = new Date()
             if(document.getElementById('dataCompra')) {
                 document.getElementById('dataCompra').value = getDataHoje();
             }
@@ -516,24 +523,41 @@
     let wipeHistory = [];     
     let selectedWipeIndex = "current";
     let confirmCallback = null;
-    // Flag para controlar o modo rename vs finalizar
     let modoRenomear = false;
 
+    // ═══════════════════════════════════════════════════════════
+    // NOVO: configVip atualizado com as 3 novas classes
+    // ═══════════════════════════════════════════════════════════
     const configVip = {
-        'UNLOKED': { class: 'tag-unloked', color: '#64748b' },
-        'ELITE': { class: 'tag-elite', color: '#0ea5e9' },
-        'IMPERADOR': { class: 'tag-imperador', color: '#8b5cf6' },
+        'UNLOKED':  { class: 'tag-unloked',  color: '#64748b' },
+        'ELITE':    { class: 'tag-elite',    color: '#0ea5e9' },
+        'IMPERADOR':{ class: 'tag-imperador',color: '#8b5cf6' },
         'LENDÁRIO': { class: 'tag-lendario', color: '#ec4899' },
-        'EXTREME': { class: 'tag-extreme', color: '#f43f5e' },
-        'SUPREMO': { class: 'tag-supremo', color: '#f59e0b' },
-        'OUTROS': { class: 'tag-outros', color: '#ffffff' }
+        'EXTREME':  { class: 'tag-extreme',  color: '#f43f5e' },
+        'SUPREMO':  { class: 'tag-supremo',  color: '#f59e0b' },
+        'PONTOS':   { class: 'tag-pontos',   color: '#16a34a' },
+        'KIT BASE': { class: 'tag-kitbase',  color: '#b45309' },
+        'LOOT BOX': { class: 'tag-lootbox',  color: '#7c3aed' },
+        'OUTROS':   { class: 'tag-outros',   color: '#ffffff' }
     };
 
+    // Helper: resolve config mesmo para tipos legados/desconhecidos
+    function getConfigVip(tipo) {
+        return configVip[tipo] || configVip['OUTROS'];
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // FIX #3: normaliza IDs — separa por vírgula, barra ou espaço,
+    // remove vazios e aplica trim. Usado em todo o sistema.
+    // ═══════════════════════════════════════════════════════════
+    function splitIds(idsStr) {
+        if (!idsStr || idsStr.trim() === '' || idsStr.trim() === 'S / ID') return [];
+        return idsStr.split(/[,\/\s]+/).map(s => s.trim()).filter(s => s !== '');
+    }
+
 	function iniciarSincronizacao() {
-		const user = auth.currentUser; // Pega o usuário logado
-		
+		const user = auth.currentUser;
 		if (user) {
-			// Só tenta ler se houver um usuário autenticado
 			db.ref('arkdex_v22').on('value', (snapshot) => {
 				const data = snapshot.val();
 				if (data) {
@@ -607,7 +631,8 @@
 
     function processarVip() {
         const rawIds = document.getElementById('idsSteam').value.trim();
-        const ids = rawIds === "" ? "S / ID" : rawIds;
+        // FIX #2: armazena string original; se vazio, salva sentinel "S/ID" limpo
+        const ids = rawIds === "" ? "S/ID" : rawIds;
         const tipo = document.getElementById('tipoVip').value;
         const dataCompra = document.getElementById('dataCompra').value;
         const valor = parseFloat(document.getElementById('valor').value) || 0;
@@ -637,6 +662,7 @@
         listExibida.forEach(v => fWipeVisualizado += v.valor);
 
         const createCard = (v, i, isFromSearchHist = false, wHistIndex = -1, wDate = "") => {
+            const cfg = getConfigVip(v.tipo);
             const dVenc = new Date(v.vencimento);
             const agora = new Date();
             agora.setHours(0,0,0,0);
@@ -644,26 +670,44 @@
             vencZero.setHours(0,0,0,0);
             let diffDias = v.pausado ? v.tempoRestanteAoPausar : Math.ceil((vencZero - agora) / (1000 * 60 * 60 * 24));
             let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
-            let statusHTML = (v.tipo === 'OUTROS' && v.dias === 0) ? `<span class="status-badge color-outros">ITENS / PONTOS</span>` : 
+
+            // Tipos sem prazo: OUTROS, PONTOS, KIT BASE, LOOT BOX com dias=0
+            const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX'].includes(v.tipo);
+
+            let statusHTML = semPrazo ? `<span class="status-badge color-outros">${v.tipo}</span>` : 
                              (v.pausado) ? `<span class="status-badge color-yellow">PAUSADO - RESTA ${diffDias} DIAS</span>` :
                              (v.baixado) ? `<span class="status-badge" style="background:#555">CONCLUÍDO (BAIXA)</span>` :
                              (diffDias <= 0) ? `<span class="status-badge color-red">VENCIDO</span>` : `<span class="status-badge ${corClasse}">ATIVO - ${diffDias} DIAS</span>`;
             
             let listIdx = isFromSearchHist ? wHistIndex : selectedWipeIndex;
-            const idsHTML = v.ids.split(/[,/ ]+/).filter(id => id.trim() !== "").map(id => `<span class="clickable-id" onclick="showPlayerInfo('${id.trim()}')">${id.trim()}</span>`).join(', ');
 
-            return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''}" style="border-left-color: ${configVip[v.tipo].color}">
+            // ═══════════════════════════════════════════════════
+            // FIX #2 + FIX #3: IDs clicáveis apenas se válidos
+            // splitIds() garante separação correta mesmo com espaços
+            // ═══════════════════════════════════════════════════
+            const idsSplit = splitIds(v.ids);
+            let idsHTML;
+            if (idsSplit.length === 0) {
+                // Sem ID — exibe texto simples, sem link
+                idsHTML = '<span style="color:var(--text-dim)">S/ ID</span>';
+            } else {
+                idsHTML = idsSplit.map(id => 
+                    `<span class="clickable-id" onclick="showPlayerInfo('${id.replace(/'/g,"\\'")}'">${id}</span>`
+                ).join(', ');
+            }
+
+            return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''}" style="border-left-color: ${cfg.color}">
                 <div class="info-group">
                     <span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span>
-                    <span class="info-value">${idsHTML}</span> <div><span class="badge ${configVip[v.tipo].class}">${v.tipo}</span></div>
+                    <span class="info-value">${idsHTML}</span> <div><span class="badge ${cfg.class}">${v.tipo}</span></div>
                     ${v.obs ? `<div class="obs-text">OBS: ${v.obs}</div>` : ''}
                 </div>
                 <div class="info-group"><span class="info-label">VALOR</span><span class="info-value" style="color:var(--primary)">R$ ${v.valor.toFixed(2)}</span></div>
                 <div class="info-group"><span class="info-label">COMPRA</span><span class="info-value">${new Date(v.dataCompra + 'T00:00:00').toLocaleDateString('pt-BR')}</span></div>
-                <div class="info-group"><span class="info-label">VENCIMENTO</span><span class="info-value">${(v.pausado || (v.tipo === 'OUTROS' && v.dias === 0)) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span><div style="margin-top:5px">${statusHTML}</div></div>
+                <div class="info-group"><span class="info-label">VENCIMENTO</span><span class="info-value">${(v.pausado || semPrazo) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span><div style="margin-top:5px">${statusHTML}</div></div>
                 <div class="actions">
                     ${!v.baixado ? `<button onclick="editar(${i}, '${listIdx}')" class="btn-action btn-edit">EDITAR</button>` : ''}
-                    ${(v.tipo === 'OUTROS' && v.dias === 0) || v.baixado ? '' : `<button onclick="togglePausa(${i}, '${listIdx}')" class="btn-action ${v.pausado ? 'btn-play' : 'btn-pause'}">${v.pausado ? 'RETOMAR' : 'PAUSAR'}</button>`}
+                    ${semPrazo || v.baixado ? '' : `<button onclick="togglePausa(${i}, '${listIdx}')" class="btn-action ${v.pausado ? 'btn-play' : 'btn-pause'}">${v.pausado ? 'RETOMAR' : 'PAUSAR'}</button>`}
                     ${v.baixado ? `<button onclick="restaurarBaixa(${i}, '${listIdx}')" class="btn-action btn-restaurar">RESTAURAR</button>` : `<button onclick="darBaixa(${i}, '${listIdx}')" class="btn-action btn-baixa">BAIXA</button>`}
                     <button onclick="deletar(${i}, '${listIdx}')" class="btn-action btn-del">DELETAR</button>
                 </div>
@@ -714,15 +758,10 @@
     function restaurarBaixa(index, wipeIdx) { customConfirm("RESTAURAR", "Remover a baixa?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list[index].baixado = false; salvarGeral(); }); }
     function deletar(index, wipeIdx) { customConfirm("EXCLUIR", "Deseja apagar permanentemente?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list.splice(index, 1); salvarGeral(); }); }
 
-    // ═══════════════════════════════════════════════════════
-    // FIX #2: EDITAR — muda wipe ANTES de preencher o form
-    // ═══════════════════════════════════════════════════════
     function editar(index, wipeIdx) {
-        // Se precisa mudar de wipe, muda PRIMEIRO sem limpar o form depois
         if (wipeIdx !== selectedWipeIndex) {
             selectedWipeIndex = wipeIdx;
             document.getElementById('wipeSelector').value = wipeIdx;
-            // Atualiza label e botões sem chamar limpar()
             document.getElementById('btnFinalize').style.display = (wipeIdx === "current") ? "block" : "none";
             document.getElementById('btnDelWipe').style.display = (wipeIdx === "current") ? "none" : "block";
             document.getElementById('btnRenameWipe').style.display = (wipeIdx === "current") ? "none" : "block";
@@ -733,8 +772,8 @@
         let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
         const v = list[index];
 
-        // Preenche os campos
-        document.getElementById('idsSteam').value = v.ids === "S / ID" ? "" : v.ids;
+        // FIX #2: ao editar, se era "S/ID" deixa o campo vazio para reedição
+        document.getElementById('idsSteam').value = (v.ids === "S/ID" || v.ids === "S / ID") ? "" : v.ids;
         document.getElementById('tipoVip').value = v.tipo;
         document.getElementById('dataCompra').value = v.dataCompra;
         document.getElementById('valor').value = v.valor;
@@ -742,12 +781,10 @@
         document.getElementById('obs').value = v.obs;
         document.getElementById('editIndex').value = index;
 
-        // Botão amarelo de atualizar
         const btn = document.getElementById('btn-add');
         btn.innerText = "ATUALIZAR REGISTRO";
         btn.classList.add('btn-update');
 
-        // Mostra banner se for wipe histórico
         const banner = document.getElementById('editHistBanner');
         if (wipeIdx !== "current") {
             document.getElementById('editHistBannerText').innerText = 
@@ -760,13 +797,23 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // ═══════════════════════════════════════════════════════════════════
+    // FIX #3: showPlayerInfo — usa splitIds() para busca exata por token
+    // Antes: split(/[,/ ]+/) falhava com múltiplos espaços e mixed case
+    // ═══════════════════════════════════════════════════════════════════
     function showPlayerInfo(steamId) {
-        if(!steamId || steamId === "S / ID") return;
+        if(!steamId) return;
+        const buscarId = steamId.trim().toUpperCase();
+        // Não abre modal para o sentinela sem ID
+        if(buscarId === '' || buscarId === 'S/ID' || buscarId === 'S / ID') return;
+
         let total = 0, html = '';
-        const buscarId = steamId.trim().toUpperCase(); 
+
         const search = (list, label) => {
             list.forEach(v => {
-                if(v.ids.toUpperCase().split(/[,/ ]+/).map(item => item.trim()).includes(buscarId)) {
+                // splitIds normaliza e faz comparação token a token
+                const tokens = splitIds(v.ids).map(t => t.toUpperCase());
+                if(tokens.includes(buscarId)) {
                     total += v.valor;
                     html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${new Date(v.dataCompra + 'T12:00:00').toLocaleDateString('pt-BR')}</td><td>R$ ${v.valor.toFixed(2)}</td></tr>`;
                 }
@@ -778,6 +825,7 @@
         document.getElementById('modalPlayerTotal').innerText = "INVESTIMENTO TOTAL: R$ " + total.toFixed(2);
         document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center">NENHUM REGISTRO ENCONTRADO</td></tr>';
         document.getElementById('modalDossie').style.display = 'flex';
+        lucide.createIcons();
     }
 
     function closeModal() { document.getElementById('modalDossie').style.display = 'none'; }
@@ -797,9 +845,6 @@
         setTimeout(() => document.getElementById('inputWipeName').select(), 100);
     }
 
-    // ═══════════════════════════════════════════════
-    // NOVO: RENOMEAR WIPE ARQUIVADO
-    // ═══════════════════════════════════════════════
     function renomearWipe() {
         if (selectedWipeIndex === "current") return;
         modoRenomear = true;
@@ -863,7 +908,6 @@
         document.getElementById('btnRenameWipe').style.display = (val === "current") ? "none" : "block";
         const label = document.getElementById('currentWipeName');
         if (label) label.innerText = (val === "current") ? "WIPE EM CURSO" : "ARQUIVO: " + wipeHistory[val].date;
-        // Esconde banner de edição ao trocar wipe manualmente
         document.getElementById('editHistBanner').classList.remove('visible');
         limpar();
         render();
@@ -884,7 +928,8 @@
 
     function localizarVip(index, wipeIdx, steamId) {
         if(wipeIdx !== selectedWipeIndex) changeWipe(wipeIdx);
-        document.getElementById('inputBusca').value = steamId.split(/[,/ ]+/)[0];
+        // Pega só o primeiro token para a busca
+        document.getElementById('inputBusca').value = splitIds(steamId)[0] || steamId;
         render();
         toggleNotificacoes();
         setTimeout(() => {
@@ -904,16 +949,13 @@
         document.getElementById('valor').value = ''; 
         document.getElementById('dias').value = ''; 
         document.getElementById('obs').value = ''; 
-        // FIX: usa getDataHoje() em vez de valueAsDate = new Date()
         document.getElementById('dataCompra').value = getDataHoje();
         
-        // Reset do botão
         const btn = document.getElementById('btn-add');
         btn.innerText = "LANÇA VIP";
         btn.classList.remove('btn-update');
         
         document.getElementById('editIndex').value = "-1"; 
-        // Esconde banner de edição histórica
         document.getElementById('editHistBanner').classList.remove('visible');
     }
 </script>
