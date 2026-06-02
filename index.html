@@ -32,7 +32,7 @@
         .btn-rename-wipe { background: #0891b2; color: white; display: none; }
         .select-wipe { background: var(--input-bg); color: white; border: 1px solid var(--border); padding: 5px; border-radius: 4px; font-size: 10px; font-weight: 800; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 16px; border-bottom: 3px solid var(--primary); }
         .stat-label { font-size: 0.65rem; color: var(--text-dim); font-weight: 800; margin-bottom: 5px; display: block; }
         .stat-value { font-size: 1.4rem; font-weight: 800; color: #fff; }
@@ -72,7 +72,6 @@
         .tag-lendario { background: #ec4899; }
         .tag-extreme { background: #f43f5e; }
         .tag-unloked { background: #64748b; }
-        /* NOVO: tags para as novas classes */
         .tag-pontos   { background: #16a34a; color: #fff; }
         .tag-kitbase  { background: #b45309; color: #fff; }
         .tag-lootbox  { background: #7c3aed; color: #fff; }
@@ -117,7 +116,6 @@
             border-top: 1px solid var(--border);
             background: linear-gradient(to top, #0d1117, transparent);
         }
-
         .footer-content {
             display: flex;
             justify-content: space-between;
@@ -127,147 +125,27 @@
             flex-wrap: wrap;
             gap: 20px;
         }
-
-        .footer-brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 5px;
-        }
-
-        .brand-dot {
-            width: 8px; height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--primary-glow);
-        }
-
-        .brand-name {
-            font-weight: 800;
-            font-size: 14px;
-            letter-spacing: 1px;
-        }
-
-        .v-tag {
-            background: #21262d;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 9px;
-            color: var(--text-dim);
-        }
-
-        .footer-status {
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--text-dim);
-        }
-
-        .status-online {
-            color: #238636;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .footer-center {
-            text-align: center;
-        }
-
-        .footer-center p {
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--text-dim);
-            margin-bottom: 8px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            font-size: 9px;
-            font-weight: 800;
-        }
-
-        .footer-links a {
-            color: var(--primary);
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
+        .footer-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+        .brand-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary-glow); }
+        .brand-name { font-weight: 800; font-size: 14px; letter-spacing: 1px; }
+        .v-tag { background: #21262d; padding: 2px 6px; border-radius: 4px; font-size: 9px; color: var(--text-dim); }
+        .footer-status { font-size: 10px; font-weight: 800; color: var(--text-dim); }
+        .status-online { color: #238636; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .footer-center { text-align: center; }
+        .footer-center p { font-size: 10px; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; }
+        .footer-links { display: flex; gap: 10px; justify-content: center; font-size: 9px; font-weight: 800; }
+        .footer-links a { color: var(--primary); text-decoration: none; transition: 0.3s; }
         .footer-links a:hover { text-shadow: 0 0 8px var(--primary-glow); }
-
         .sep { color: #30363d; }
-
-        .dev-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 9px;
-            font-weight: 800;
-            color: var(--text-dim);
-            background: #161b22;
-            padding: 8px 15px;
-            border-radius: 30px;
-            border: 1px solid var(--border);
-        }
+        .dev-info { display: flex; align-items: center; gap: 10px; font-size: 9px; font-weight: 800; color: var(--text-dim); background: #161b22; padding: 8px 15px; border-radius: 30px; border: 1px solid var(--border); }
 
         /* Tela de Login */
-        .login-overlay { 
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: var(--bg); z-index: 9999; display: flex; 
-            justify-content: center; align-items: center; 
-        }
-        .login-box { 
-            background: var(--card-bg); padding: 40px; border-radius: 16px; 
-            border: 1px solid var(--primary); width: 100%; max-width: 350px; text-align: center; 
-        }
+        .login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .login-box { background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--primary); width: 100%; max-width: 350px; text-align: center; }
         .login-box input { width: 100%; margin-bottom: 15px; }
-        
-        /* AJUSTE MOBILE */
-        @media (max-width: 768px) {
-            .footer-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            .footer-right { order: -1; }
-        }
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            .wipe-manager { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 15px;
-            }
-            .wipe-controls { width: 100%; justify-content: space-between; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .form-grid { grid-template-columns: 1fr; }
-            .form-grid > div { grid-column: span 1 !important; }
-            .vip-card { 
-                grid-template-columns: 1fr !important; 
-                gap: 12px !important; 
-                padding: 15px !important; 
-            }
-            .actions { 
-                justify-content: flex-start !important; 
-                display: flex; 
-                flex-wrap: wrap; 
-                gap: 8px; 
-                border-top: 1px solid var(--border);
-                padding-top: 15px;
-                margin-top: 5px;
-            }
-            .btn-action { 
-                flex: 1; 
-                min-width: 80px; 
-                padding: 12px 5px; 
-                font-size: 10px;
-            }
-        }
 
+        /* NOTIFICAÇÕES */
         .notification-bar { background: #1c2128; border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 4px solid var(--danger); }
         .notif-badge { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 900; }
         .notif-panel { display: none; background: #161b22; border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; }
@@ -276,23 +154,10 @@
         .notif-urgent { color: var(--danger); font-weight: 800; }
 
         /* Banner de aviso quando editando wipe histórico */
-        .edit-hist-banner {
-            display: none;
-            background: #1c1912;
-            border: 1px solid var(--warning);
-            border-left: 4px solid var(--warning);
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 10px;
-            font-weight: 800;
-            color: var(--warning);
-            margin-bottom: 15px;
-            align-items: center;
-            gap: 10px;
-        }
+        .edit-hist-banner { display: none; background: #1c1912; border: 1px solid var(--warning); border-left: 4px solid var(--warning); padding: 10px 20px; border-radius: 8px; font-size: 10px; font-weight: 800; color: var(--warning); margin-bottom: 15px; align-items: center; gap: 10px; }
         .edit-hist-banner.visible { display: flex; }
 
-        /* ALERTA VENCIMENTO PRÓXIMO — borda piscando */
+        /* ALERTA VENCIMENTO PRÓXIMO */
         @keyframes borderPulse {
             0%   { border-left-color: #f59e0b; box-shadow: 0 0 0 rgba(245,158,11,0); }
             50%  { border-left-color: #fbbf24; box-shadow: 0 0 12px rgba(245,158,11,0.6); }
@@ -300,48 +165,153 @@
         }
         .vip-card.urgente { animation: borderPulse 1.4s ease-in-out infinite; }
 
-        /* FILTROS */
+        /* ═══════════════════════════════════════════════════
+           NOVO: FILTROS — dois selects compactos em linha
+           ═══════════════════════════════════════════════════ */
         .filtros-bar {
-            display: flex; flex-wrap: wrap; gap: 8px;
+            display: flex; flex-wrap: wrap; gap: 10px;
             background: #1c2128; border: 1px solid var(--border);
             border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
             align-items: center;
         }
-        .filtros-bar span { font-size: 9px; font-weight: 800; color: var(--text-dim); margin-right: 4px; }
-        .filtro-btn {
-            padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
-            background: var(--input-bg); color: var(--text-dim);
-            font-size: 9px; font-weight: 800; cursor: pointer; transition: 0.2s;
+        .filtros-bar .filtro-grupo {
+            display: flex; align-items: center; gap: 8px;
         }
-        .filtro-btn.ativo { background: var(--primary); color: #000; border-color: var(--primary); }
-        .filtro-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+        .filtros-bar .filtro-label {
+            font-size: 9px; font-weight: 800; color: var(--text-dim); white-space: nowrap;
+        }
+        .filtro-select {
+            background: var(--input-bg); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 6px;
+            padding: 6px 10px; font-size: 10px; font-weight: 800;
+            cursor: pointer; transition: 0.2s; outline: none;
+            min-width: 140px;
+        }
+        .filtro-select:focus, .filtro-select:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(0,242,255,0.15);
+        }
+        .filtro-sep { width: 1px; height: 24px; background: var(--border); }
 
-        /* DASHBOARD */
+        /* ═══════════════════════════════════════════════════
+           NOVO: DASHBOARD — reposicionado, redesenhado
+           ═══════════════════════════════════════════════════ */
         .dashboard-section {
             background: var(--card-bg); border: 1px solid var(--border);
-            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+            border-radius: 16px; padding: 0; margin-bottom: 20px;
+            overflow: hidden;
         }
         .dashboard-header {
             display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; margin-bottom: 0;
+            cursor: pointer; padding: 16px 20px;
+            background: linear-gradient(90deg, #1c2128, #161b22);
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
+            user-select: none;
         }
-        .dashboard-header h3 { font-size: 11px; font-weight: 800; color: var(--primary); }
-        .dashboard-body { display: none; margin-top: 18px; }
+        .dashboard-header.aberto { border-bottom-color: var(--border); }
+        .dashboard-header h3 { font-size: 11px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .dash-arrow { transition: transform 0.3s; color: var(--text-dim); }
+        .dash-arrow.aberto { transform: rotate(180deg); }
+
+        .dashboard-body { display: none; padding: 20px; }
         .dashboard-body.aberto { display: block; }
-        .chart-wrap { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding-bottom: 24px; position: relative; }
-        .chart-bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
-        .chart-bar { width: 100%; background: var(--primary); border-radius: 4px 4px 0 0; transition: height 0.5s ease; cursor: default; position: relative; }
-        .chart-bar:hover::after {
-            content: attr(data-val);
-            position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
-            background: #000; color: var(--primary); font-size: 9px; font-weight: 800;
-            padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+
+        /* Gráfico de barras melhorado */
+        .chart-outer {
+            position: relative;
+            padding-bottom: 8px;
         }
-        .chart-label { font-size: 7px; color: var(--text-dim); font-weight: 800; margin-top: 4px; text-align: center; word-break: break-all; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .chart-empty { font-size: 10px; color: var(--text-dim); text-align: center; padding: 30px 0; }
+        .chart-grid-lines {
+            position: absolute; top: 0; left: 0; right: 0;
+            display: flex; flex-direction: column; justify-content: space-between;
+            height: 140px; pointer-events: none;
+        }
+        .chart-grid-line {
+            width: 100%; height: 1px;
+            background: rgba(48,54,61,0.6);
+        }
+        .chart-wrap {
+            display: flex; align-items: flex-end; gap: 10px;
+            height: 140px; position: relative; z-index: 1;
+        }
+        .chart-bar-group {
+            display: flex; flex-direction: column; align-items: center;
+            flex: 1; min-width: 0; gap: 6px;
+        }
+        .chart-bar-container {
+            width: 100%; display: flex; align-items: flex-end;
+            height: 120px; position: relative;
+        }
+        .chart-bar {
+            width: 100%;
+            background: linear-gradient(to top, rgba(0,242,255,0.9), rgba(0,242,255,0.4));
+            border-radius: 6px 6px 0 0;
+            transition: height 0.5s cubic-bezier(.4,0,.2,1), opacity 0.2s;
+            cursor: default; position: relative;
+            border: 1px solid rgba(0,242,255,0.3);
+            border-bottom: none;
+            min-height: 4px;
+        }
+        .chart-bar:hover { opacity: 0.85; }
+        .chart-bar.is-atual {
+            background: linear-gradient(to top, #00f2ff, rgba(0,242,255,0.7));
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(0,242,255,0.3);
+        }
+        .chart-tooltip {
+            position: absolute; bottom: calc(100% + 6px); left: 50%;
+            transform: translateX(-50%);
+            background: #0d1117; color: var(--primary);
+            font-size: 9px; font-weight: 800;
+            padding: 3px 8px; border-radius: 5px;
+            white-space: nowrap;
+            border: 1px solid var(--primary);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.15s;
+            z-index: 10;
+        }
+        .chart-bar:hover .chart-tooltip { opacity: 1; }
+        .chart-label {
+            font-size: 8px; color: var(--text-dim); font-weight: 800;
+            text-align: center; word-break: break-all;
+            max-width: 100%; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+        }
+        .chart-label.is-atual { color: var(--primary); }
+        .chart-empty { font-size: 10px; color: var(--text-dim); text-align: center; padding: 40px 0; }
+
+        /* Sumário do dashboard */
+        .dash-summary {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px; margin-top: 16px;
+        }
+        .dash-stat {
+            background: #1c2128; border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 14px;
+        }
+        .dash-stat-label { font-size: 8px; color: var(--text-dim); font-weight: 800; margin-bottom: 4px; }
+        .dash-stat-val { font-size: 14px; font-weight: 800; color: var(--primary); }
 
         /* NOTIF clicável ID */
         .notif-clickid { cursor: pointer; text-decoration: underline; color: var(--primary); font-weight: 800; }
+
+        /* AJUSTE MOBILE */
+        @media (max-width: 768px) {
+            .footer-content { flex-direction: column; text-align: center; }
+            .footer-right { order: -1; }
+            body { padding: 10px; }
+            .wipe-manager { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .wipe-controls { width: 100%; justify-content: space-between; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid > div { grid-column: span 1 !important; }
+            .vip-card { grid-template-columns: 1fr !important; gap: 12px !important; padding: 15px !important; }
+            .actions { justify-content: flex-start !important; display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--border); padding-top: 15px; margin-top: 5px; }
+            .btn-action { flex: 1; min-width: 80px; padding: 12px 5px; font-size: 10px; }
+            .filtros-bar { flex-direction: column; align-items: flex-start; }
+            .filtro-sep { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -398,6 +368,31 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════
+         DASHBOARD — logo abaixo do wipe manager
+         ═══════════════════════════════════════════════════ -->
+    <div class="dashboard-section">
+        <div class="dashboard-header" id="dashboardHeader" onclick="toggleDashboard()">
+            <h3>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>
+                DASHBOARD DE RECEITA POR WIPE
+            </h3>
+            <svg class="dash-arrow" id="dashArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="dashboard-body" id="dashboardBody">
+            <div class="chart-outer">
+                <div class="chart-grid-lines">
+                    <div class="chart-grid-line"></div>
+                    <div class="chart-grid-line"></div>
+                    <div class="chart-grid-line"></div>
+                    <div class="chart-grid-line"></div>
+                </div>
+                <div class="chart-wrap" id="chartWrap"></div>
+            </div>
+            <div class="dash-summary" id="dashSummary"></div>
+        </div>
+    </div>
+
     <div class="stats-grid">
         <div class="stat-card">
             <span id="wipeStatsLabel" class="stat-label">VENDAS NO WIPE</span>
@@ -429,7 +424,6 @@
                     <option value="LENDÁRIO">VIP LENDÁRIO</option>
                     <option value="EXTREME">VIP EXTREME</option>
                     <option value="SUPREMO">VIP SUPREMO</option>
-                    <!-- NOVO: novas classes adicionadas -->
                     <option value="PONTOS">PONTOS</option>
                     <option value="KIT BASE">KIT BASE</option>
                     <option value="LOOT BOX">LOOT BOX</option>
@@ -454,38 +448,37 @@
         </div>
     </div>
 
-    <!-- DASHBOARD DE RECEITA -->
-    <div class="dashboard-section">
-        <div class="dashboard-header" onclick="toggleDashboard()">
-            <h3>📊 DASHBOARD DE RECEITA POR WIPE</h3>
-            <i data-lucide="chevron-down" id="dash-arrow"></i>
-        </div>
-        <div class="dashboard-body" id="dashboardBody">
-            <div class="chart-wrap" id="chartWrap"></div>
-        </div>
-    </div>
-
-    <!-- FILTROS -->
+    <!-- ═══════════════════════════════════════════════════
+         FILTROS — dois selects compactos
+         ═══════════════════════════════════════════════════ -->
     <div class="filtros-bar" id="filtrosBar">
-        <span>STATUS:</span>
-        <button class="filtro-btn ativo" onclick="setFiltroStatus('todos')">TODOS</button>
-        <button class="filtro-btn" onclick="setFiltroStatus('ativo')">ATIVO</button>
-        <button class="filtro-btn" onclick="setFiltroStatus('vencido')">VENCIDO</button>
-        <button class="filtro-btn" onclick="setFiltroStatus('pausado')">PAUSADO</button>
-        <button class="filtro-btn" onclick="setFiltroStatus('baixa')">BAIXA</button>
+        <div class="filtro-grupo">
+            <span class="filtro-label">STATUS:</span>
+            <select class="filtro-select" id="filtroStatusSel" onchange="setFiltroStatus(this.value)">
+                <option value="todos">TODOS</option>
+                <option value="ativo">ATIVO</option>
+                <option value="vencido">VENCIDO</option>
+                <option value="pausado">PAUSADO</option>
+                <option value="baixa">BAIXA</option>
+            </select>
+        </div>
         <div class="filtro-sep"></div>
-        <span>CLASSE:</span>
-        <button class="filtro-btn ativo" onclick="setFiltroVip('todos')">TODOS</button>
-        <button class="filtro-btn" onclick="setFiltroVip('UNLOKED')">UNLOKED</button>
-        <button class="filtro-btn" onclick="setFiltroVip('ELITE')">ELITE</button>
-        <button class="filtro-btn" onclick="setFiltroVip('IMPERADOR')">IMPERADOR</button>
-        <button class="filtro-btn" onclick="setFiltroVip('LENDÁRIO')">LENDÁRIO</button>
-        <button class="filtro-btn" onclick="setFiltroVip('EXTREME')">EXTREME</button>
-        <button class="filtro-btn" onclick="setFiltroVip('SUPREMO')">SUPREMO</button>
-        <button class="filtro-btn" onclick="setFiltroVip('PONTOS')">PONTOS</button>
-        <button class="filtro-btn" onclick="setFiltroVip('KIT BASE')">KIT BASE</button>
-        <button class="filtro-btn" onclick="setFiltroVip('LOOT BOX')">LOOT BOX</button>
-        <button class="filtro-btn" onclick="setFiltroVip('OUTROS')">OUTROS</button>
+        <div class="filtro-grupo">
+            <span class="filtro-label">CLASSE:</span>
+            <select class="filtro-select" id="filtroVipSel" onchange="setFiltroVip(this.value)">
+                <option value="todos">TODOS</option>
+                <option value="UNLOKED">VIP UNLOKED</option>
+                <option value="ELITE">VIP ELITE</option>
+                <option value="IMPERADOR">VIP IMPERADOR</option>
+                <option value="LENDÁRIO">VIP LENDÁRIO</option>
+                <option value="EXTREME">VIP EXTREME</option>
+                <option value="SUPREMO">VIP SUPREMO</option>
+                <option value="PONTOS">PONTOS</option>
+                <option value="KIT BASE">KIT BASE</option>
+                <option value="LOOT BOX">LOOT BOX</option>
+                <option value="OUTROS">OUTROS</option>
+            </select>
+        </div>
     </div>
 
     <div id="cardsLista" class="cards-container"></div>
@@ -510,6 +503,7 @@
     </footer>
 </div>
 
+<!-- Modal confirmação geral -->
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content confirm-modal">
         <div class="confirm-title" id="confirmTitle">ATENÇÃO</div>
@@ -521,6 +515,7 @@
     </div>
 </div>
 
+<!-- Modal nome do wipe -->
 <div id="wipeNameModal" class="modal-overlay">
     <div class="modal-content confirm-modal">
         <div class="confirm-title" id="wipeNameModalTitle">NOME DO ARQUIVO</div>
@@ -533,6 +528,7 @@
     </div>
 </div>
 
+<!-- Modal dossiê do jogador -->
 <div id="modalDossie" class="modal-overlay">
     <div class="modal-content">
         <span class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></span>
@@ -564,7 +560,7 @@
     const auth = firebase.auth();
 
     // ═══════════════════════════════════════════════
-    // FIX #1: FUNÇÃO DE DATA LOCAL (sem bug de fuso)
+    // FUNÇÃO DE DATA LOCAL (sem bug de fuso)
     // ═══════════════════════════════════════════════
     function getDataHoje() {
         const hoje = new Date();
@@ -613,9 +609,6 @@
     let filtroVip    = 'todos';
     let dashAberto   = false;
 
-    // ═══════════════════════════════════════════════════════════
-    // NOVO: configVip atualizado com as 3 novas classes
-    // ═══════════════════════════════════════════════════════════
     const configVip = {
         'UNLOKED':  { class: 'tag-unloked',  color: '#64748b' },
         'ELITE':    { class: 'tag-elite',    color: '#0ea5e9' },
@@ -629,37 +622,32 @@
         'OUTROS':   { class: 'tag-outros',   color: '#ffffff' }
     };
 
-    // Helper: resolve config mesmo para tipos legados/desconhecidos
     function getConfigVip(tipo) {
         return configVip[tipo] || configVip['OUTROS'];
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // FIX #3: normaliza IDs — separa por vírgula, barra ou espaço,
-    // remove vazios e aplica trim. Usado em todo o sistema.
-    // ═══════════════════════════════════════════════════════════
     function splitIds(idsStr) {
         if (!idsStr || idsStr.trim() === '' || idsStr.trim() === 'S / ID') return [];
         return idsStr.split(/[,\/\s]+/).map(s => s.trim()).filter(s => s !== '');
     }
 
-	function iniciarSincronizacao() {
-		const user = auth.currentUser;
-		if (user) {
-			db.ref('arkdex_v22').on('value', (snapshot) => {
-				const data = snapshot.val();
-				if (data) {
-					currentVipeList = data.current || [];
-					wipeHistory = data.history || [];
-					updateWipeSelector();
-					render(); 
-				}
-			}, (error) => {
-				console.error("Erro de permissão: ", error);
-				alert("Erro de permissão: Verifique se o seu UID está correto nas regras do Firebase.");
-			});
-		}
-	}
+    function iniciarSincronizacao() {
+        const user = auth.currentUser;
+        if (user) {
+            db.ref('arkdex_v22').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    currentVipeList = data.current || [];
+                    wipeHistory = data.history || [];
+                    updateWipeSelector();
+                    render(); 
+                }
+            }, (error) => {
+                console.error("Erro de permissão: ", error);
+                alert("Erro de permissão: Verifique se o seu UID está correto nas regras do Firebase.");
+            });
+        }
+    }
 
     function toggleNotificacoes() {
         const panel = document.getElementById('notif-list');
@@ -677,7 +665,6 @@
                 const diff = dVenc.getTime() - new Date().getTime();
                 if (!v.baixado && v.dias > 0 && diff <= 0 && !v.pausado) {
                     totalVencidos++;
-                    // IDs clicáveis: cada token vira um span com data-attr
                     const idTokens = splitIds(v.ids);
                     const idsNotifHTML = idTokens.length
                         ? idTokens.map(id => `<span class="notif-clickid" data-steamid="${id}">${id}</span>`).join(', ')
@@ -696,7 +683,6 @@
         const countBadge = document.getElementById('notif-count');
         if (countBadge) countBadge.innerText = totalVencidos;
         if (totalVencidos === 0) notifList.innerHTML = '<p style="font-size:10px; padding:10px; color:var(--text-dim); text-align:center;">NENHUM VIP VENCIDO NO SISTEMA.</p>';
-        // Delegation para IDs clicáveis no painel de notificações
         notifList.onclick = function(e) {
             const el = e.target.closest('.notif-clickid');
             if (el) showPlayerInfo(el.dataset.steamid);
@@ -729,7 +715,6 @@
 
     function processarVip() {
         const rawIds = document.getElementById('idsSteam').value.trim();
-        // FIX #2: armazena string original; se vazio, salva sentinel "S/ID" limpo
         const ids = rawIds === "" ? "S/ID" : rawIds;
         const tipo = document.getElementById('tipoVip').value;
         const dataCompra = document.getElementById('dataCompra').value;
@@ -769,7 +754,6 @@
             let diffDias = v.pausado ? v.tempoRestanteAoPausar : Math.ceil((vencZero - agora) / (1000 * 60 * 60 * 24));
             let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
 
-            // Tipos sem prazo: OUTROS, PONTOS, KIT BASE, LOOT BOX com dias=0
             const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX'].includes(v.tipo);
 
             let statusHTML = semPrazo ? `<span class="status-badge color-outros">${v.tipo}</span>` : 
@@ -779,14 +763,9 @@
             
             let listIdx = isFromSearchHist ? wHistIndex : selectedWipeIndex;
 
-            // ═══════════════════════════════════════════════════
-            // FIX #2 + FIX #3: IDs clicáveis apenas se válidos
-            // splitIds() garante separação correta mesmo com espaços
-            // ═══════════════════════════════════════════════════
             const idsSplit = splitIds(v.ids);
             let idsHTML;
             if (idsSplit.length === 0) {
-                // Sem ID — exibe texto simples, sem link
                 idsHTML = '<span style="color:var(--text-dim)">S/ ID</span>';
             } else {
                 idsHTML = idsSplit.map(id => 
@@ -795,6 +774,11 @@
             }
 
             const urgente = !v.baixado && !v.pausado && !semPrazo && diffDias > 0 && diffDias <= 2;
+
+            // Botão pausar/retomar com confirmação
+            const btnPausaLabel = v.pausado ? 'RETOMAR' : 'PAUSAR';
+            const btnPausaClass = v.pausado ? 'btn-play' : 'btn-pause';
+
             return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''} ${urgente ? 'urgente' : ''}" style="border-left-color: ${cfg.color}">
                 <div class="info-group">
                     <span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span>
@@ -806,7 +790,7 @@
                 <div class="info-group"><span class="info-label">VENCIMENTO</span><span class="info-value">${(v.pausado || semPrazo) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span><div style="margin-top:5px">${statusHTML}</div></div>
                 <div class="actions">
                     ${!v.baixado ? `<button onclick="editar(${i}, '${listIdx}')" class="btn-action btn-edit">EDITAR</button>` : ''}
-                    ${semPrazo || v.baixado ? '' : `<button onclick="togglePausa(${i}, '${listIdx}')" class="btn-action ${v.pausado ? 'btn-play' : 'btn-pause'}">${v.pausado ? 'RETOMAR' : 'PAUSAR'}</button>`}
+                    ${semPrazo || v.baixado ? '' : `<button onclick="confirmarPausa(${i}, '${listIdx}', ${v.pausado})" class="btn-action ${btnPausaClass}">${btnPausaLabel}</button>`}
                     ${v.baixado ? `<button onclick="restaurarBaixa(${i}, '${listIdx}')" class="btn-action btn-restaurar">RESTAURAR</button>` : `<button onclick="darBaixa(${i}, '${listIdx}')" class="btn-action btn-baixa">BAIXA</button>`}
                     <button onclick="deletar(${i}, '${listIdx}')" class="btn-action btn-del">DELETAR</button>
                 </div>
@@ -830,31 +814,24 @@
         document.getElementById('faturamentoAnual').innerText = `R$ ${fAnualTotal.toFixed(2)}`;
         document.getElementById('wipeStatsLabel').innerText = (selectedWipeIndex === "current") ? "VENDAS NO WIPE" : "VENDAS NESTE ARQUIVO";
         lucide.createIcons();
-        // Event delegation: um único listener no container, sem onclick inline
         document.getElementById('cardsLista').onclick = function(e) {
             const el = e.target.closest('.clickable-id');
             if (el) showPlayerInfo(el.dataset.steamid);
         };
+
+        // Atualiza dashboard se estiver aberto
+        if (dashAberto) renderDashboard();
     }
 
     // ═══════════════════════════════════
-    // FILTROS
+    // FILTROS — agora via select
     // ═══════════════════════════════════
     function setFiltroStatus(val) {
         filtroStatus = val;
-        document.querySelectorAll('#filtrosBar .filtro-btn').forEach(b => {
-            if (['TODOS','ATIVO','VENCIDO','PAUSADO','BAIXA'].includes(b.innerText)) b.classList.remove('ativo');
-        });
-        event.target.classList.add('ativo');
         render();
     }
     function setFiltroVip(val) {
         filtroVip = val;
-        document.querySelectorAll('#filtrosBar .filtro-btn').forEach(b => {
-            const vips = ['TODOS','UNLOKED','ELITE','IMPERADOR','LENDÁRIO','EXTREME','SUPREMO','PONTOS','KIT BASE','LOOT BOX','OUTROS'];
-            if (vips.includes(b.innerText)) b.classList.remove('ativo');
-        });
-        event.target.classList.add('ativo');
         render();
     }
     function passaFiltro(v) {
@@ -872,35 +849,93 @@
     }
 
     // ═══════════════════════════════════
-    // DASHBOARD
+    // DASHBOARD — melhorado
     // ═══════════════════════════════════
     function toggleDashboard() {
         dashAberto = !dashAberto;
-        document.getElementById('dashboardBody').classList.toggle('aberto', dashAberto);
+        const body = document.getElementById('dashboardBody');
+        const header = document.getElementById('dashboardHeader');
+        const arrow = document.getElementById('dashArrow');
+        body.classList.toggle('aberto', dashAberto);
+        header.classList.toggle('aberto', dashAberto);
+        arrow.classList.toggle('aberto', dashAberto);
         if (dashAberto) renderDashboard();
-        lucide.createIcons();
     }
+
     function renderDashboard() {
         const wrap = document.getElementById('chartWrap');
+        const summary = document.getElementById('dashSummary');
         if (!wrap) return;
-        // Monta lista: wipes históricos (ordem cronológica) + atual
+
+        // Monta dados
         const dados = [];
         wipeHistory.forEach(w => {
             const total = w.vips.reduce((s, v) => s + v.valor, 0);
-            dados.push({ label: w.date, val: total });
+            dados.push({ label: w.date, val: total, isAtual: false });
         });
         const totalAtual = currentVipeList.reduce((s, v) => s + v.valor, 0);
-        dados.push({ label: 'ATUAL', val: totalAtual });
-        if (dados.length === 0) { wrap.innerHTML = '<div class="chart-empty">SEM DADOS</div>'; return; }
+        dados.push({ label: 'ATUAL', val: totalAtual, isAtual: true });
+
+        if (dados.length === 0 || dados.every(d => d.val === 0)) {
+            wrap.innerHTML = '<div class="chart-empty">SEM DADOS PARA EXIBIR</div>';
+            if (summary) summary.innerHTML = '';
+            return;
+        }
+
         const max = Math.max(...dados.map(d => d.val), 1);
+        const totalGeral = dados.reduce((s, d) => s + d.val, 0);
+        const melhorWipe = dados.reduce((a, b) => b.val > a.val ? b : a, dados[0]);
+
+        // Barras
         wrap.innerHTML = dados.map(d => {
-            const h = Math.max(4, Math.round((d.val / max) * 100));
-            const label = 'R$ ' + d.val.toFixed(2);
-            return `<div class="chart-bar-group">
-                <div class="chart-bar" style="height:${h}px" data-val="${label}"></div>
-                <div class="chart-label">${d.label}</div>
+            const pct = d.val / max;
+            const h = Math.max(4, Math.round(pct * 116));
+            const valLabel = 'R$ ' + d.val.toFixed(2);
+            return `
+            <div class="chart-bar-group">
+                <div class="chart-bar-container">
+                    <div class="chart-bar ${d.isAtual ? 'is-atual' : ''}" style="height:${h}px">
+                        <div class="chart-tooltip">${valLabel}</div>
+                    </div>
+                </div>
+                <div class="chart-label ${d.isAtual ? 'is-atual' : ''}">${d.label}</div>
             </div>`;
         }).join('');
+
+        // Sumário
+        if (summary) {
+            summary.innerHTML = `
+                <div class="dash-stat">
+                    <div class="dash-stat-label">TOTAL GERAL</div>
+                    <div class="dash-stat-val">R$ ${totalGeral.toFixed(2)}</div>
+                </div>
+                <div class="dash-stat">
+                    <div class="dash-stat-label">MELHOR WIPE</div>
+                    <div class="dash-stat-val">${melhorWipe.label}</div>
+                </div>
+                <div class="dash-stat">
+                    <div class="dash-stat-label">WIPE ATUAL</div>
+                    <div class="dash-stat-val">R$ ${totalAtual.toFixed(2)}</div>
+                </div>
+                <div class="dash-stat">
+                    <div class="dash-stat-label">WIPES ARQUIVADOS</div>
+                    <div class="dash-stat-val">${wipeHistory.length}</div>
+                </div>
+            `;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // NOVO: confirmarPausa — pede confirmação antes de pausar/retomar
+    // ═══════════════════════════════════════════════════════════
+    function confirmarPausa(index, wipeIdx, estaPausado) {
+        const acao = estaPausado ? 'RETOMAR' : 'PAUSAR';
+        const texto = estaPausado
+            ? 'Deseja retomar este VIP? O vencimento será recalculado a partir de hoje.'
+            : 'Deseja pausar este VIP? O tempo restante será congelado.';
+        customConfirm(acao + ' VIP', texto, () => {
+            togglePausa(index, wipeIdx);
+        });
     }
 
     function togglePausa(index, wipeIdx) {
@@ -943,8 +978,20 @@
             list[index].baixado = true; salvarGeral();
         });
     }
-    function restaurarBaixa(index, wipeIdx) { customConfirm("RESTAURAR", "Remover a baixa?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list[index].baixado = false; salvarGeral(); }); }
-    function deletar(index, wipeIdx) { customConfirm("EXCLUIR", "Deseja apagar permanentemente?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list.splice(index, 1); salvarGeral(); }); }
+
+    function restaurarBaixa(index, wipeIdx) {
+        customConfirm("RESTAURAR", "Remover a baixa?", () => {
+            let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
+            list[index].baixado = false; salvarGeral();
+        });
+    }
+
+    function deletar(index, wipeIdx) {
+        customConfirm("EXCLUIR", "Deseja apagar permanentemente?", () => {
+            let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
+            list.splice(index, 1); salvarGeral();
+        });
+    }
 
     function editar(index, wipeIdx) {
         if (wipeIdx !== selectedWipeIndex) {
@@ -960,7 +1007,6 @@
         let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
         const v = list[index];
 
-        // FIX #2: ao editar, se era "S/ID" deixa o campo vazio para reedição
         document.getElementById('idsSteam').value = (v.ids === "S/ID" || v.ids === "S / ID") ? "" : v.ids;
         document.getElementById('tipoVip').value = v.tipo;
         document.getElementById('dataCompra').value = v.dataCompra;
@@ -985,21 +1031,15 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // ═══════════════════════════════════════════════════════════════════
-    // FIX #3: showPlayerInfo — usa splitIds() para busca exata por token
-    // Antes: split(/[,/ ]+/) falhava com múltiplos espaços e mixed case
-    // ═══════════════════════════════════════════════════════════════════
     function showPlayerInfo(steamId) {
         if(!steamId) return;
         const buscarId = steamId.trim().toUpperCase();
-        // Não abre modal para o sentinela sem ID
         if(buscarId === '' || buscarId === 'S/ID' || buscarId === 'S / ID') return;
 
         let total = 0, html = '';
 
         const search = (list, label) => {
             list.forEach(v => {
-                // splitIds normaliza e faz comparação token a token
                 const tokens = splitIds(v.ids).map(t => t.toUpperCase());
                 if(tokens.includes(buscarId)) {
                     total += v.valor;
@@ -1105,8 +1145,6 @@
         const sel = document.getElementById('wipeSelector');
         if(!sel) return;
         sel.innerHTML = '<option value="current">WIPE EM CURSO</option>';
-        // Exibe do mais recente (último do array) para o mais antigo,
-        // mantendo o value como índice real para não quebrar nenhuma outra função
         for (let i = wipeHistory.length - 1; i >= 0; i--) {
             sel.innerHTML += `<option value="${i}">WIPE - ${wipeHistory[i].date}</option>`;
         }
@@ -1120,7 +1158,6 @@
 
     function localizarVip(index, wipeIdx, steamId) {
         if(wipeIdx !== selectedWipeIndex) changeWipe(wipeIdx);
-        // Pega só o primeiro token para a busca
         document.getElementById('inputBusca').value = splitIds(steamId)[0] || steamId;
         render();
         toggleNotificacoes();
@@ -1136,17 +1173,14 @@
 
     function limpar() { 
         if(!document.getElementById('idsSteam')) return;
-        
         document.getElementById('idsSteam').value = ''; 
         document.getElementById('valor').value = ''; 
         document.getElementById('dias').value = ''; 
         document.getElementById('obs').value = ''; 
         document.getElementById('dataCompra').value = getDataHoje();
-        
         const btn = document.getElementById('btn-add');
         btn.innerText = "LANÇA VIP";
         btn.classList.remove('btn-update');
-        
         document.getElementById('editIndex').value = "-1"; 
         document.getElementById('editHistBanner').classList.remove('visible');
     }
