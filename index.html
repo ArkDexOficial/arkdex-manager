@@ -291,6 +291,57 @@
             gap: 10px;
         }
         .edit-hist-banner.visible { display: flex; }
+
+        /* ALERTA VENCIMENTO PRÓXIMO — borda piscando */
+        @keyframes borderPulse {
+            0%   { border-left-color: #f59e0b; box-shadow: 0 0 0 rgba(245,158,11,0); }
+            50%  { border-left-color: #fbbf24; box-shadow: 0 0 12px rgba(245,158,11,0.6); }
+            100% { border-left-color: #f59e0b; box-shadow: 0 0 0 rgba(245,158,11,0); }
+        }
+        .vip-card.urgente { animation: borderPulse 1.4s ease-in-out infinite; }
+
+        /* FILTROS */
+        .filtros-bar {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            background: #1c2128; border: 1px solid var(--border);
+            border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+            align-items: center;
+        }
+        .filtros-bar span { font-size: 9px; font-weight: 800; color: var(--text-dim); margin-right: 4px; }
+        .filtro-btn {
+            padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+            background: var(--input-bg); color: var(--text-dim);
+            font-size: 9px; font-weight: 800; cursor: pointer; transition: 0.2s;
+        }
+        .filtro-btn.ativo { background: var(--primary); color: #000; border-color: var(--primary); }
+        .filtro-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+
+        /* DASHBOARD */
+        .dashboard-section {
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+        }
+        .dashboard-header {
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; margin-bottom: 0;
+        }
+        .dashboard-header h3 { font-size: 11px; font-weight: 800; color: var(--primary); }
+        .dashboard-body { display: none; margin-top: 18px; }
+        .dashboard-body.aberto { display: block; }
+        .chart-wrap { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding-bottom: 24px; position: relative; }
+        .chart-bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; }
+        .chart-bar { width: 100%; background: var(--primary); border-radius: 4px 4px 0 0; transition: height 0.5s ease; cursor: default; position: relative; }
+        .chart-bar:hover::after {
+            content: attr(data-val);
+            position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+            background: #000; color: var(--primary); font-size: 9px; font-weight: 800;
+            padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+        }
+        .chart-label { font-size: 7px; color: var(--text-dim); font-weight: 800; margin-top: 4px; text-align: center; word-break: break-all; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chart-empty { font-size: 10px; color: var(--text-dim); text-align: center; padding: 30px 0; }
+
+        /* NOTIF clicável ID */
+        .notif-clickid { cursor: pointer; text-decoration: underline; color: var(--primary); font-weight: 800; }
     </style>
 </head>
 <body>
@@ -403,6 +454,40 @@
         </div>
     </div>
 
+    <!-- DASHBOARD DE RECEITA -->
+    <div class="dashboard-section">
+        <div class="dashboard-header" onclick="toggleDashboard()">
+            <h3>📊 DASHBOARD DE RECEITA POR WIPE</h3>
+            <i data-lucide="chevron-down" id="dash-arrow"></i>
+        </div>
+        <div class="dashboard-body" id="dashboardBody">
+            <div class="chart-wrap" id="chartWrap"></div>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filtros-bar" id="filtrosBar">
+        <span>STATUS:</span>
+        <button class="filtro-btn ativo" onclick="setFiltroStatus('todos')">TODOS</button>
+        <button class="filtro-btn" onclick="setFiltroStatus('ativo')">ATIVO</button>
+        <button class="filtro-btn" onclick="setFiltroStatus('vencido')">VENCIDO</button>
+        <button class="filtro-btn" onclick="setFiltroStatus('pausado')">PAUSADO</button>
+        <button class="filtro-btn" onclick="setFiltroStatus('baixa')">BAIXA</button>
+        <div class="filtro-sep"></div>
+        <span>CLASSE:</span>
+        <button class="filtro-btn ativo" onclick="setFiltroVip('todos')">TODOS</button>
+        <button class="filtro-btn" onclick="setFiltroVip('UNLOKED')">UNLOKED</button>
+        <button class="filtro-btn" onclick="setFiltroVip('ELITE')">ELITE</button>
+        <button class="filtro-btn" onclick="setFiltroVip('IMPERADOR')">IMPERADOR</button>
+        <button class="filtro-btn" onclick="setFiltroVip('LENDÁRIO')">LENDÁRIO</button>
+        <button class="filtro-btn" onclick="setFiltroVip('EXTREME')">EXTREME</button>
+        <button class="filtro-btn" onclick="setFiltroVip('SUPREMO')">SUPREMO</button>
+        <button class="filtro-btn" onclick="setFiltroVip('PONTOS')">PONTOS</button>
+        <button class="filtro-btn" onclick="setFiltroVip('KIT BASE')">KIT BASE</button>
+        <button class="filtro-btn" onclick="setFiltroVip('LOOT BOX')">LOOT BOX</button>
+        <button class="filtro-btn" onclick="setFiltroVip('OUTROS')">OUTROS</button>
+    </div>
+
     <div id="cardsLista" class="cards-container"></div>
 
     <footer class="main-footer">
@@ -410,7 +495,7 @@
             <div class="footer-left">
                 <div class="footer-brand">
                     <span class="brand-dot"></span>
-                    <span class="brand-name">ARKDEX <span class="v-tag">V1.2</span></span>
+                    <span class="brand-name">ARKDEX <span class="v-tag">V1.3</span></span>
                 </div>
                 <p class="footer-status">Cloud Sync: <span class="status-online">ATIVO</span></p>
             </div>
@@ -524,6 +609,9 @@
     let selectedWipeIndex = "current";
     let confirmCallback = null;
     let modoRenomear = false;
+    let filtroStatus = 'todos';
+    let filtroVip    = 'todos';
+    let dashAberto   = false;
 
     // ═══════════════════════════════════════════════════════════
     // NOVO: configVip atualizado com as 3 novas classes
@@ -589,9 +677,14 @@
                 const diff = dVenc.getTime() - new Date().getTime();
                 if (!v.baixado && v.dias > 0 && diff <= 0 && !v.pausado) {
                     totalVencidos++;
+                    // IDs clicáveis: cada token vira um span com data-attr
+                    const idTokens = splitIds(v.ids);
+                    const idsNotifHTML = idTokens.length
+                        ? idTokens.map(id => `<span class="notif-clickid" data-steamid="${id}">${id}</span>`).join(', ')
+                        : v.ids;
                     notifList.innerHTML += `
                         <div class="notif-item">
-                            <span style="flex:1">[${wipeLabel}] <b style="color:var(--primary)">${v.ids}</b></span>
+                            <span style="flex:1">[${wipeLabel}] ${idsNotifHTML}</span>
                             <span class="notif-urgent" style="margin-right:10px">VENCIDO</span>
                             <button onclick="localizarVip(${i}, '${wipeIdx}', '${v.ids}')" class="btn-action btn-edit">IR</button>
                         </div>`;
@@ -603,6 +696,11 @@
         const countBadge = document.getElementById('notif-count');
         if (countBadge) countBadge.innerText = totalVencidos;
         if (totalVencidos === 0) notifList.innerHTML = '<p style="font-size:10px; padding:10px; color:var(--text-dim); text-align:center;">NENHUM VIP VENCIDO NO SISTEMA.</p>';
+        // Delegation para IDs clicáveis no painel de notificações
+        notifList.onclick = function(e) {
+            const el = e.target.closest('.notif-clickid');
+            if (el) showPlayerInfo(el.dataset.steamid);
+        };
     }
 
     function alertCustom(titulo, texto) {
@@ -696,7 +794,8 @@
                 ).join(', ');
             }
 
-            return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''}" style="border-left-color: ${cfg.color}">
+            const urgente = !v.baixado && !v.pausado && !semPrazo && diffDias > 0 && diffDias <= 2;
+            return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''} ${urgente ? 'urgente' : ''}" style="border-left-color: ${cfg.color}">
                 <div class="info-group">
                     <span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span>
                     <span class="info-value">${idsHTML}</span> <div><span class="badge ${cfg.class}">${v.tipo}</span></div>
@@ -724,7 +823,7 @@
                 if(selectedWipeIndex != wIdx) w.vips.forEach((v, i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, i, true, wIdx, w.date); });
             });
         } else {
-            listExibida.forEach((v, i) => { lista.innerHTML += createCard(v, i); });
+            listExibida.forEach((v, i) => { if(passaFiltro(v)) lista.innerHTML += createCard(v, i); });
         }
         document.getElementById('faturamentoAtivo').innerText = `R$ ${fWipeVisualizado.toFixed(2)}`;
         document.getElementById('totalProtocolos').innerText = listExibida.length;
@@ -736,6 +835,72 @@
             const el = e.target.closest('.clickable-id');
             if (el) showPlayerInfo(el.dataset.steamid);
         };
+    }
+
+    // ═══════════════════════════════════
+    // FILTROS
+    // ═══════════════════════════════════
+    function setFiltroStatus(val) {
+        filtroStatus = val;
+        document.querySelectorAll('#filtrosBar .filtro-btn').forEach(b => {
+            if (['TODOS','ATIVO','VENCIDO','PAUSADO','BAIXA'].includes(b.innerText)) b.classList.remove('ativo');
+        });
+        event.target.classList.add('ativo');
+        render();
+    }
+    function setFiltroVip(val) {
+        filtroVip = val;
+        document.querySelectorAll('#filtrosBar .filtro-btn').forEach(b => {
+            const vips = ['TODOS','UNLOKED','ELITE','IMPERADOR','LENDÁRIO','EXTREME','SUPREMO','PONTOS','KIT BASE','LOOT BOX','OUTROS'];
+            if (vips.includes(b.innerText)) b.classList.remove('ativo');
+        });
+        event.target.classList.add('ativo');
+        render();
+    }
+    function passaFiltro(v) {
+        const agora = new Date(); agora.setHours(0,0,0,0);
+        const vencZero = new Date(v.vencimento); vencZero.setHours(0,0,0,0);
+        const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX'].includes(v.tipo);
+        const diffDias = v.pausado ? v.tempoRestanteAoPausar : Math.ceil((vencZero - agora) / (1000*60*60*24));
+        let statusOk = true;
+        if (filtroStatus === 'ativo')   statusOk = !v.baixado && !v.pausado && !semPrazo && diffDias > 0;
+        if (filtroStatus === 'vencido') statusOk = !v.baixado && !v.pausado && !semPrazo && diffDias <= 0;
+        if (filtroStatus === 'pausado') statusOk = v.pausado;
+        if (filtroStatus === 'baixa')   statusOk = v.baixado;
+        const vipOk = filtroVip === 'todos' || v.tipo === filtroVip;
+        return statusOk && vipOk;
+    }
+
+    // ═══════════════════════════════════
+    // DASHBOARD
+    // ═══════════════════════════════════
+    function toggleDashboard() {
+        dashAberto = !dashAberto;
+        document.getElementById('dashboardBody').classList.toggle('aberto', dashAberto);
+        if (dashAberto) renderDashboard();
+        lucide.createIcons();
+    }
+    function renderDashboard() {
+        const wrap = document.getElementById('chartWrap');
+        if (!wrap) return;
+        // Monta lista: wipes históricos (ordem cronológica) + atual
+        const dados = [];
+        wipeHistory.forEach(w => {
+            const total = w.vips.reduce((s, v) => s + v.valor, 0);
+            dados.push({ label: w.date, val: total });
+        });
+        const totalAtual = currentVipeList.reduce((s, v) => s + v.valor, 0);
+        dados.push({ label: 'ATUAL', val: totalAtual });
+        if (dados.length === 0) { wrap.innerHTML = '<div class="chart-empty">SEM DADOS</div>'; return; }
+        const max = Math.max(...dados.map(d => d.val), 1);
+        wrap.innerHTML = dados.map(d => {
+            const h = Math.max(4, Math.round((d.val / max) * 100));
+            const label = 'R$ ' + d.val.toFixed(2);
+            return `<div class="chart-bar-group">
+                <div class="chart-bar" style="height:${h}px" data-val="${label}"></div>
+                <div class="chart-label">${d.label}</div>
+            </div>`;
+        }).join('');
     }
 
     function togglePausa(index, wipeIdx) {
@@ -759,7 +924,25 @@
         salvarGeral();
     }
 
-    function darBaixa(index, wipeIdx) { customConfirm("DAR BAIXA", "Marcar como concluído?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list[index].baixado = true; salvarGeral(); }); }
+    function darBaixa(index, wipeIdx) {
+        let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
+        const v = list[index];
+        const agora = new Date(); agora.setHours(0,0,0,0);
+        const vencZero = new Date(v.vencimento); vencZero.setHours(0,0,0,0);
+        const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX'].includes(v.tipo);
+        let infoExtra = '';
+        if (!semPrazo && !v.pausado) {
+            const diff = Math.ceil((vencZero - agora) / (1000*60*60*24));
+            if (diff > 0) infoExtra = ' VIP ainda tem ' + diff + ' dia(s) restante(s).';
+            else if (diff === 0) infoExtra = ' VIP vence hoje.';
+            else infoExtra = ' VIP já vencido há ' + Math.abs(diff) + ' dia(s).';
+        } else if (v.pausado) {
+            infoExtra = ' VIP pausado com ' + v.tempoRestanteAoPausar + ' dia(s) restante(s).';
+        }
+        customConfirm("DAR BAIXA", "Marcar como concluído?" + infoExtra, () => {
+            list[index].baixado = true; salvarGeral();
+        });
+    }
     function restaurarBaixa(index, wipeIdx) { customConfirm("RESTAURAR", "Remover a baixa?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list[index].baixado = false; salvarGeral(); }); }
     function deletar(index, wipeIdx) { customConfirm("EXCLUIR", "Deseja apagar permanentemente?", () => { let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips; list.splice(index, 1); salvarGeral(); }); }
 
