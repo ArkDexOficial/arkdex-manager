@@ -917,7 +917,11 @@
         const sel = document.getElementById('wipeSelector');
         if(!sel) return;
         sel.innerHTML = '<option value="current">WIPE EM CURSO</option>';
-        wipeHistory.forEach((h, i) => { sel.innerHTML += `<option value="${i}">WIPE - ${h.date}</option>`; });
+        // Exibe do mais recente (último do array) para o mais antigo,
+        // mantendo o value como índice real para não quebrar nenhuma outra função
+        for (let i = wipeHistory.length - 1; i >= 0; i--) {
+            sel.innerHTML += `<option value="${i}">WIPE - ${wipeHistory[i].date}</option>`;
+        }
         sel.value = selectedWipeIndex;
     }
 
