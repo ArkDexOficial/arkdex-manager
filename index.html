@@ -1116,19 +1116,121 @@
         }
 
         /* ── RESPONSIVE ────────────────────────────────────────────────────── */
+
+        /* ─ Tablet (≤ 900px): sidebar vira barra horizontal compacta no topo ─ */
         @media (max-width: 900px) {
-            .admin-layout { flex-direction: column; }
-            .admin-sidebar { width: 100%; position: static; flex-direction: row; flex-wrap: wrap; }
+            .page-wrap { padding: .75rem; }
+
+            .admin-layout { flex-direction: column; gap: .75rem; }
+
+            .admin-sidebar {
+                width: 100%;
+                position: static;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: .35rem;
+                padding: .5rem;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+            }
+
             .sidebar-title { display: none; }
+
+            .sidebar-nav-btn {
+                flex: 1 1 auto;
+                min-width: 0;
+                padding: .65rem .7rem;
+                font-size: .78rem;
+                justify-content: center;
+            }
+
+            .sidebar-nav-btn .nav-icon { display: none; }
+
+            .sidebar-logout { margin-top: 0; }
+
+            .admin-topbar { padding: .6rem 1rem; }
+            .topbar-clock { display: none; }
         }
 
-        @media (max-width: 600px) {
-            .vip-card { grid-template-columns: 1fr !important; gap: .8rem !important; }
-            .actions { justify-content: flex-start; border-top: 1px solid rgba(255,255,255,.07); padding-top: .8rem; margin-top: .2rem; }
-            .form-grid { grid-template-columns: 1fr; }
+        /* ─ Mobile (≤ 768px): tudo em coluna única ────────────────────────── */
+        @media (max-width: 768px) {
+            .page-wrap { padding: 8px; }
+
+            .admin-topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: .4rem;
+                padding: .7rem 1rem;
+            }
+
+            .topbar-right { width: 100%; justify-content: space-between; }
+
+            /* Wipe manager */
+            .wipe-manager {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .wipe-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .select-wipe { flex: 1; }
+
+            /* Stats */
             .stats-grid { grid-template-columns: 1fr 1fr; }
+
+            /* Form */
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid > div { grid-column: span 1 !important; }
+
+            /* Filtros */
             .filtros-bar { flex-direction: column; align-items: flex-start; }
             .filtro-sep { display: none; }
+
+            /* VIP cards: empilha verticalmente */
+            .vip-card {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+                padding: 14px !important;
+            }
+
+            /* Ações no mobile: linha única com botões crescendo */
+            .actions {
+                justify-content: flex-start !important;
+                flex-wrap: wrap !important;
+                gap: 7px;
+                border-top: 1px solid rgba(255,255,255,.07);
+                padding-top: 12px;
+                margin-top: 4px;
+            }
+            .btn-action {
+                flex: 1 1 auto;
+                min-width: 72px;
+                justify-content: center;
+                padding: 10px 6px !important;
+                font-size: .72rem !important;
+                white-space: nowrap;
+            }
+
+            /* Footer */
+            .footer-content { flex-direction: column; text-align: center; gap: .75rem; }
+
+            /* Dashboard */
+            .dash-summary { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* ─ Small mobile (≤ 480px) ─────────────────────────────────────────── */
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .wipe-controls { flex-direction: column; align-items: stretch; }
+            .wipe-controls .btn-wipe-action { width: 100%; text-align: center; }
+            .select-wipe { width: 100%; }
+
+            .sidebar-nav-btn { font-size: .7rem; padding: .55rem .5rem; }
+
+            .login-box { padding: 1.8rem 1.2rem; }
         }
     </style>
 </head>
