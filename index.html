@@ -1117,120 +1117,158 @@
 
         /* ── RESPONSIVE ────────────────────────────────────────────────────── */
 
-        /* ─ Tablet (≤ 900px): sidebar vira barra horizontal compacta no topo ─ */
+        /* ─ Tablet / Mobile (≤ 900px): sidebar vira tab-bar horizontal ──── */
         @media (max-width: 900px) {
-            .page-wrap { padding: .75rem; }
+            /* Página sem padding lateral excessivo */
+            .page-wrap {
+                padding: .6rem;
+                max-width: 100%;
+                width: 100%;
+            }
 
-            .admin-layout { flex-direction: column; gap: .75rem; }
+            /* Layout empilha sidebar → main */
+            .admin-layout {
+                flex-direction: column;
+                gap: .6rem;
+                width: 100%;
+            }
 
+            /* admin-main ocupa TODA a largura disponível */
+            .admin-main {
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
+            }
+
+            /* Sidebar vira barra de abas horizontal com scroll */
             .admin-sidebar {
                 width: 100%;
                 position: static;
                 flex-direction: row;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;          /* nunca quebra linha */
+                overflow-x: auto;           /* scroll horizontal se necessário */
                 gap: .35rem;
-                padding: .5rem;
+                padding: .45rem .5rem;
                 background: var(--bg-card);
                 border: 1px solid var(--border);
-                border-radius: 12px;
+                border-radius: 10px;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;      /* Firefox */
             }
+            .admin-sidebar::-webkit-scrollbar { display: none; }
 
             .sidebar-title { display: none; }
 
+            /* Botões da sidebar: compactos, não crescem demais */
             .sidebar-nav-btn {
-                flex: 1 1 auto;
-                min-width: 0;
-                padding: .65rem .7rem;
+                flex: 0 0 auto;             /* não expande nem encolhe */
+                padding: .55rem .9rem;
                 font-size: .78rem;
+                white-space: nowrap;
                 justify-content: center;
+                border-radius: 8px;
             }
 
-            .sidebar-nav-btn .nav-icon { display: none; }
+            /* Ícone visível na tab-bar */
+            .sidebar-nav-btn .nav-icon {
+                display: inline-flex;
+                width: auto;
+            }
 
             .sidebar-logout { margin-top: 0; }
-
-            .admin-topbar { padding: .6rem 1rem; }
+            .admin-topbar { padding: .55rem .9rem; }
             .topbar-clock { display: none; }
         }
 
-        /* ─ Mobile (≤ 768px): tudo em coluna única ────────────────────────── */
+        /* ─ Mobile (≤ 768px): conteúdo 100% largura ────────────────────── */
         @media (max-width: 768px) {
-            .page-wrap { padding: 8px; }
+            html, body { overflow-x: hidden; width: 100%; }
+
+            .page-wrap { padding: 6px; width: 100%; }
 
             .admin-topbar {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: .4rem;
-                padding: .7rem 1rem;
+                gap: .35rem;
+                padding: .65rem .9rem;
             }
-
             .topbar-right { width: 100%; justify-content: space-between; }
+
+            /* Todos os filhos diretos do main: largura total */
+            .admin-main > * {
+                width: 100%;
+                box-sizing: border-box;
+            }
 
             /* Wipe manager */
             .wipe-manager {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 12px;
+                gap: 10px;
             }
             .wipe-controls {
                 width: 100%;
-                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: .5rem;
             }
-            .select-wipe { flex: 1; }
+            .select-wipe { flex: 1 1 auto; min-width: 0; }
 
             /* Stats */
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: .6rem; }
 
             /* Form */
             .form-grid { grid-template-columns: 1fr; }
             .form-grid > div { grid-column: span 1 !important; }
 
             /* Filtros */
-            .filtros-bar { flex-direction: column; align-items: flex-start; }
+            .filtros-bar { flex-direction: column; align-items: flex-start; gap: .6rem; }
             .filtro-sep { display: none; }
+            .filtro-select { width: 100%; }
 
-            /* VIP cards: empilha verticalmente */
+            /* Cards */
+            .cards-container { gap: .5rem; }
             .vip-card {
                 grid-template-columns: 1fr !important;
-                gap: 10px !important;
-                padding: 14px !important;
+                gap: 9px !important;
+                padding: 12px 14px !important;
             }
 
-            /* Ações no mobile: linha única com botões crescendo */
+            /* Ações: wrap permitido, botões crescem */
             .actions {
                 justify-content: flex-start !important;
                 flex-wrap: wrap !important;
-                gap: 7px;
+                gap: 6px;
                 border-top: 1px solid rgba(255,255,255,.07);
-                padding-top: 12px;
-                margin-top: 4px;
+                padding-top: 10px;
+                margin-top: 2px;
             }
             .btn-action {
                 flex: 1 1 auto;
-                min-width: 72px;
+                min-width: 68px;
                 justify-content: center;
-                padding: 10px 6px !important;
+                padding: 9px 6px !important;
                 font-size: .72rem !important;
                 white-space: nowrap;
             }
 
-            /* Footer */
-            .footer-content { flex-direction: column; text-align: center; gap: .75rem; }
-
             /* Dashboard */
             .dash-summary { grid-template-columns: 1fr 1fr; }
+
+            /* Footer */
+            .footer-content { flex-direction: column; text-align: center; gap: .6rem; }
+
+            /* Modal */
+            .modal-content { width: 95%; padding: 1.4rem; }
         }
 
-        /* ─ Small mobile (≤ 480px) ─────────────────────────────────────────── */
+        /* ─ Small mobile (≤ 480px) ─────────────────────────────────────── */
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: 1fr; }
             .wipe-controls { flex-direction: column; align-items: stretch; }
-            .wipe-controls .btn-wipe-action { width: 100%; text-align: center; }
+            .btn-wipe-action { width: 100% !important; justify-content: center; }
             .select-wipe { width: 100%; }
-
-            .sidebar-nav-btn { font-size: .7rem; padding: .55rem .5rem; }
-
-            .login-box { padding: 1.8rem 1.2rem; }
+            .login-box { padding: 1.6rem 1rem; margin: 0 .5rem; }
+            .sidebar-nav-btn { font-size: .72rem; padding: .5rem .75rem; }
         }
     </style>
 </head>
