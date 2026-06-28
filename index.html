@@ -2,313 +2,1130 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARKDEX | Pro Manager Cloud</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=1280">
+    <title>ARK Manager | Lançamento VIP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        /* ── DESIGN SYSTEM (idêntico ao admin.php) ─────────────────────────── */
         :root {
-            --bg: #0b0e11; --card-bg: #161b22; --text-main: #ffffff; --text-dim: #8b949e;
-            --primary: #00f2ff; --primary-glow: rgba(0, 242, 255, 0.4);
-            --success: #238636; --danger: #da3633; --warning: #fbbf24;
-            --border: #30363d; --input-bg: #0d1117;
+            --bg-color: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-hover: #1c1c1c;
+            --bg-hover: #1f1f1f;
+            --accent-blue: #009ee3;
+            --accent-green: #22c55e;
+            --accent-orange: #f97316;
+            --accent-red: #ef4444;
+            --accent-purple: #ffffff;
+            --text-color: #ffffff;
+            --text-gray: #a0a0a0;
+            --text-dim: #555555;
+            --border: rgba(255,255,255,0.08);
+            --border-hover: rgba(255,255,255,0.18);
+            --shadow-glow: 0 4px 24px rgba(0,0,0,0.6);
+
+            /* aliases para o JS legado que usa var(--primary) etc */
+            --primary: #22c55e;
+            --primary-glow: rgba(34,197,94,0.4);
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f97316;
+            --bg: #0a0a0a;
+            --card-bg: #111111;
+            --text-main: #ffffff;
+            --input-bg: rgba(255,255,255,0.04);
+            --border-legacy: rgba(255,255,255,0.1);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; text-transform: uppercase; }
-        body { background-color: var(--bg); color: var(--text-main); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
-        .container { max-width: 1100px; margin: auto; width: 100%; flex: 1; }
 
-        header { display: flex; justify-content: center; align-items: center; padding: 20px 0; margin-bottom: 30px; border-bottom: 1px solid var(--border); }
-        .logo-area { display: flex; align-items: center; gap: 15px; }
-        .logo-icon { background: var(--primary); color: #000; padding: 10px; border-radius: 12px; box-shadow: 0 0 20px var(--primary-glow); }
-        .logo-text h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -1px; line-height: 1; }
-        .logo-text h1 span { color: var(--primary); }
-        .logo-text p { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; color: var(--text-dim); margin-top: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .wipe-manager { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #1c2128; padding: 10px 20px; border-radius: 12px; border: 1px solid var(--border); }
-        .wipe-controls { display: flex; gap: 10px; align-items: center; }
-        .btn-wipe-action { padding: 8px 15px; border-radius: 6px; border: none; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .btn-new-wipe { background: var(--danger); color: white; }
-        .btn-del-wipe { background: #6b1412; color: white; display: none; }
-        .btn-rename-wipe { background: #0891b2; color: white; display: none; }
-        .select-wipe { background: var(--input-bg); color: white; border: 1px solid var(--border); padding: 5px; border-radius: 4px; font-size: 10px; font-weight: 800; }
-
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 16px; border-bottom: 3px solid var(--primary); }
-        .stat-label { font-size: 0.65rem; color: var(--text-dim); font-weight: 800; margin-bottom: 5px; display: block; }
-        .stat-value { font-size: 1.4rem; font-weight: 800; color: #fff; }
-
-        .form-section { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 25px; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
-        .input-group { display: flex; flex-direction: column; gap: 5px; }
-        .input-group label.low-case, .search-integrated label.low-case { text-transform: none !important; font-size: 10px; font-weight: 800; color: var(--text-dim); }
-        .input-group label:not(.low-case) { font-size: 10px; font-weight: 800; color: var(--text-dim); text-transform: uppercase !important; }
-        input::placeholder, textarea::placeholder { text-transform: none !important; }
-
-        input, select, textarea { background: var(--input-bg); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; outline: none; font-size: 12px; transition: 0.2s; }
-        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 242, 255, 0.1); }
-
-        .btn-main { background: var(--primary); color: #000; font-weight: 800; border: none; padding: 14px; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; transition: 0.3s; }
-        .btn-update { background: var(--warning) !important; color: #000 !important; box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
-
-        .search-integrated { margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border); display: flex; flex-direction: column; gap: 5px; }
-        .search-integrated input { padding: 14px; font-weight: 600; letter-spacing: 1px; }
-
-        .section-divider { font-size: 10px; font-weight: 800; color: var(--primary); margin: 25px 0 10px 0; display: flex; align-items: center; gap: 10px; }
-        .section-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
-
-        .vip-card { background: var(--card-bg); border: 1px solid var(--border); border-left: 5px solid var(--primary); border-radius: 12px; padding: 20px; display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr 1.5fr; align-items: center; gap: 20px; transition: 0.3s; position: relative; }
-        .vip-card.baixa { opacity: 0.35; filter: grayscale(1); }
-        .vip-card.pausado { border-left-color: var(--warning) !important; background: #1c1912; }
-
-        .info-group { display: flex; flex-direction: column; gap: 4px; }
-        .info-label { font-size: 10px; color: var(--text-dim); font-weight: 700; }
-        .info-value { font-size: 13px; font-weight: 700; }
-        .clickable-id { cursor: pointer; text-decoration: underline; color: var(--primary); transition: 0.2s; }
-
-        .badge { font-size: 9px; padding: 3px 8px; border-radius: 4px; font-weight: 900; display: inline-block; margin-top: 5px; color: #fff; }
-        .tag-supremo { background: #f59e0b; color: #000; }
-        .tag-elite { background: #0ea5e9; }
-        .tag-imperador { background: #8b5cf6; }
-        .tag-lendario { background: #ec4899; }
-        .tag-extreme { background: #f43f5e; }
-        .tag-unloked { background: #64748b; }
-        .tag-pontos   { background: #16a34a; color: #fff; }
-        .tag-kitbase  { background: #b45309; color: #fff; }
-        .tag-lootbox  { background: #7c3aed; color: #fff; }
-        .tag-outros   { background: #ffffff; color: #000; }
-
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 9px; font-weight: 800; }
-        .color-green { background: #238636; color: #fff; }
-        .color-yellow { background: #d29922; color: #fff; }
-        .color-red { background: #da3633; color: #fff; }
-        .color-outros { background: #3b82f6; color: #fff; }
-
-        .actions { display: flex; gap: 6px; justify-content: flex-end; }
-        .btn-action { padding: 8px 10px; border-radius: 6px; border: none; font-size: 9px; font-weight: 800; cursor: pointer; color: #fff; transition: 0.2s; }
-        .btn-action:hover { transform: translateY(-2px); filter: brightness(1.2); }
-        .btn-edit { background: #0891b2; }
-        .btn-pause { background: #d29922; }
-        .btn-play { background: #10b981; }
-        .btn-baixa { background: #4d7c0f; }
-        .btn-restaurar { background: #2563eb; }
-        .btn-del { background: #991b1b; }
-
-        .obs-text { font-size: 10px; color: var(--warning); margin-top: 5px; font-style: italic; }
-
-        .modal-overlay { position: fixed; top:0; left:0; width: 100%; height:100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card-bg); border: 1px solid var(--primary); border-radius: 16px; width: 90%; max-width: 600px; padding: 25px; position: relative; box-shadow: 0 0 30px rgba(0, 242, 255, 0.2); }
-        .confirm-modal { max-width: 400px !important; text-align: center; border-color: var(--danger) !important; }
-        .confirm-title { font-size: 1.2rem; font-weight: 800; color: var(--danger); margin-bottom: 15px; }
-        .confirm-text { font-size: 0.9rem; color: var(--text-main); margin-bottom: 25px; text-transform: none; }
-        .confirm-buttons { display: flex; gap: 10px; justify-content: center; }
-        .btn-confirm { padding: 12px 25px; border-radius: 8px; border: none; font-weight: 800; cursor: pointer; font-size: 11px; }
-        .btn-yes { background: var(--danger); color: white; }
-        .btn-no { background: var(--border); color: white; }
-        .modal-close { position: absolute; top: 15px; right: 15px; cursor: pointer; color: var(--text-dim); }
-        .modal-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .modal-table th { text-align: left; color: var(--primary); font-size: 10px; padding: 10px; border-bottom: 1px solid var(--border); }
-        .modal-table td { padding: 10px; font-size: 11px; border-bottom: 1px solid #21262d; }
-
-        /* RODAPÉ PROFISSIONAL */
-        .main-footer {
-            margin-top: 50px;
-            padding: 30px 0;
-            border-top: 1px solid var(--border);
-            background: linear-gradient(to top, #0d1117, transparent);
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            animation: pgFadeIn .18s ease;
         }
-        .footer-content {
+
+        @keyframes pgFadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(34,197,94,0.025) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(34,197,94,0.015) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── LOGIN OVERLAY ────────────────────────────────────────────────── */
+        .login-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+            border: 1px solid var(--border-hover);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--accent-green);
+        }
+
+        .login-logo {
+            margin-bottom: 1.8rem;
+        }
+
+        .login-logo .logo-icon-wrap {
+            width: 56px; height: 56px;
+            background: rgba(34,197,94,.12);
+            border: 1px solid rgba(34,197,94,.3);
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #22c55e;
+            margin-bottom: .8rem;
+        }
+
+        .login-logo h1 {
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: -.5px;
+        }
+
+        .login-logo p {
+            font-size: .72rem;
+            color: var(--text-dim);
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            margin-top: .2rem;
+        }
+
+        .login-box input {
+            width: 100%;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: .9rem 1rem;
+            color: #fff;
+            font-size: .95rem;
+            outline: none;
+            transition: border-color .2s, background .2s;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: .75rem;
+        }
+
+        .login-box input:focus {
+            border-color: rgba(34,197,94,.5);
+            background: rgba(255,255,255,.07);
+        }
+
+        .login-box input::placeholder { color: #555; }
+
+        #btnLogin {
+            width: 100%;
+            background: #22c55e;
+            color: #0a0a0a;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: .95rem;
+            cursor: pointer;
+            transition: background .2s, transform .2s, box-shadow .2s;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: .3px;
+            margin-top: .25rem;
+        }
+
+        #btnLogin:hover {
+            background: #16a34a;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(34,197,94,.3);
+        }
+
+        #loginErro {
+            color: #ef4444;
+            font-size: .82rem;
+            margin-top: .8rem;
+            display: none;
+            font-weight: 600;
+        }
+
+        /* ── LAYOUT ────────────────────────────────────────────────────────── */
+        .page-wrap {
+            max-width: 1700px;
+            margin: 0 auto;
+            padding: 2rem 2%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-layout {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        /* ── SIDEBAR ───────────────────────────────────────────────────────── */
+        .admin-sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+
+        .sidebar-title {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+            border: 1px solid var(--border-hover);
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            text-align: center;
+            margin-bottom: .5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-title::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: #22c55e;
+        }
+
+        .sidebar-title h2 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: .2px;
+        }
+
+        .sidebar-title .admin-status-sidebar {
+            font-size: .75rem;
+            color: var(--text-dim);
+            margin-top: .4rem;
+        }
+
+        .sidebar-nav-btn {
+            width: 100%;
+            padding: .85rem 1.2rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: var(--text-gray);
+            font-size: .88rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            transition: all .2s;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: .2px;
+        }
+
+        .sidebar-nav-btn:hover {
+            background: var(--bg-hover);
+            border-color: rgba(255,255,255,.2);
+            color: #ffffff;
+        }
+
+        .sidebar-nav-btn.active {
+            background: #222222;
+            border-color: rgba(255,255,255,.25);
+            color: #ffffff;
+            box-shadow: inset 3px 0 0 #22c55e;
+        }
+
+        .sidebar-nav-btn .nav-icon {
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: #fff;
+            font-size: .6rem;
+            font-weight: 900;
+            border-radius: 20px;
+            padding: 1px 7px;
+            min-width: 18px;
+            text-align: center;
+            display: none;
+        }
+
+        .sidebar-back {
+            border-color: rgba(0,158,227,.25) !important;
+            color: #009ee3 !important;
+        }
+
+        .sidebar-back:hover {
+            background: rgba(0,158,227,.1) !important;
+            border-color: rgba(0,158,227,.5) !important;
+            color: #009ee3 !important;
+        }
+
+        .sidebar-logout {
+            margin-top: .5rem;
+            background: transparent !important;
+            border-color: rgba(239,68,68,.35) !important;
+            color: #ef4444 !important;
+        }
+
+        .sidebar-logout:hover {
+            background: rgba(239,68,68,.1) !important;
+            border-color: rgba(239,68,68,.6) !important;
+        }
+
+        /* ── MAIN ──────────────────────────────────────────────────────────── */
+        .admin-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* ── TOPBAR ────────────────────────────────────────────────────────── */
+        .admin-topbar {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-card-hover));
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: .8rem 1.4rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .topbar-breadcrumb {
+            font-size: .78rem;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+        .topbar-breadcrumb a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+        .topbar-breadcrumb a:hover { color: #fff; }
+
+        .bc-current {
+            color: #22c55e;
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+        }
+
+        .topbar-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 50px;
+            padding: .35rem .9rem;
+            font-size: .78rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .dot-live {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 6px #22c55e;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .4; }
+        }
+
+        .topbar-clock {
+            font-size: .78rem;
+            color: var(--text-dim);
+            font-family: 'Courier New', monospace;
+            letter-spacing: .05em;
+        }
+
+        /* ── NOTIFICATION BAR ──────────────────────────────────────────────── */
+        .notification-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid #ef4444;
+            border-radius: 12px;
+            padding: .9rem 1.2rem;
+            margin-bottom: 1rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1100px;
-            margin: 0 auto;
-            flex-wrap: wrap;
-            gap: 20px;
+            cursor: pointer;
+            transition: border-color .2s;
         }
-        .footer-brand { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
-        .brand-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary-glow); }
-        .brand-name { font-weight: 800; font-size: 14px; letter-spacing: 1px; }
-        .v-tag { background: #21262d; padding: 2px 6px; border-radius: 4px; font-size: 9px; color: var(--text-dim); }
-        .footer-status { font-size: 10px; font-weight: 800; color: var(--text-dim); }
-        .status-online { color: #238636; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        .footer-center { text-align: center; }
-        .footer-center p { font-size: 10px; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; }
-        .footer-links { display: flex; gap: 10px; justify-content: center; font-size: 9px; font-weight: 800; }
-        .footer-links a { color: var(--primary); text-decoration: none; transition: 0.3s; }
-        .footer-links a:hover { text-shadow: 0 0 8px var(--primary-glow); }
-        .sep { color: #30363d; }
-        .dev-info { display: flex; align-items: center; gap: 10px; font-size: 9px; font-weight: 800; color: var(--text-dim); background: #161b22; padding: 8px 15px; border-radius: 30px; border: 1px solid var(--border); }
 
-        /* Tela de Login */
-        .login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-box { background: var(--card-bg); padding: 40px; border-radius: 16px; border: 1px solid var(--primary); width: 100%; max-width: 350px; text-align: center; }
-        .login-box input { width: 100%; margin-bottom: 15px; }
+        .notification-bar:hover { border-color: rgba(239,68,68,.5); }
 
-        /* NOTIFICAÇÕES */
-        .notification-bar { background: #1c2128; border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 4px solid var(--danger); }
-        .notif-badge { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 900; }
-        .notif-panel { display: none; background: #161b22; border: 1px solid var(--border); border-radius: 12px; padding: 10px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; }
-        .notif-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #30363d; font-size: 11px; }
+        .notif-badge {
+            background: #ef4444;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 900;
+        }
+
+        .notif-panel {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: .5rem;
+            margin-bottom: 1rem;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .notif-panel::-webkit-scrollbar { width: 4px; }
+        .notif-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+
+        .notif-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .65rem .9rem;
+            border-bottom: 1px solid rgba(255,255,255,.05);
+            font-size: .83rem;
+        }
+
         .notif-item:last-child { border: none; }
-        .notif-urgent { color: var(--danger); font-weight: 800; }
+        .notif-urgent { color: #ef4444; font-weight: 700; margin-right: .5rem; }
+        .notif-clickid { cursor: pointer; text-decoration: underline; color: #22c55e; font-weight: 700; }
 
-        /* Banner de aviso quando editando wipe histórico */
-        .edit-hist-banner { display: none; background: #1c1912; border: 1px solid var(--warning); border-left: 4px solid var(--warning); padding: 10px 20px; border-radius: 8px; font-size: 10px; font-weight: 800; color: var(--warning); margin-bottom: 15px; align-items: center; gap: 10px; }
+        /* ── EDIT HIST BANNER ──────────────────────────────────────────────── */
+        .edit-hist-banner {
+            display: none;
+            background: rgba(249,115,22,.08);
+            border: 1px solid rgba(249,115,22,.3);
+            border-left: 3px solid #f97316;
+            padding: .75rem 1.2rem;
+            border-radius: 10px;
+            font-size: .82rem;
+            font-weight: 600;
+            color: #f97316;
+            margin-bottom: 1rem;
+            align-items: center;
+            gap: .7rem;
+        }
+
         .edit-hist-banner.visible { display: flex; }
 
-        /* ALERTA VENCIMENTO PRÓXIMO */
-        @keyframes borderPulse {
-            0%   { border-left-color: #f59e0b; box-shadow: 0 0 0 rgba(245,158,11,0); }
-            50%  { border-left-color: #fbbf24; box-shadow: 0 0 12px rgba(245,158,11,0.6); }
-            100% { border-left-color: #f59e0b; box-shadow: 0 0 0 rgba(245,158,11,0); }
-        }
-        .vip-card.urgente { animation: borderPulse 1.4s ease-in-out infinite; }
-
-        /* ═══════════════════════════════════════════════════
-           NOVO: FILTROS — dois selects compactos em linha
-           ═══════════════════════════════════════════════════ */
-        .filtros-bar {
-            display: flex; flex-wrap: wrap; gap: 10px;
-            background: #1c2128; border: 1px solid var(--border);
-            border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+        /* ── WIPE MANAGER ──────────────────────────────────────────────────── */
+        .wipe-manager {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.4rem;
+            margin-bottom: 1rem;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
-        .filtros-bar .filtro-grupo {
-            display: flex; align-items: center; gap: 8px;
-        }
-        .filtros-bar .filtro-label {
-            font-size: 9px; font-weight: 800; color: var(--text-dim); white-space: nowrap;
-        }
-        .filtro-select {
-            background: var(--input-bg); color: var(--text-main);
-            border: 1px solid var(--border); border-radius: 6px;
-            padding: 6px 10px; font-size: 10px; font-weight: 800;
-            cursor: pointer; transition: 0.2s; outline: none;
-            min-width: 140px;
-        }
-        .filtro-select:focus, .filtro-select:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 8px rgba(0,242,255,0.15);
-        }
-        .filtro-sep { width: 1px; height: 24px; background: var(--border); }
 
-        /* ═══════════════════════════════════════════════════
-           NOVO: DASHBOARD — reposicionado, redesenhado
-           ═══════════════════════════════════════════════════ */
+        .info-label {
+            font-size: .72rem;
+            color: var(--text-dim);
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: .95rem;
+            font-weight: 700;
+        }
+
+        .wipe-controls {
+            display: flex;
+            gap: .6rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .select-wipe {
+            background: rgba(255,255,255,.05);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.12);
+            padding: .5rem .8rem;
+            border-radius: 8px;
+            font-size: .82rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .select-wipe option { background: #1a1a1a; }
+
+        .btn-wipe-action {
+            padding: .5rem 1rem;
+            border-radius: 7px;
+            border: none;
+            font-size: .78rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: opacity .2s, transform .15s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-wipe-action:hover { opacity: .85; transform: translateY(-1px); }
+
+        .btn-new-wipe { background: #ef4444; color: #fff; }
+        .btn-del-wipe { background: rgba(239,68,68,.2); color: #ef4444; border: 1px solid rgba(239,68,68,.35); display: none; }
+        .btn-rename-wipe { background: rgba(0,158,227,.15); color: #009ee3; border: 1px solid rgba(0,158,227,.3); display: none; }
+
+        /* ── DASHBOARD ─────────────────────────────────────────────────────── */
         .dashboard-section {
-            background: var(--card-bg); border: 1px solid var(--border);
-            border-radius: 16px; padding: 0; margin-bottom: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 1rem;
             overflow: hidden;
         }
+
         .dashboard-header {
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; padding: 16px 20px;
-            background: linear-gradient(90deg, #1c2128, #161b22);
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 1rem 1.4rem;
             user-select: none;
+            transition: background .2s;
         }
-        .dashboard-header.aberto { border-bottom-color: var(--border); }
-        .dashboard-header h3 { font-size: 11px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .dash-arrow { transition: transform 0.3s; color: var(--text-dim); }
+
+        .dashboard-header:hover { background: rgba(255,255,255,.03); }
+
+        .dashboard-header h3 {
+            font-size: .88rem;
+            font-weight: 700;
+            color: #22c55e;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            letter-spacing: .1px;
+        }
+
+        .dashboard-header.aberto { border-bottom: 1px solid var(--border); }
+        .dash-arrow { transition: transform .3s; color: var(--text-dim); }
         .dash-arrow.aberto { transform: rotate(180deg); }
 
-        .dashboard-body { display: none; padding: 20px; }
+        .dashboard-body { display: none; padding: 1.4rem; }
         .dashboard-body.aberto { display: block; }
 
-        /* Gráfico de barras melhorado */
-        .chart-outer {
-            position: relative;
-            padding-bottom: 8px;
-        }
+        .chart-outer { position: relative; padding-bottom: 8px; }
+
         .chart-grid-lines {
             position: absolute; top: 0; left: 0; right: 0;
             display: flex; flex-direction: column; justify-content: space-between;
             height: 140px; pointer-events: none;
         }
+
         .chart-grid-line {
             width: 100%; height: 1px;
-            background: rgba(48,54,61,0.6);
+            background: rgba(255,255,255,.06);
         }
+
         .chart-wrap {
-            display: flex; align-items: flex-end; gap: 10px;
-            height: 140px; position: relative; z-index: 1;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 140px;
+            position: relative;
+            z-index: 1;
         }
+
         .chart-bar-group {
-            display: flex; flex-direction: column; align-items: center;
-            flex: 1; min-width: 0; gap: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            gap: 6px;
         }
+
         .chart-bar-container {
-            width: 100%; display: flex; align-items: flex-end;
-            height: 120px; position: relative;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            height: 120px;
+            position: relative;
         }
+
         .chart-bar {
             width: 100%;
-            background: linear-gradient(to top, rgba(0,242,255,0.9), rgba(0,242,255,0.4));
+            background: linear-gradient(to top, rgba(34,197,94,0.8), rgba(34,197,94,0.35));
             border-radius: 6px 6px 0 0;
-            transition: height 0.5s cubic-bezier(.4,0,.2,1), opacity 0.2s;
-            cursor: default; position: relative;
-            border: 1px solid rgba(0,242,255,0.3);
+            transition: height .5s cubic-bezier(.4,0,.2,1);
+            cursor: default;
+            position: relative;
+            border: 1px solid rgba(34,197,94,.25);
             border-bottom: none;
             min-height: 4px;
         }
-        .chart-bar:hover { opacity: 0.85; }
+
+        .chart-bar:hover { opacity: .85; }
+
         .chart-bar.is-atual {
-            background: linear-gradient(to top, #00f2ff, rgba(0,242,255,0.7));
-            border-color: var(--primary);
-            box-shadow: 0 0 12px rgba(0,242,255,0.3);
+            background: linear-gradient(to top, #22c55e, rgba(34,197,94,.6));
+            border-color: #22c55e;
+            box-shadow: 0 0 12px rgba(34,197,94,.25);
         }
+
         .chart-tooltip {
-            position: absolute; bottom: calc(100% + 6px); left: 50%;
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
             transform: translateX(-50%);
-            background: #0d1117; color: var(--primary);
-            font-size: 9px; font-weight: 800;
-            padding: 3px 8px; border-radius: 5px;
+            background: #0d1117;
+            color: #22c55e;
+            font-size: .75rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 5px;
             white-space: nowrap;
-            border: 1px solid var(--primary);
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.15s;
+            border: 1px solid rgba(34,197,94,.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .15s;
             z-index: 10;
         }
+
         .chart-bar:hover .chart-tooltip { opacity: 1; }
+
         .chart-label {
-            font-size: 8px; color: var(--text-dim); font-weight: 800;
-            text-align: center; word-break: break-all;
-            max-width: 100%; overflow: hidden;
-            text-overflow: ellipsis; white-space: nowrap;
+            font-size: .72rem;
+            color: var(--text-gray);
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
-        .chart-label.is-atual { color: var(--primary); }
-        .chart-empty { font-size: 10px; color: var(--text-dim); text-align: center; padding: 40px 0; }
 
-        /* Sumário do dashboard */
+        .chart-label.is-atual { color: #22c55e; }
+        .chart-empty { font-size: .88rem; color: var(--text-dim); text-align: center; padding: 2.5rem 0; }
+
         .dash-summary {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px; margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: .8rem;
+            margin-top: 1.2rem;
         }
+
         .dash-stat {
-            background: #1c2128; border: 1px solid var(--border);
-            border-radius: 10px; padding: 12px 14px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: .9rem 1rem;
         }
-        .dash-stat-label { font-size: 8px; color: var(--text-dim); font-weight: 800; margin-bottom: 4px; }
-        .dash-stat-val { font-size: 14px; font-weight: 800; color: var(--primary); }
 
-        /* NOTIF clicável ID */
-        .notif-clickid { cursor: pointer; text-decoration: underline; color: var(--primary); font-weight: 800; }
+        .dash-stat-label { font-size: .7rem; color: var(--text-dim); font-weight: 700; letter-spacing: .05em; margin-bottom: .3rem; text-transform: uppercase; }
+        .dash-stat-val { font-size: 1.1rem; font-weight: 800; color: #22c55e; }
 
-        /* AJUSTE MOBILE */
-        @media (max-width: 768px) {
-            .footer-content { flex-direction: column; text-align: center; }
-            .footer-right { order: -1; }
-            body { padding: 10px; }
-            .wipe-manager { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .wipe-controls { width: 100%; justify-content: space-between; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+        /* ── STAT CARDS ────────────────────────────────────────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid rgba(34,197,94,.4);
+            border-radius: 14px;
+            padding: 1.2rem 1.5rem;
+            transition: transform .2s, background .2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            background: var(--bg-card-hover);
+        }
+
+        .stat-label {
+            font-size: .7rem;
+            color: var(--text-dim);
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: .4rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* ── FORM ──────────────────────────────────────────────────────────── */
+        .form-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.6rem 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-section-title {
+            font-size: .88rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .form-section-title i { color: #22c55e; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: .9rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+        }
+
+        .input-group label {
+            font-size: .75rem;
+            font-weight: 700;
+            color: #9ca3af;
+            letter-spacing: .06em;
+        }
+
+        .input-group label.low-case { text-transform: none !important; }
+
+        input, select, textarea {
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.1);
+            color: #fff;
+            padding: .7rem .9rem;
+            border-radius: 8px;
+            outline: none;
+            font-size: .88rem;
+            transition: border-color .2s, background .2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: rgba(34,197,94,.45);
+            background: rgba(255,255,255,.07);
+        }
+
+        input::placeholder, textarea::placeholder { color: #555; }
+        select option { background: #1a1a1a; color: #fff; }
+
+        .search-integrated {
+            margin-top: 1.2rem;
+            padding-top: 1.2rem;
+            border-top: 1px dashed rgba(255,255,255,.08);
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+        }
+
+        .search-integrated input { padding: .85rem; }
+
+        /* ── MAIN BUTTON ───────────────────────────────────────────────────── */
+        .btn-main {
+            background: #22c55e;
+            color: #0a0a0a;
+            font-weight: 800;
+            border: none;
+            padding: .95rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 1.2rem;
+            width: 100%;
+            transition: background .2s, transform .2s, box-shadow .2s;
+            font-family: 'Outfit', sans-serif;
+            font-size: .95rem;
+            letter-spacing: .3px;
+        }
+
+        .btn-main:hover {
+            background: #16a34a;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(34,197,94,.25);
+        }
+
+        .btn-update {
+            background: #f97316 !important;
+            color: #0a0a0a !important;
+            box-shadow: 0 0 15px rgba(249,115,22,.3);
+        }
+
+        /* ── FILTROS ───────────────────────────────────────────────────────── */
+        .filtros-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .7rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: .9rem 1.2rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .filtro-grupo { display: flex; align-items: center; gap: .6rem; }
+
+        .filtro-label {
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            letter-spacing: .06em;
+            white-space: nowrap;
+        }
+
+        .filtro-select {
+            background: rgba(255,255,255,.05);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 7px;
+            padding: .45rem .8rem;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color .2s;
+            outline: none;
+            font-family: 'Outfit', sans-serif;
+            min-width: 130px;
+        }
+
+        .filtro-select:focus { border-color: rgba(34,197,94,.4); }
+        .filtro-select option { background: #1a1a1a; }
+        .filtro-sep { width: 1px; height: 22px; background: rgba(255,255,255,.08); }
+
+        /* ── VIP CARDS ─────────────────────────────────────────────────────── */
+        .cards-container { display: flex; flex-direction: column; gap: .6rem; }
+
+        .vip-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,.07);
+            border-left: 4px solid #22c55e;
+            border-radius: 12px;
+            padding: 1.1rem 1.4rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr 1.5fr;
+            align-items: center;
+            gap: 1.2rem;
+            transition: background .2s, box-shadow .2s;
+            position: relative;
+        }
+
+        .vip-card:hover {
+            background: var(--bg-card-hover);
+            box-shadow: 0 4px 20px rgba(0,0,0,.4);
+        }
+
+        .vip-card.baixa { opacity: .35; filter: grayscale(1); }
+        .vip-card.pausado { border-left-color: #f97316 !important; background: rgba(249,115,22,.03); }
+
+        .info-group { display: flex; flex-direction: column; gap: .3rem; }
+        .info-value { font-size: .9rem; font-weight: 700; }
+
+        .clickable-id {
+            cursor: pointer;
+            text-decoration: underline;
+            color: #22c55e;
+            transition: opacity .2s;
+        }
+
+        .clickable-id:hover { opacity: .75; }
+
+        .badge {
+            font-size: .68rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 900;
+            display: inline-block;
+            margin-top: 4px;
+            color: #fff;
+        }
+
+        .tag-supremo   { background: #f59e0b; color: #000; }
+        .tag-elite     { background: #0ea5e9; }
+        .tag-imperador { background: #8b5cf6; }
+        .tag-lendario  { background: #ec4899; }
+        .tag-extreme   { background: #f43f5e; }
+        .tag-unloked   { background: #64748b; }
+        .tag-pontos    { background: #16a34a; }
+        .tag-kitbase   { background: #b45309; }
+        .tag-lootbox   { background: #7c3aed; }
+        .tag-outros    { background: rgba(255,255,255,.15); color: #fff; }
+
+        .status-badge {
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 800;
+            display: inline-block;
+            letter-spacing: .03em;
+        }
+
+        .color-green  { background: rgba(34,197,94,.12); color: #22c55e; border: 1px solid rgba(34,197,94,.35); }
+        .color-yellow { background: rgba(249,115,22,.12); color: #f97316; border: 1px solid rgba(249,115,22,.35); }
+        .color-red    { background: rgba(239,68,68,.12);  color: #ef4444; border: 1px solid rgba(239,68,68,.35); }
+        .color-outros { background: rgba(0,158,227,.12);  color: #009ee3; border: 1px solid rgba(0,158,227,.35); }
+
+        .obs-text { font-size: .78rem; color: #f97316; margin-top: .3rem; font-style: italic; }
+
+        .actions { display: flex; gap: .45rem; justify-content: flex-end; flex-wrap: wrap; }
+
+        .btn-action {
+            padding: .38rem .75rem;
+            border-radius: 7px;
+            border: 1px solid transparent;
+            font-size: .75rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform .15s, box-shadow .15s, opacity .15s;
+            font-family: 'Outfit', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+        }
+
+        .btn-action:hover { transform: translateY(-1px); opacity: .9; }
+        .btn-action:active { transform: scale(.95); }
+
+        .btn-edit    { background: rgba(0,158,227,.1); border-color: rgba(0,158,227,.3); color: #009ee3; }
+        .btn-edit:hover { background: rgba(0,158,227,.2); box-shadow: 0 3px 10px rgba(0,158,227,.2); }
+
+        .btn-pause   { background: rgba(249,115,22,.1); border-color: rgba(249,115,22,.3); color: #f97316; }
+        .btn-pause:hover { background: rgba(249,115,22,.2); }
+
+        .btn-play    { background: rgba(34,197,94,.1); border-color: rgba(34,197,94,.3); color: #22c55e; }
+        .btn-play:hover { background: rgba(34,197,94,.2); }
+
+        .btn-baixa   { background: rgba(74,222,128,.08); border-color: rgba(74,222,128,.25); color: #4ade80; }
+        .btn-baixa:hover { background: rgba(74,222,128,.18); }
+
+        .btn-restaurar { background: rgba(96,165,250,.1); border-color: rgba(96,165,250,.3); color: #60a5fa; }
+        .btn-restaurar:hover { background: rgba(96,165,250,.2); }
+
+        .btn-del     { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.25); color: #ef4444; }
+        .btn-del:hover { background: rgba(239,68,68,.2); box-shadow: 0 3px 10px rgba(239,68,68,.2); }
+
+        /* ── SECTION DIVIDER ───────────────────────────────────────────────── */
+        .section-divider {
+            font-size: .72rem;
+            font-weight: 800;
+            color: #22c55e;
+            margin: 1.2rem 0 .6rem;
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+        }
+
+        .section-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,.07);
+        }
+
+        /* ── MODALS ────────────────────────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #141414;
+            border: 1px solid rgba(34,197,94,.3);
+            border-radius: 18px;
+            width: 90%;
+            max-width: 600px;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 0 40px rgba(34,197,94,.12);
+            animation: modalIn .2s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(16px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .confirm-modal { max-width: 400px !important; text-align: center; border-color: rgba(239,68,68,.4) !important; }
+        .confirm-title { font-size: 1.1rem; font-weight: 800; color: #ef4444; margin-bottom: 1rem; }
+        .confirm-text  { font-size: .9rem; color: #ccc; margin-bottom: 1.5rem; }
+
+        .confirm-buttons { display: flex; gap: .7rem; justify-content: center; }
+
+        .btn-confirm {
+            padding: .75rem 1.5rem;
+            border-radius: 9px;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+            font-size: .85rem;
+            font-family: 'Outfit', sans-serif;
+            transition: opacity .2s, transform .15s;
+        }
+
+        .btn-confirm:hover { opacity: .85; transform: translateY(-1px); }
+        .btn-yes { background: #ef4444; color: #fff; }
+        .btn-no  { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.15); }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            cursor: pointer;
+            color: var(--text-dim);
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background .2s;
+        }
+
+        .modal-close:hover { background: rgba(255,255,255,.12); color: #fff; }
+
+        .modal-table { width: 100%; border-collapse: collapse; margin-top: 1.2rem; }
+        .modal-table th { text-align: left; color: #22c55e; font-size: .75rem; padding: .7rem; border-bottom: 1px solid rgba(255,255,255,.08); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+        .modal-table td { padding: .75rem; font-size: .85rem; border-bottom: 1px solid rgba(255,255,255,.05); color: #ccc; }
+
+        #wipeNameModal .modal-content { border-color: rgba(34,197,94,.35); }
+        #wipeNameModal .confirm-title { color: #22c55e; }
+        #wipeNameModal #btnConfirmarWipeNome { background: #22c55e; color: #0a0a0a; }
+        #wipeNameModal input {
+            border-color: rgba(34,197,94,.35);
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+
+        /* ── FOOTER ────────────────────────────────────────────────────────── */
+        .main-footer {
+            margin-top: 2.5rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-brand { display: flex; align-items: center; gap: .6rem; }
+        .brand-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px rgba(34,197,94,.6); }
+        .brand-name { font-weight: 800; font-size: .88rem; letter-spacing: .5px; }
+        .v-tag { background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 4px; font-size: .68rem; color: var(--text-dim); }
+        .footer-status { font-size: .75rem; font-weight: 700; color: var(--text-dim); margin-top: .25rem; }
+        .status-online { color: #22c55e; }
+        .footer-center { text-align: center; font-size: .75rem; color: var(--text-dim); }
+        .dev-info { display: flex; align-items: center; gap: .6rem; font-size: .72rem; font-weight: 700; color: var(--text-dim); background: var(--bg-card); padding: .5rem 1rem; border-radius: 20px; border: 1px solid var(--border); }
+
+        /* ── URGENTE PULSE ─────────────────────────────────────────────────── */
+        @keyframes borderPulse {
+            0%   { border-left-color: #f59e0b; box-shadow: 0 0 0 rgba(245,158,11,0); }
+            50%  { border-left-color: #fbbf24; box-shadow: 0 0 12px rgba(245,158,11,.4); }
+            100% { border-left-color: #f59e0b; box-shadow: 0 0 0 rgba(245,158,11,0); }
+        }
+
+        .vip-card.urgente { animation: borderPulse 1.4s ease-in-out infinite; }
+
+        /* ── TOAST ─────────────────────────────────────────────────────────── */
+        #toastContainer {
+            position: fixed;
+            bottom: 1.5rem; right: 1.5rem;
+            z-index: 99999;
+            display: flex; flex-direction: column; gap: .6rem;
+            pointer-events: none;
+        }
+
+        /* ── RESPONSIVE ────────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .admin-layout { flex-direction: column; }
+            .admin-sidebar { width: 100%; position: static; flex-direction: row; flex-wrap: wrap; }
+            .sidebar-title { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .vip-card { grid-template-columns: 1fr !important; gap: .8rem !important; }
+            .actions { justify-content: flex-start; border-top: 1px solid rgba(255,255,255,.07); padding-top: .8rem; margin-top: .2rem; }
             .form-grid { grid-template-columns: 1fr; }
-            .form-grid > div { grid-column: span 1 !important; }
-            .vip-card { grid-template-columns: 1fr !important; gap: 12px !important; padding: 15px !important; }
-            .actions { justify-content: flex-start !important; display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--border); padding-top: 15px; margin-top: 5px; }
-            .btn-action { flex: 1; min-width: 80px; padding: 12px 5px; font-size: 10px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
             .filtros-bar { flex-direction: column; align-items: flex-start; }
             .filtro-sep { display: none; }
         }
@@ -316,194 +1133,265 @@
 </head>
 <body>
 
+<!-- ── LOGIN ─────────────────────────────────────────────────────────────── -->
 <div id="loginOverlay" class="login-overlay">
     <div class="login-box">
-        <div class="logo-area" style="margin-bottom: 20px; justify-content: center;">
-            <div class="logo-icon"><i data-lucide="lock"></i></div>
-            <div class="logo-text"><h1>ARK<span>DEX</span></h1></div>
+        <div class="login-logo">
+            <div class="logo-icon-wrap">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <h1>ARK<span style="color:#22c55e;">DEX</span></h1>
+            <p>VIP Manager Cloud</p>
         </div>
         <input type="email" id="loginEmail" placeholder="E-mail de acesso">
         <input type="password" id="loginSenha" placeholder="Senha">
-        <button onclick="fazerLogin()" class="btn-main" id="btnLogin">ACESSAR PAINEL</button>
-        <p id="loginErro" style="color: var(--danger); font-size: 11px; margin-top: 10px; display: none; font-weight: 800;">ACESSO NEGADO: VERIFIQUE SUAS CREDENCIAIS</p>
+        <button onclick="fazerLogin()" id="btnLogin">
+            <i class="fas fa-sign-in-alt" style="margin-right:.4rem;"></i> Acessar Painel
+        </button>
+        <p id="loginErro">Acesso negado — verifique suas credenciais.</p>
     </div>
 </div>
 
-<div class="container" id="mainContent" style="display: none;">
-    <header>
-        <div class="logo-area">
-            <div class="logo-icon"><i data-lucide="shield-check"></i></div>
-            <div class="logo-text"><h1>ARK<span>DEX</span></h1><p>Cloud Management System</p></div>
-        </div>
-    </header>
+<!-- ── MAIN (hidden until auth) ──────────────────────────────────────────── -->
+<div class="page-wrap" id="mainContent" style="display:none">
+    <div class="admin-layout">
 
-    <div class="notification-bar" onclick="toggleNotificacoes()" id="notifBar">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <i data-lucide="alert-triangle" style="color: var(--danger)"></i>
-            <span id="notif-count" class="notif-badge">0</span>
-            <span style="font-size: 10px; font-weight: 800;">VIPS VENCIDOS (SISTEMA TOTAL)</span>
-        </div>
-        <i data-lucide="chevron-down" id="notif-arrow"></i>
-    </div>
-    <div id="notif-list" class="notif-panel"></div>
+        <!-- SIDEBAR -->
+        <div class="admin-sidebar">
+            <div class="sidebar-title">
+                <h2><i class="fas fa-rocket" style="color:#22c55e; margin-right:.4rem;"></i> ARK Manager</h2>
+                <div class="admin-status-sidebar" id="sidebarStatus">● Autenticado</div>
+            </div>
 
-    <!-- Banner aviso ao editar wipe histórico -->
-    <div class="edit-hist-banner" id="editHistBanner">
-        <i data-lucide="pencil" style="width:14px;height:14px;"></i>
-        <span id="editHistBannerText">EDITANDO WIPE ARQUIVADO — ALTERAÇÕES SERÃO SALVAS NESTE ARQUIVO</span>
-    </div>
+            <button class="sidebar-nav-btn active" onclick="scrollToForm()">
+                <span class="nav-icon"><i class="fas fa-crown"></i></span> Lançar VIP
+            </button>
 
-    <div class="wipe-manager">
-        <div class="info-group">
-            <span class="info-label">TEMPORADA / WIPE ATUAL</span>
-            <span id="currentWipeName" class="info-value" style="color: var(--primary)">WIPE EM CURSO</span>
-        </div>
-        <div class="wipe-controls">
-            <select id="wipeSelector" class="select-wipe" onchange="changeWipe(this.value)">
-                <option value="current">WIPE EM CURSO</option>
-            </select>
-            <button id="btnFinalize" onclick="finalizeWipe()" class="btn-wipe-action btn-new-wipe">FINALIZAR WIPE</button>
-            <button id="btnRenameWipe" onclick="renomearWipe()" class="btn-wipe-action btn-rename-wipe">RENOMEAR</button>
-            <button id="btnDelWipe" onclick="deletarWipeHistorico()" class="btn-wipe-action btn-del-wipe">EXCLUIR WIPE</button>
-        </div>
-    </div>
+            <button class="sidebar-nav-btn" onclick="scrollToList()">
+                <span class="nav-icon"><i class="fas fa-list"></i></span> Lista de VIPs
+            </button>
 
-    <!-- ═══════════════════════════════════════════════════
-         DASHBOARD — logo abaixo do wipe manager
-         ═══════════════════════════════════════════════════ -->
-    <div class="dashboard-section">
-        <div class="dashboard-header" id="dashboardHeader" onclick="toggleDashboard()">
-            <h3>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>
-                DASHBOARD DE RECEITA POR WIPE
-            </h3>
-            <svg class="dash-arrow" id="dashArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <button class="sidebar-nav-btn" onclick="toggleDashboard()">
+                <span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Dashboard
+            </button>
+
+            <button class="sidebar-nav-btn" onclick="scrollToWipe()">
+                <span class="nav-icon"><i class="fas fa-trophy"></i></span> Wipe / Season
+            </button>
+
+            <button class="sidebar-nav-btn" onclick="toggleNotificacoes()" id="sidebarNotifBtn" style="position:relative;">
+                <span class="nav-icon"><i class="fas fa-bell"></i></span> Notificações
+                <span class="sidebar-badge" id="sidebarBadge">0</span>
+            </button>
+
+            <button class="sidebar-nav-btn sidebar-back" onclick="window.location.href='https://arkdex.com.br/store/admin.php'">
+                <span class="nav-icon"><i class="fas fa-arrow-left"></i></span> Voltar ao Admin
+            </button>
+
+            <button class="sidebar-nav-btn sidebar-logout" onclick="sair()">
+                <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> Sair
+            </button>
         </div>
-        <div class="dashboard-body" id="dashboardBody">
-            <div class="chart-outer">
-                <div class="chart-grid-lines">
-                    <div class="chart-grid-line"></div>
-                    <div class="chart-grid-line"></div>
-                    <div class="chart-grid-line"></div>
-                    <div class="chart-grid-line"></div>
+
+        <!-- MAIN CONTENT -->
+        <div class="admin-main">
+
+            <!-- TOPBAR -->
+            <div class="admin-topbar">
+                <div class="topbar-breadcrumb">
+                    <i class="fas fa-shield-alt" style="color:#22c55e; font-size:.75rem;"></i>
+                    <a href="https://arkdex.com.br/store/admin.php">Admin</a>
+                    <i class="fas fa-chevron-right" style="font-size:.6rem; color:var(--text-dim);"></i>
+                    <span class="bc-current">Lançamento VIP</span>
                 </div>
-                <div class="chart-wrap" id="chartWrap"></div>
-            </div>
-            <div class="dash-summary" id="dashSummary"></div>
-        </div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span id="wipeStatsLabel" class="stat-label">VENDAS NO WIPE</span>
-            <span id="faturamentoAtivo" class="stat-value">R$ 0,00</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">TOTAL DE VIPS</span>
-            <span id="totalProtocolos" class="stat-value">0</span>
-        </div>
-        <div class="stat-card" style="border-bottom-color: var(--success);">
-            <span class="stat-label">FATURAMENTO ANUAL</span>
-            <span id="faturamentoAnual" class="stat-value">R$ 0,00</span>
-        </div>
-    </div>
-
-    <div class="form-section" id="formMain">
-        <input type="hidden" id="editIndex" value="-1">
-        <div class="form-grid">
-            <div class="input-group" style="grid-column: span 2;">
-                <label class="low-case">Id steam</label>
-                <textarea id="idsSteam" placeholder="insira um ou mais ids steam aqui..."></textarea>
-            </div>
-            <div class="input-group">
-                <label>CLASSE VIP</label>
-                <select id="tipoVip">
-                    <option value="UNLOKED">VIP UNLOKED</option>
-                    <option value="ELITE">VIP ELITE</option>
-                    <option value="IMPERADOR">VIP IMPERADOR</option>
-                    <option value="LENDÁRIO">VIP LENDÁRIO</option>
-                    <option value="EXTREME">VIP EXTREME</option>
-                    <option value="SUPREMO">VIP SUPREMO</option>
-                    <option value="PONTOS">PONTOS</option>
-                    <option value="KIT BASE">KIT BASE</option>
-                    <option value="LOOT BOX">LOOT BOX</option>
-                    <option value="OUTROS">OUTROS</option>
-                </select>
-            </div>
-            <div class="input-group"><label>DATA COMPRA</label><input type="date" id="dataCompra"></div>
-            <div class="input-group"><label>VALOR R$</label><input type="number" id="valor" step="0.01" placeholder="0.00"></div>
-            <div class="input-group">
-                <label class="low-case">Duração (dias)</label>
-                <input type="number" id="dias" placeholder="ex: 0 para outros)">
-            </div>
-            <div class="input-group" style="grid-column: span 6;">
-                <label class="low-case">Observações (obs)</label>
-                <input type="text" id="obs" placeholder="detalhes adicionais da venda...">
-            </div>
-        </div>
-        <button id="btn-add" onclick="processarVip()" class="btn-main">LANÇA VIP</button>
-        <div class="search-integrated">
-            <label class="low-case">Pesquisa id steam</label>
-            <input type="text" id="inputBusca" placeholder="pesquisar id steam..." onkeyup="render()">
-        </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════════
-         FILTROS — dois selects compactos
-         ═══════════════════════════════════════════════════ -->
-    <div class="filtros-bar" id="filtrosBar">
-        <div class="filtro-grupo">
-            <span class="filtro-label">STATUS:</span>
-            <select class="filtro-select" id="filtroStatusSel" onchange="setFiltroStatus(this.value)">
-                <option value="todos">TODOS</option>
-                <option value="ativo">ATIVO</option>
-                <option value="vencido">VENCIDO</option>
-                <option value="pausado">PAUSADO</option>
-                <option value="baixa">BAIXA</option>
-            </select>
-        </div>
-        <div class="filtro-sep"></div>
-        <div class="filtro-grupo">
-            <span class="filtro-label">CLASSE:</span>
-            <select class="filtro-select" id="filtroVipSel" onchange="setFiltroVip(this.value)">
-                <option value="todos">TODOS</option>
-                <option value="UNLOKED">VIP UNLOKED</option>
-                <option value="ELITE">VIP ELITE</option>
-                <option value="IMPERADOR">VIP IMPERADOR</option>
-                <option value="LENDÁRIO">VIP LENDÁRIO</option>
-                <option value="EXTREME">VIP EXTREME</option>
-                <option value="SUPREMO">VIP SUPREMO</option>
-                <option value="PONTOS">PONTOS</option>
-                <option value="KIT BASE">KIT BASE</option>
-                <option value="LOOT BOX">LOOT BOX</option>
-                <option value="OUTROS">OUTROS</option>
-            </select>
-        </div>
-    </div>
-
-    <div id="cardsLista" class="cards-container"></div>
-
-    <footer class="main-footer">
-        <div class="footer-content">
-            <div class="footer-left">
-                <div class="footer-brand">
-                    <span class="brand-dot"></span>
-                    <span class="brand-name">ARKDEX <span class="v-tag">V1.3</span></span>
-                </div>
-                <p class="footer-status">Cloud Sync: <span class="status-online">ATIVO</span></p>
-            </div>
-            <div class="footer-center"><p>© 2026 ARKDEX | GESTOR DE VIPS</p></div>
-            <div class="footer-right">
-                <div class="dev-info">
-                    <span>DEVELOPED FOR</span>
-                    <img src="https://img.icons8.com/color/48/ark-survival-evolved.png" alt="ARK" style="width: 20px; height: 20px;">
+                <div class="topbar-right">
+                    <span class="topbar-clock" id="topbarClock">--:--:--</span>
+                    <span class="topbar-badge">
+                        <span class="dot-live"></span>
+                        Autenticado
+                    </span>
                 </div>
             </div>
-        </div>
-    </footer>
-</div>
 
-<!-- Modal confirmação geral -->
+            <!-- NOTIFICATION BAR -->
+            <div class="notification-bar" onclick="toggleNotificacoes()" id="notifBar">
+                <div style="display:flex; align-items:center; gap:.7rem;">
+                    <i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i>
+                    <span id="notif-count" class="notif-badge">0</span>
+                    <span style="font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">VIPs Vencidos (sistema total)</span>
+                </div>
+                <i class="fas fa-chevron-down" id="notif-arrow" style="color:var(--text-dim); font-size:.8rem;"></i>
+            </div>
+            <div id="notif-list" class="notif-panel"></div>
+
+            <!-- EDIT HIST BANNER -->
+            <div class="edit-hist-banner" id="editHistBanner">
+                <i class="fas fa-pencil-alt"></i>
+                <span id="editHistBannerText">EDITANDO WIPE ARQUIVADO — ALTERAÇÕES SERÃO SALVAS NESTE ARQUIVO</span>
+            </div>
+
+            <!-- WIPE MANAGER -->
+            <div class="wipe-manager" id="wipeSection">
+                <div class="info-group">
+                    <span class="info-label">Temporada / Wipe Atual</span>
+                    <span id="currentWipeName" class="info-value" style="color:#22c55e;">WIPE EM CURSO</span>
+                </div>
+                <div class="wipe-controls">
+                    <select id="wipeSelector" class="select-wipe" onchange="changeWipe(this.value)">
+                        <option value="current">WIPE EM CURSO</option>
+                    </select>
+                    <button id="btnFinalize" onclick="finalizeWipe()" class="btn-wipe-action btn-new-wipe">
+                        <i class="fas fa-flag-checkered" style="margin-right:.3rem;"></i>Finalizar Wipe
+                    </button>
+                    <button id="btnRenameWipe" onclick="renomearWipe()" class="btn-wipe-action btn-rename-wipe">Renomear</button>
+                    <button id="btnDelWipe" onclick="deletarWipeHistorico()" class="btn-wipe-action btn-del-wipe">Excluir Wipe</button>
+                </div>
+            </div>
+
+            <!-- DASHBOARD -->
+            <div class="dashboard-section">
+                <div class="dashboard-header" id="dashboardHeader" onclick="toggleDashboard()">
+                    <h3>
+                        <i class="fas fa-chart-bar"></i>
+                        Dashboard de Receita por Wipe
+                    </h3>
+                    <i class="fas fa-chevron-down dash-arrow" id="dashArrow"></i>
+                </div>
+                <div class="dashboard-body" id="dashboardBody">
+                    <div class="chart-outer">
+                        <div class="chart-grid-lines">
+                            <div class="chart-grid-line"></div>
+                            <div class="chart-grid-line"></div>
+                            <div class="chart-grid-line"></div>
+                            <div class="chart-grid-line"></div>
+                        </div>
+                        <div class="chart-wrap" id="chartWrap"></div>
+                    </div>
+                    <div class="dash-summary" id="dashSummary"></div>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span id="wipeStatsLabel" class="stat-label">Vendas no Wipe</span>
+                    <span id="faturamentoAtivo" class="stat-value">R$ 0,00</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total de VIPs</span>
+                    <span id="totalProtocolos" class="stat-value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Faturamento Anual</span>
+                    <span id="faturamentoAnual" class="stat-value">R$ 0,00</span>
+                </div>
+            </div>
+
+            <!-- FORM -->
+            <div class="form-section" id="formMain">
+                <div class="form-section-title">
+                    <i class="fas fa-crown"></i> Registrar VIP
+                </div>
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="form-grid">
+                    <div class="input-group" style="grid-column: span 2;">
+                        <label class="low-case">Id Steam</label>
+                        <textarea id="idsSteam" placeholder="Insira um ou mais IDs Steam aqui..." rows="2"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Classe VIP</label>
+                        <select id="tipoVip">
+                            <option value="UNLOKED">VIP UNLOKED</option>
+                            <option value="ELITE">VIP ELITE</option>
+                            <option value="IMPERADOR">VIP IMPERADOR</option>
+                            <option value="LENDÁRIO">VIP LENDÁRIO</option>
+                            <option value="EXTREME">VIP EXTREME</option>
+                            <option value="SUPREMO">VIP SUPREMO</option>
+                            <option value="PONTOS">PONTOS</option>
+                            <option value="KIT BASE">KIT BASE</option>
+                            <option value="LOOT BOX">LOOT BOX</option>
+                            <option value="OUTROS">OUTROS</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>Data Compra</label><input type="date" id="dataCompra"></div>
+                    <div class="input-group"><label>Valor R$</label><input type="number" id="valor" step="0.01" placeholder="0.00"></div>
+                    <div class="input-group">
+                        <label class="low-case">Duração (dias)</label>
+                        <input type="number" id="dias" placeholder="ex: 0 para outros">
+                    </div>
+                    <div class="input-group" style="grid-column: span 6;">
+                        <label class="low-case">Observações</label>
+                        <input type="text" id="obs" placeholder="Detalhes adicionais da venda...">
+                    </div>
+                </div>
+                <button id="btn-add" onclick="processarVip()" class="btn-main">
+                    <i class="fas fa-rocket" style="margin-right:.4rem;"></i>Lança VIP
+                </button>
+                <div class="search-integrated">
+                    <label class="low-case" style="font-size:.75rem; font-weight:700; color:#9ca3af;">Pesquisar Id Steam</label>
+                    <input type="text" id="inputBusca" placeholder="Pesquisar ID Steam..." onkeyup="render()">
+                </div>
+            </div>
+
+            <!-- FILTROS -->
+            <div class="filtros-bar" id="filtrosBar">
+                <div class="filtro-grupo">
+                    <span class="filtro-label">Status:</span>
+                    <select class="filtro-select" id="filtroStatusSel" onchange="setFiltroStatus(this.value)">
+                        <option value="todos">TODOS</option>
+                        <option value="ativo">ATIVO</option>
+                        <option value="vencido">VENCIDO</option>
+                        <option value="pausado">PAUSADO</option>
+                        <option value="baixa">BAIXA</option>
+                    </select>
+                </div>
+                <div class="filtro-sep"></div>
+                <div class="filtro-grupo">
+                    <span class="filtro-label">Classe:</span>
+                    <select class="filtro-select" id="filtroVipSel" onchange="setFiltroVip(this.value)">
+                        <option value="todos">TODOS</option>
+                        <option value="UNLOKED">VIP UNLOKED</option>
+                        <option value="ELITE">VIP ELITE</option>
+                        <option value="IMPERADOR">VIP IMPERADOR</option>
+                        <option value="LENDÁRIO">VIP LENDÁRIO</option>
+                        <option value="EXTREME">VIP EXTREME</option>
+                        <option value="SUPREMO">VIP SUPREMO</option>
+                        <option value="PONTOS">PONTOS</option>
+                        <option value="KIT BASE">KIT BASE</option>
+                        <option value="LOOT BOX">LOOT BOX</option>
+                        <option value="OUTROS">OUTROS</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- CARDS LIST -->
+            <div id="cardsLista" class="cards-container"></div>
+
+            <!-- FOOTER -->
+            <footer class="main-footer">
+                <div class="footer-content">
+                    <div>
+                        <div class="footer-brand">
+                            <span class="brand-dot"></span>
+                            <span class="brand-name">ARKDEX <span class="v-tag">V1.3</span></span>
+                        </div>
+                        <p class="footer-status">Cloud Sync: <span class="status-online">ATIVO</span></p>
+                    </div>
+                    <div class="footer-center">© 2026 ARKDEX | Gestor de VIPs</div>
+                    <div>
+                        <div class="dev-info">
+                            <span>Developed for</span>
+                            <img src="https://img.icons8.com/color/48/ark-survival-evolved.png" alt="ARK" style="width:18px;height:18px;">
+                        </div>
+                    </div>
+                </div>
+            </footer>
+
+        </div><!-- /admin-main -->
+    </div><!-- /admin-layout -->
+</div><!-- /page-wrap -->
+
+<!-- ── MODALS ─────────────────────────────────────────────────────────────── -->
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content confirm-modal">
         <div class="confirm-title" id="confirmTitle">ATENÇÃO</div>
@@ -515,25 +1403,23 @@
     </div>
 </div>
 
-<!-- Modal nome do wipe -->
 <div id="wipeNameModal" class="modal-overlay">
     <div class="modal-content confirm-modal">
         <div class="confirm-title" id="wipeNameModalTitle">NOME DO ARQUIVO</div>
         <div class="confirm-text" id="wipeNameModalText">DIGITE O PERÍODO OU NOME DESTE WIPE:</div>
-        <input type="text" id="inputWipeName" style="width: 100%; margin-bottom: 20px; text-align: center; background: var(--input-bg); color: white; border: 1px solid var(--border); padding: 10px; border-radius: 8px; outline: none; border-color: var(--primary);">
+        <input type="text" id="inputWipeName" style="width:100%; margin-bottom:1.2rem; text-align:center;">
         <div class="confirm-buttons">
             <button class="btn-confirm btn-no" onclick="fecharModalWipe()">CANCELAR</button>
-            <button id="btnConfirmarWipeNome" class="btn-confirm btn-yes" style="background: var(--primary); color: #000;" onclick="confirmarFinalizacao()">FINALIZAR E SALVAR</button>
+            <button id="btnConfirmarWipeNome" class="btn-confirm btn-yes" onclick="confirmarFinalizacao()">FINALIZAR E SALVAR</button>
         </div>
     </div>
 </div>
 
-<!-- Modal dossiê do jogador -->
 <div id="modalDossie" class="modal-overlay">
     <div class="modal-content">
-        <span class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></span>
-        <h2 id="modalPlayerId" style="color: var(--primary); font-size: 1.2rem;">---</h2>
-        <p id="modalPlayerTotal" style="font-weight: 800; margin: 10px 0;">TOTAL: R$ 0,00</p>
+        <div class="modal-close" onclick="closeModal()"><i class="fas fa-times" style="font-size:.8rem;"></i></div>
+        <h2 id="modalPlayerId" style="color:#22c55e; font-size:1.1rem; margin-bottom:.5rem;">---</h2>
+        <p id="modalPlayerTotal" style="font-weight:800; margin-bottom:.5rem; color:#fff;">TOTAL: R$ 0,00</p>
         <table class="modal-table">
             <thead><tr><th>WIPE</th><th>VIP</th><th>DATA</th><th>VALOR</th></tr></thead>
             <tbody id="modalTableBody"></tbody>
@@ -541,11 +1427,13 @@
     </div>
 </div>
 
+<!-- ── FIREBASE ───────────────────────────────────────────────────────────── -->
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
 
 <script>
+    // ── Firebase ───────────────────────────────────────────────────────────
     const firebaseConfig = {
         apiKey: "AIzaSyCoObGx8rVkUVdau2zeU2azChGvmmidHcA",
         authDomain: "arkdex-3ce32.firebaseapp.com",
@@ -559,29 +1447,66 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    // ═══════════════════════════════════════════════
-    // FUNÇÃO DE DATA LOCAL (sem bug de fuso)
-    // ═══════════════════════════════════════════════
-    function getDataHoje() {
-        const hoje = new Date();
-        const ano = hoje.getFullYear();
-        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-        const dia = String(hoje.getDate()).padStart(2, '0');
-        return `${ano}-${mes}-${dia}`;
+    // ── Clock ──────────────────────────────────────────────────────────────
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2,'0');
+        const m = String(now.getMinutes()).padStart(2,'0');
+        const s = String(now.getSeconds()).padStart(2,'0');
+        const el = document.getElementById('topbarClock');
+        if (el) el.textContent = `${h}:${m}:${s}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ── Sidebar helpers ────────────────────────────────────────────────────
+    function scrollToForm() {
+        document.getElementById('formMain')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setSidebarActive(0);
+    }
+    function scrollToList() {
+        document.getElementById('cardsLista')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setSidebarActive(1);
+    }
+    function scrollToWipe() {
+        document.getElementById('wipeSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setSidebarActive(3);
+    }
+    function setSidebarActive(idx) {
+        document.querySelectorAll('.sidebar-nav-btn').forEach((b, i) => {
+            b.classList.toggle('active', i === idx);
+        });
+    }
+    function sair() {
+        auth.signOut();
     }
 
+    // ── Data helper ────────────────────────────────────────────────────────
+    function getDataHoje() {
+        const hoje = new Date();
+        return `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+    }
+
+    // ── Login ──────────────────────────────────────────────────────────────
     function fazerLogin() {
         const email = document.getElementById('loginEmail').value;
         const senha = document.getElementById('loginSenha').value;
         const btn = document.getElementById('btnLogin');
         const erro = document.getElementById('loginErro');
-        btn.innerText = "AUTENTICANDO...";
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:.4rem;"></i>Autenticando...';
         erro.style.display = 'none';
-        auth.signInWithEmailAndPassword(email, senha).catch(e => {
+        auth.signInWithEmailAndPassword(email, senha).catch(() => {
             erro.style.display = 'block';
-            btn.innerText = "ACESSAR PAINEL";
+            btn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right:.4rem;"></i>Acessar Painel';
         });
     }
+
+    // Enter no login
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && document.getElementById('loginOverlay').style.display !== 'none') {
+            fazerLogin();
+        }
+    });
 
     auth.onAuthStateChanged(user => {
         const loginTela = document.getElementById('loginOverlay');
@@ -589,19 +1514,19 @@
         if (user) {
             loginTela.style.display = 'none';
             sistemaTela.style.display = 'block';
-            lucide.createIcons();
-            if(document.getElementById('dataCompra')) {
+            if (document.getElementById('dataCompra')) {
                 document.getElementById('dataCompra').value = getDataHoje();
             }
-            iniciarSincronizacao(); 
+            iniciarSincronizacao();
         } else {
             loginTela.style.display = 'flex';
             sistemaTela.style.display = 'none';
         }
     });
 
-    let currentVipeList = []; 
-    let wipeHistory = [];     
+    // ── State ──────────────────────────────────────────────────────────────
+    let currentVipeList = [];
+    let wipeHistory = [];
     let selectedWipeIndex = "current";
     let confirmCallback = null;
     let modoRenomear = false;
@@ -622,15 +1547,14 @@
         'OUTROS':   { class: 'tag-outros',   color: '#ffffff' }
     };
 
-    function getConfigVip(tipo) {
-        return configVip[tipo] || configVip['OUTROS'];
-    }
+    function getConfigVip(tipo) { return configVip[tipo] || configVip['OUTROS']; }
 
     function splitIds(idsStr) {
         if (!idsStr || idsStr.trim() === '' || idsStr.trim() === 'S / ID') return [];
         return idsStr.split(/[,\/\s]+/).map(s => s.trim()).filter(s => s !== '');
     }
 
+    // ── Firebase sync ──────────────────────────────────────────────────────
     function iniciarSincronizacao() {
         const user = auth.currentUser;
         if (user) {
@@ -640,18 +1564,28 @@
                     currentVipeList = data.current || [];
                     wipeHistory = data.history || [];
                     updateWipeSelector();
-                    render(); 
+                    render();
                 }
             }, (error) => {
                 console.error("Erro de permissão: ", error);
-                alert("Erro de permissão: Verifique se o seu UID está correto nas regras do Firebase.");
             });
         }
     }
 
+    function salvarGeral() {
+        db.ref('arkdex_v22').set({ current: currentVipeList, history: wipeHistory })
+            .then(() => render())
+            .catch(e => alert("Erro ao salvar: " + e.message));
+    }
+
+    // ── Notifications ──────────────────────────────────────────────────────
     function toggleNotificacoes() {
         const panel = document.getElementById('notif-list');
-        if (panel) panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        const arrow = document.getElementById('notif-arrow');
+        if (!panel) return;
+        const isOpen = panel.style.display === 'block';
+        panel.style.display = isOpen ? 'none' : 'block';
+        if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
     }
 
     function atualizarMonitor() {
@@ -672,7 +1606,7 @@
                     notifList.innerHTML += `
                         <div class="notif-item">
                             <span style="flex:1">[${wipeLabel}] ${idsNotifHTML}</span>
-                            <span class="notif-urgent" style="margin-right:10px">VENCIDO</span>
+                            <span class="notif-urgent" style="margin-right:8px">VENCIDO</span>
                             <button onclick="localizarVip(${i}, '${wipeIdx}', '${v.ids}')" class="btn-action btn-edit">IR</button>
                         </div>`;
                 }
@@ -680,39 +1614,61 @@
         };
         verificar(currentVipeList, "ATUAL", "current");
         wipeHistory.forEach((w, idx) => verificar(w.vips, w.date, idx));
+
         const countBadge = document.getElementById('notif-count');
+        const sidebarBadge = document.getElementById('sidebarBadge');
         if (countBadge) countBadge.innerText = totalVencidos;
-        if (totalVencidos === 0) notifList.innerHTML = '<p style="font-size:10px; padding:10px; color:var(--text-dim); text-align:center;">NENHUM VIP VENCIDO NO SISTEMA.</p>';
+        if (sidebarBadge) {
+            sidebarBadge.innerText = totalVencidos;
+            sidebarBadge.style.display = totalVencidos > 0 ? 'inline-block' : 'none';
+        }
+        if (totalVencidos === 0) {
+            notifList.innerHTML = '<p style="font-size:.83rem; padding:.8rem; color:var(--text-dim); text-align:center;">Nenhum VIP vencido no sistema.</p>';
+        }
         notifList.onclick = function(e) {
             const el = e.target.closest('.notif-clickid');
             if (el) showPlayerInfo(el.dataset.steamid);
         };
     }
 
+    function localizarVip(index, wipeIdx, ids) {
+        document.getElementById('notif-list').style.display = 'none';
+        changeWipe(wipeIdx);
+        setTimeout(() => {
+            const busca = document.getElementById('inputBusca');
+            if (busca) {
+                const tokens = splitIds(ids);
+                busca.value = tokens.length ? tokens[0] : ids;
+                render();
+            }
+            document.getElementById('cardsLista')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    }
+
+    // ── Confirm dialogs ────────────────────────────────────────────────────
     function alertCustom(titulo, texto) {
         document.getElementById('confirmTitle').innerText = titulo;
         document.getElementById('confirmText').innerText = texto;
         document.getElementById('confirmModal').style.display = 'flex';
-        const btnYes = document.querySelector('#confirmModal .btn-yes');
-        btnYes.innerText = 'ENTENDI';
-        confirmCallback = null; 
+        document.querySelector('#confirmModal .btn-yes').innerText = 'ENTENDI';
+        confirmCallback = null;
     }
-    
+
     function customConfirm(title, text, callback) {
         document.getElementById('confirmTitle').innerText = title;
         document.getElementById('confirmText').innerText = text;
         document.getElementById('confirmModal').style.display = 'flex';
-        const btnYes = document.querySelector('#confirmModal .btn-yes');
-        btnYes.innerText = 'CONFIRMAR';
+        document.querySelector('#confirmModal .btn-yes').innerText = 'CONFIRMAR';
         confirmCallback = callback;
     }
 
     function closeConfirm(result) {
         document.getElementById('confirmModal').style.display = 'none';
-        if(result && confirmCallback) confirmCallback();
+        if (result && confirmCallback) confirmCallback();
         confirmCallback = null;
     }
 
+    // ── Process VIP ────────────────────────────────────────────────────────
     function processarVip() {
         const rawIds = document.getElementById('idsSteam').value.trim();
         const ids = rawIds === "" ? "S/ID" : rawIds;
@@ -732,11 +1688,12 @@
         salvarGeral();
     }
 
+    // ── Render ─────────────────────────────────────────────────────────────
     function render() {
         atualizarMonitor();
         const lista = document.getElementById('cardsLista');
         const busca = document.getElementById('inputBusca').value.toUpperCase();
-        if(!lista) return; 
+        if (!lista) return;
         lista.innerHTML = '';
         let fWipeVisualizado = 0, fAnualTotal = 0;
         wipeHistory.forEach(w => w.vips.forEach(v => fAnualTotal += v.valor));
@@ -751,89 +1708,88 @@
             agora.setHours(0,0,0,0);
             const vencZero = new Date(v.vencimento);
             vencZero.setHours(0,0,0,0);
-            let diffDias = v.pausado ? v.tempoRestanteAoPausar : Math.ceil((vencZero - agora) / (1000 * 60 * 60 * 24));
+            let diffDias = v.pausado ? v.tempoRestanteAoPausar : Math.ceil((vencZero - agora) / (1000*60*60*24));
             let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
 
             const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX'].includes(v.tipo);
 
-            let statusHTML = semPrazo ? `<span class="status-badge color-outros">${v.tipo}</span>` : 
-                             (v.pausado) ? `<span class="status-badge color-yellow">PAUSADO - RESTA ${diffDias} DIAS</span>` :
-                             (v.baixado) ? `<span class="status-badge" style="background:#555">CONCLUÍDO (BAIXA)</span>` :
-                             (diffDias <= 0) ? `<span class="status-badge color-red">VENCIDO</span>` : `<span class="status-badge ${corClasse}">ATIVO - ${diffDias} DIAS</span>`;
-            
-            let listIdx = isFromSearchHist ? wHistIndex : selectedWipeIndex;
+            let statusHTML = semPrazo ? `<span class="status-badge color-outros">${v.tipo}</span>` :
+                             v.pausado ? `<span class="status-badge color-yellow">PAUSADO • ${diffDias}d</span>` :
+                             v.baixado ? `<span class="status-badge" style="background:rgba(255,255,255,.08);color:#555;">BAIXA</span>` :
+                             diffDias <= 0 ? `<span class="status-badge color-red">VENCIDO</span>` :
+                             `<span class="status-badge ${corClasse}">ATIVO • ${diffDias}d</span>`;
 
+            let listIdx = isFromSearchHist ? wHistIndex : selectedWipeIndex;
             const idsSplit = splitIds(v.ids);
-            let idsHTML;
-            if (idsSplit.length === 0) {
-                idsHTML = '<span style="color:var(--text-dim)">S/ ID</span>';
-            } else {
-                idsHTML = idsSplit.map(id => 
-                    `<span class="clickable-id" data-steamid="${id}">${id}</span>`
-                ).join(', ');
-            }
+            let idsHTML = idsSplit.length === 0
+                ? '<span style="color:var(--text-dim)">S/ ID</span>'
+                : idsSplit.map(id => `<span class="clickable-id" data-steamid="${id}">${id}</span>`).join(', ');
 
             const urgente = !v.baixado && !v.pausado && !semPrazo && diffDias > 0 && diffDias <= 2;
-
-            // Botão pausar/retomar com confirmação
             const btnPausaLabel = v.pausado ? 'RETOMAR' : 'PAUSAR';
             const btnPausaClass = v.pausado ? 'btn-play' : 'btn-pause';
 
-            return `<div class="vip-card ${v.pausado ? 'pausado' : ''} ${v.baixado ? 'baixa' : ''} ${urgente ? 'urgente' : ''}" style="border-left-color: ${cfg.color}">
+            return `<div class="vip-card ${v.pausado?'pausado':''} ${v.baixado?'baixa':''} ${urgente?'urgente':''}" style="border-left-color:${cfg.color}">
                 <div class="info-group">
                     <span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span>
-                    <span class="info-value">${idsHTML}</span> <div><span class="badge ${cfg.class}">${v.tipo}</span></div>
+                    <span class="info-value">${idsHTML}</span>
+                    <div><span class="badge ${cfg.class}">${v.tipo}</span></div>
                     ${v.obs ? `<div class="obs-text">OBS: ${v.obs}</div>` : ''}
                 </div>
-                <div class="info-group"><span class="info-label">VALOR</span><span class="info-value" style="color:var(--primary)">R$ ${v.valor.toFixed(2)}</span></div>
-                <div class="info-group"><span class="info-label">COMPRA</span><span class="info-value">${new Date(v.dataCompra + 'T00:00:00').toLocaleDateString('pt-BR')}</span></div>
-                <div class="info-group"><span class="info-label">VENCIMENTO</span><span class="info-value">${(v.pausado || semPrazo) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span><div style="margin-top:5px">${statusHTML}</div></div>
+                <div class="info-group">
+                    <span class="info-label">VALOR</span>
+                    <span class="info-value" style="color:#22c55e">R$ ${v.valor.toFixed(2)}</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">COMPRA</span>
+                    <span class="info-value">${new Date(v.dataCompra+'T00:00:00').toLocaleDateString('pt-BR')}</span>
+                </div>
+                <div class="info-group">
+                    <span class="info-label">VENCIMENTO</span>
+                    <span class="info-value">${(v.pausado||semPrazo) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span>
+                    <div style="margin-top:4px">${statusHTML}</div>
+                </div>
                 <div class="actions">
-                    ${!v.baixado ? `<button onclick="editar(${i}, '${listIdx}')" class="btn-action btn-edit">EDITAR</button>` : ''}
-                    ${semPrazo || v.baixado ? '' : `<button onclick="confirmarPausa(${i}, '${listIdx}', ${v.pausado})" class="btn-action ${btnPausaClass}">${btnPausaLabel}</button>`}
-                    ${v.baixado ? `<button onclick="restaurarBaixa(${i}, '${listIdx}')" class="btn-action btn-restaurar">RESTAURAR</button>` : `<button onclick="darBaixa(${i}, '${listIdx}')" class="btn-action btn-baixa">BAIXA</button>`}
-                    <button onclick="deletar(${i}, '${listIdx}')" class="btn-action btn-del">DELETAR</button>
+                    ${!v.baixado ? `<button onclick="editar(${i},'${listIdx}')" class="btn-action btn-edit">EDITAR</button>` : ''}
+                    ${semPrazo||v.baixado ? '' : `<button onclick="confirmarPausa(${i},'${listIdx}',${v.pausado})" class="btn-action ${btnPausaClass}">${btnPausaLabel}</button>`}
+                    ${v.baixado
+                        ? `<button onclick="restaurarBaixa(${i},'${listIdx}')" class="btn-action btn-restaurar">RESTAURAR</button>`
+                        : `<button onclick="darBaixa(${i},'${listIdx}')" class="btn-action btn-baixa">BAIXA</button>`}
+                    <button onclick="deletar(${i},'${listIdx}')" class="btn-action btn-del">DELETAR</button>
                 </div>
             </div>`;
         };
 
         if (busca !== "") {
-            lista.innerHTML += `<div class="section-divider">NO WIPE SELECIONADO</div>`;
-            listExibida.forEach((v, i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, i); });
-            lista.innerHTML += `<div class="section-divider">OUTROS WIPES</div>`;
-            if(selectedWipeIndex !== "current") currentVipeList.forEach((v, i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, i, false, "current", "ATUAL"); });
-            [...wipeHistory].reverse().forEach((w, revWIdx) => { 
-                const wIdx = wipeHistory.length - 1 - revWIdx; 
-                if(selectedWipeIndex != wIdx) w.vips.forEach((v, i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v, i, true, wIdx, w.date); });
+            lista.innerHTML += `<div class="section-divider">No Wipe Selecionado</div>`;
+            listExibida.forEach((v,i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v,i); });
+            lista.innerHTML += `<div class="section-divider">Outros Wipes</div>`;
+            if (selectedWipeIndex !== "current") currentVipeList.forEach((v,i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v,i,false,"current","ATUAL"); });
+            [...wipeHistory].reverse().forEach((w, revWIdx) => {
+                const wIdx = wipeHistory.length - 1 - revWIdx;
+                if (selectedWipeIndex != wIdx) w.vips.forEach((v,i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v,i,true,wIdx,w.date); });
             });
         } else {
-            listExibida.forEach((v, i) => { if(passaFiltro(v)) lista.innerHTML += createCard(v, i); });
+            listExibida.forEach((v,i) => { if(passaFiltro(v)) lista.innerHTML += createCard(v,i); });
         }
+
         document.getElementById('faturamentoAtivo').innerText = `R$ ${fWipeVisualizado.toFixed(2)}`;
         document.getElementById('totalProtocolos').innerText = listExibida.length;
         document.getElementById('faturamentoAnual').innerText = `R$ ${fAnualTotal.toFixed(2)}`;
-        document.getElementById('wipeStatsLabel').innerText = (selectedWipeIndex === "current") ? "VENDAS NO WIPE" : "VENDAS NESTE ARQUIVO";
-        lucide.createIcons();
+        document.getElementById('wipeStatsLabel').innerText = selectedWipeIndex === "current" ? "Vendas no Wipe" : "Vendas neste Arquivo";
+
         document.getElementById('cardsLista').onclick = function(e) {
             const el = e.target.closest('.clickable-id');
             if (el) showPlayerInfo(el.dataset.steamid);
         };
 
-        // Atualiza dashboard se estiver aberto
         if (dashAberto) renderDashboard();
     }
 
-    // ═══════════════════════════════════
-    // FILTROS — agora via select
-    // ═══════════════════════════════════
-    function setFiltroStatus(val) {
-        filtroStatus = val;
-        render();
-    }
-    function setFiltroVip(val) {
-        filtroVip = val;
-        render();
-    }
+    // ── Filters ────────────────────────────────────────────────────────────
+    function setFiltroStatus(val) { filtroStatus = val; render(); }
+    function setFiltroVip(val)    { filtroVip    = val; render(); }
+
     function passaFiltro(v) {
         const agora = new Date(); agora.setHours(0,0,0,0);
         const vencZero = new Date(v.vencimento); vencZero.setHours(0,0,0,0);
@@ -844,121 +1800,89 @@
         if (filtroStatus === 'vencido') statusOk = !v.baixado && !v.pausado && !semPrazo && diffDias <= 0;
         if (filtroStatus === 'pausado') statusOk = v.pausado;
         if (filtroStatus === 'baixa')   statusOk = v.baixado;
-        const vipOk = filtroVip === 'todos' || v.tipo === filtroVip;
-        return statusOk && vipOk;
+        return statusOk && (filtroVip === 'todos' || v.tipo === filtroVip);
     }
 
-    // ═══════════════════════════════════
-    // DASHBOARD — melhorado
-    // ═══════════════════════════════════
+    // ── Dashboard ──────────────────────────────────────────────────────────
     function toggleDashboard() {
         dashAberto = !dashAberto;
-        const body = document.getElementById('dashboardBody');
-        const header = document.getElementById('dashboardHeader');
-        const arrow = document.getElementById('dashArrow');
-        body.classList.toggle('aberto', dashAberto);
-        header.classList.toggle('aberto', dashAberto);
-        arrow.classList.toggle('aberto', dashAberto);
+        document.getElementById('dashboardBody').classList.toggle('aberto', dashAberto);
+        document.getElementById('dashboardHeader').classList.toggle('aberto', dashAberto);
+        document.getElementById('dashArrow').classList.toggle('aberto', dashAberto);
         if (dashAberto) renderDashboard();
+        setSidebarActive(dashAberto ? 2 : -1);
     }
 
     function renderDashboard() {
         const wrap = document.getElementById('chartWrap');
         const summary = document.getElementById('dashSummary');
         if (!wrap) return;
-
-        // Monta dados
         const dados = [];
         wipeHistory.forEach(w => {
-            const total = w.vips.reduce((s, v) => s + v.valor, 0);
-            dados.push({ label: w.date, val: total, isAtual: false });
+            dados.push({ label: w.date, val: w.vips.reduce((s,v) => s+v.valor, 0), isAtual: false });
         });
-        const totalAtual = currentVipeList.reduce((s, v) => s + v.valor, 0);
+        const totalAtual = currentVipeList.reduce((s,v) => s+v.valor, 0);
         dados.push({ label: 'ATUAL', val: totalAtual, isAtual: true });
 
-        if (dados.length === 0 || dados.every(d => d.val === 0)) {
-            wrap.innerHTML = '<div class="chart-empty">SEM DADOS PARA EXIBIR</div>';
+        if (!dados.length || dados.every(d => d.val === 0)) {
+            wrap.innerHTML = '<div class="chart-empty">Sem dados para exibir</div>';
             if (summary) summary.innerHTML = '';
             return;
         }
 
         const max = Math.max(...dados.map(d => d.val), 1);
-        const totalGeral = dados.reduce((s, d) => s + d.val, 0);
-        const melhorWipe = dados.reduce((a, b) => b.val > a.val ? b : a, dados[0]);
+        const totalGeral = dados.reduce((s,d) => s+d.val, 0);
+        const melhorWipe = dados.reduce((a,b) => b.val > a.val ? b : a, dados[0]);
 
-        // Barras
         wrap.innerHTML = dados.map(d => {
-            const pct = d.val / max;
-            const h = Math.max(4, Math.round(pct * 116));
-            const valLabel = 'R$ ' + d.val.toFixed(2);
-            return `
-            <div class="chart-bar-group">
+            const h = Math.max(4, Math.round((d.val/max) * 116));
+            return `<div class="chart-bar-group">
                 <div class="chart-bar-container">
-                    <div class="chart-bar ${d.isAtual ? 'is-atual' : ''}" style="height:${h}px">
-                        <div class="chart-tooltip">${valLabel}</div>
+                    <div class="chart-bar ${d.isAtual?'is-atual':''}" style="height:${h}px">
+                        <div class="chart-tooltip">R$ ${d.val.toFixed(2)}</div>
                     </div>
                 </div>
-                <div class="chart-label ${d.isAtual ? 'is-atual' : ''}">${d.label}</div>
+                <div class="chart-label ${d.isAtual?'is-atual':''}">${d.label}</div>
             </div>`;
         }).join('');
 
-        // Sumário
         if (summary) {
             summary.innerHTML = `
-                <div class="dash-stat">
-                    <div class="dash-stat-label">TOTAL GERAL</div>
-                    <div class="dash-stat-val">R$ ${totalGeral.toFixed(2)}</div>
-                </div>
-                <div class="dash-stat">
-                    <div class="dash-stat-label">MELHOR WIPE</div>
-                    <div class="dash-stat-val">${melhorWipe.label}</div>
-                </div>
-                <div class="dash-stat">
-                    <div class="dash-stat-label">WIPE ATUAL</div>
-                    <div class="dash-stat-val">R$ ${totalAtual.toFixed(2)}</div>
-                </div>
-                <div class="dash-stat">
-                    <div class="dash-stat-label">WIPES ARQUIVADOS</div>
-                    <div class="dash-stat-val">${wipeHistory.length}</div>
-                </div>
-            `;
+                <div class="dash-stat"><div class="dash-stat-label">Total Geral</div><div class="dash-stat-val">R$ ${totalGeral.toFixed(2)}</div></div>
+                <div class="dash-stat"><div class="dash-stat-label">Melhor Wipe</div><div class="dash-stat-val">${melhorWipe.label}</div></div>
+                <div class="dash-stat"><div class="dash-stat-label">Wipe Atual</div><div class="dash-stat-val">R$ ${totalAtual.toFixed(2)}</div></div>
+                <div class="dash-stat"><div class="dash-stat-label">Arquivados</div><div class="dash-stat-val">${wipeHistory.length}</div></div>`;
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // NOVO: confirmarPausa — pede confirmação antes de pausar/retomar
-    // ═══════════════════════════════════════════════════════════
+    // ── Pause/Resume ───────────────────────────────────────────────────────
     function confirmarPausa(index, wipeIdx, estaPausado) {
         const acao = estaPausado ? 'RETOMAR' : 'PAUSAR';
         const texto = estaPausado
             ? 'Deseja retomar este VIP? O vencimento será recalculado a partir de hoje.'
             : 'Deseja pausar este VIP? O tempo restante será congelado.';
-        customConfirm(acao + ' VIP', texto, () => {
-            togglePausa(index, wipeIdx);
-        });
+        customConfirm(acao + ' VIP', texto, () => togglePausa(index, wipeIdx));
     }
 
     function togglePausa(index, wipeIdx) {
         let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
         const v = list[index];
-        const hoje = new Date();
-        hoje.setHours(0, 0, 0, 0);
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
         if (!v.pausado) {
-            const vencimento = new Date(v.vencimento);
-            vencimento.setHours(0, 0, 0, 0);
-            let diasRestantes = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
-            v.tempoRestanteAoPausar = diasRestantes < 0 ? 0 : diasRestantes;
+            const venc = new Date(v.vencimento); venc.setHours(0,0,0,0);
+            let dr = Math.ceil((venc - hoje) / (1000*60*60*24));
+            v.tempoRestanteAoPausar = dr < 0 ? 0 : dr;
             v.pausado = true;
         } else {
-            const novaDataVencimento = new Date();
-            novaDataVencimento.setHours(0, 0, 0, 0);
-            novaDataVencimento.setDate(novaDataVencimento.getDate() + v.tempoRestanteAoPausar);
-            v.vencimento = novaDataVencimento.toISOString();
+            const nova = new Date(); nova.setHours(0,0,0,0);
+            nova.setDate(nova.getDate() + v.tempoRestanteAoPausar);
+            v.vencimento = nova.toISOString();
             v.pausado = false;
         }
         salvarGeral();
     }
 
+    // ── CRUD ───────────────────────────────────────────────────────────────
     function darBaixa(index, wipeIdx) {
         let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
         const v = list[index];
@@ -968,11 +1892,11 @@
         let infoExtra = '';
         if (!semPrazo && !v.pausado) {
             const diff = Math.ceil((vencZero - agora) / (1000*60*60*24));
-            if (diff > 0) infoExtra = ' VIP ainda tem ' + diff + ' dia(s) restante(s).';
+            if (diff > 0) infoExtra = ` VIP ainda tem ${diff} dia(s) restante(s).`;
             else if (diff === 0) infoExtra = ' VIP vence hoje.';
-            else infoExtra = ' VIP já vencido há ' + Math.abs(diff) + ' dia(s).';
+            else infoExtra = ` VIP já vencido há ${Math.abs(diff)} dia(s).`;
         } else if (v.pausado) {
-            infoExtra = ' VIP pausado com ' + v.tempoRestanteAoPausar + ' dia(s) restante(s).';
+            infoExtra = ` VIP pausado com ${v.tempoRestanteAoPausar} dia(s) restante(s).`;
         }
         customConfirm("DAR BAIXA", "Marcar como concluído?" + infoExtra, () => {
             list[index].baixado = true; salvarGeral();
@@ -1003,10 +1927,8 @@
             const label = document.getElementById('currentWipeName');
             if (label) label.innerText = (wipeIdx === "current") ? "WIPE EM CURSO" : "ARQUIVO: " + wipeHistory[wipeIdx].date;
         }
-
         let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
         const v = list[index];
-
         document.getElementById('idsSteam').value = (v.ids === "S/ID" || v.ids === "S / ID") ? "" : v.ids;
         document.getElementById('tipoVip').value = v.tipo;
         document.getElementById('dataCompra').value = v.dataCompra;
@@ -1014,55 +1936,79 @@
         document.getElementById('dias').value = v.dias;
         document.getElementById('obs').value = v.obs;
         document.getElementById('editIndex').value = index;
-
         const btn = document.getElementById('btn-add');
-        btn.innerText = "ATUALIZAR REGISTRO";
+        btn.innerHTML = '<i class="fas fa-sync" style="margin-right:.4rem;"></i>Atualizar Registro';
         btn.classList.add('btn-update');
-
         const banner = document.getElementById('editHistBanner');
         if (wipeIdx !== "current") {
-            document.getElementById('editHistBannerText').innerText = 
+            document.getElementById('editHistBannerText').innerText =
                 `EDITANDO WIPE ARQUIVADO: ${wipeHistory[wipeIdx].date} — ALTERAÇÕES SERÃO SALVAS NESTE ARQUIVO`;
             banner.classList.add('visible');
         } else {
             banner.classList.remove('visible');
         }
-        
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    // ── Player modal ───────────────────────────────────────────────────────
     function showPlayerInfo(steamId) {
-        if(!steamId) return;
+        if (!steamId) return;
         const buscarId = steamId.trim().toUpperCase();
-        if(buscarId === '' || buscarId === 'S/ID' || buscarId === 'S / ID') return;
-
+        if (buscarId === '' || buscarId === 'S/ID' || buscarId === 'S / ID') return;
         let total = 0, html = '';
-
         const search = (list, label) => {
             list.forEach(v => {
                 const tokens = splitIds(v.ids).map(t => t.toUpperCase());
-                if(tokens.includes(buscarId)) {
+                if (tokens.includes(buscarId)) {
                     total += v.valor;
-                    html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${new Date(v.dataCompra + 'T12:00:00').toLocaleDateString('pt-BR')}</td><td>R$ ${v.valor.toFixed(2)}</td></tr>`;
+                    html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${new Date(v.dataCompra+'T12:00:00').toLocaleDateString('pt-BR')}</td><td style="color:#22c55e;font-weight:700;">R$ ${v.valor.toFixed(2)}</td></tr>`;
                 }
             });
         };
         search(currentVipeList, "ATUAL");
         wipeHistory.forEach(w => search(w.vips, w.date));
-        document.getElementById('modalPlayerId').innerText = "HISTÓRICO DO ID: " + buscarId;
-        document.getElementById('modalPlayerTotal').innerText = "INVESTIMENTO TOTAL: R$ " + total.toFixed(2);
-        document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center">NENHUM REGISTRO ENCONTRADO</td></tr>';
+        document.getElementById('modalPlayerId').innerText = "Histórico: " + buscarId;
+        document.getElementById('modalPlayerTotal').innerText = "Investimento Total: R$ " + total.toFixed(2);
+        document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;color:var(--text-dim)">Nenhum registro encontrado</td></tr>';
         document.getElementById('modalDossie').style.display = 'flex';
-        lucide.createIcons();
     }
 
     function closeModal() { document.getElementById('modalDossie').style.display = 'none'; }
 
-    function finalizeWipe() {
-        if (currentVipeList.length === 0) {
-            alertCustom("SISTEMA VAZIO", "NÃO HÁ REGISTROS NO WIPE ATUAL PARA FINALIZAR.");
-            return;
+    // ── Wipe management ────────────────────────────────────────────────────
+    function updateWipeSelector() {
+        const sel = document.getElementById('wipeSelector');
+        if (!sel) return;
+        const val = sel.value;
+        sel.innerHTML = '<option value="current">WIPE EM CURSO</option>';
+        wipeHistory.forEach((w, i) => {
+            sel.innerHTML += `<option value="${i}">${w.date}</option>`;
+        });
+        sel.value = (val === "current" || wipeHistory[val]) ? val : "current";
+    }
+
+    function changeWipe(value) {
+        selectedWipeIndex = (value === "current") ? "current" : parseInt(value);
+        const isCurrentWipe = selectedWipeIndex === "current";
+        document.getElementById('btnFinalize').style.display = isCurrentWipe ? "block" : "none";
+        document.getElementById('btnDelWipe').style.display = isCurrentWipe ? "none" : "block";
+        document.getElementById('btnRenameWipe').style.display = isCurrentWipe ? "none" : "block";
+        const label = document.getElementById('currentWipeName');
+        if (label) label.innerText = isCurrentWipe ? "WIPE EM CURSO" : "ARQUIVO: " + wipeHistory[selectedWipeIndex].date;
+        const banner = document.getElementById('editHistBanner');
+        if (!isCurrentWipe) {
+            document.getElementById('editHistBannerText').innerText =
+                `VISUALIZANDO WIPE ARQUIVADO: ${wipeHistory[selectedWipeIndex].date}`;
+            banner.classList.add('visible');
+        } else {
+            banner.classList.remove('visible');
         }
+        document.getElementById('editIndex').value = "-1";
+        render();
+    }
+
+    function finalizeWipe() {
+        if (currentVipeList.length === 0) { alertCustom("SISTEMA VAZIO", "NÃO HÁ REGISTROS NO WIPE ATUAL PARA FINALIZAR."); return; }
         modoRenomear = false;
         document.getElementById('wipeNameModalTitle').innerText = "NOME DO ARQUIVO";
         document.getElementById('wipeNameModalText').innerText = "DIGITE O PERÍODO OU NOME DESTE WIPE:";
@@ -1077,7 +2023,7 @@
         if (selectedWipeIndex === "current") return;
         modoRenomear = true;
         document.getElementById('wipeNameModalTitle').innerText = "RENOMEAR ARQUIVO";
-        document.getElementById('wipeNameModalText').innerText = "DIGITE O NOVO NOME PARA ESTE WIPE:";
+        document.getElementById('wipeNameModalText').innerText = "NOVO NOME PARA ESTE WIPE:";
         document.getElementById('btnConfirmarWipeNome').innerText = "SALVAR NOME";
         document.getElementById('btnConfirmarWipeNome').onclick = confirmarRenomear;
         document.getElementById('inputWipeName').value = wipeHistory[selectedWipeIndex].date;
@@ -1087,10 +2033,7 @@
 
     function confirmarRenomear() {
         const novoNome = document.getElementById('inputWipeName').value.trim().toUpperCase();
-        if (novoNome === "") {
-            alertCustom("CAMPO VAZIO", "POR FAVOR, DIGITE UM NOME.");
-            return;
-        }
+        if (!novoNome) { alertCustom("CAMPO VAZIO", "POR FAVOR, DIGITE UM NOME."); return; }
         fecharModalWipe();
         wipeHistory[selectedWipeIndex].date = novoNome;
         salvarGeral();
@@ -1099,90 +2042,42 @@
         if (label) label.innerText = "ARQUIVO: " + novoNome;
     }
 
-    function fecharModalWipe() {
-        document.getElementById('wipeNameModal').style.display = 'none';
-    }
+    function fecharModalWipe() { document.getElementById('wipeNameModal').style.display = 'none'; }
 
     function confirmarFinalizacao() {
         const nome = document.getElementById('inputWipeName').value.trim().toUpperCase();
-        if (nome === "") {
-            alertCustom("CAMPO VAZIO", "POR FAVOR, DIGITE UM NOME PARA O ARQUIVO.");
-            return;
-        }
+        if (!nome) { alertCustom("CAMPO VAZIO", "POR FAVOR, DIGITE UM NOME."); return; }
         fecharModalWipe();
-        customConfirm("CONCLUIR ARQUIVAMENTO", `ARQUIVAR COMO: ${nome}?`, () => {
-            wipeHistory.push({ date: nome, vips: [...currentVipeList] });
-            currentVipeList = [];
-            salvarGeral();
-            updateWipeSelector();
-        });
+        wipeHistory.push({ date: nome, vips: [...currentVipeList] });
+        currentVipeList = [];
+        selectedWipeIndex = "current";
+        document.getElementById('wipeSelector').value = "current";
+        document.getElementById('btnFinalize').style.display = "block";
+        document.getElementById('btnDelWipe').style.display = "none";
+        document.getElementById('btnRenameWipe').style.display = "none";
+        const label = document.getElementById('currentWipeName');
+        if (label) label.innerText = "WIPE EM CURSO";
+        document.getElementById('editHistBanner').classList.remove('visible');
+        salvarGeral();
+        updateWipeSelector();
     }
 
     function deletarWipeHistorico() {
-        if(selectedWipeIndex === "current") return;
-        customConfirm("EXCLUIR WIPE", "Tem certeza que deseja apagar este WIPE do histórico?", () => {
+        if (selectedWipeIndex === "current") return;
+        const wipeNome = wipeHistory[selectedWipeIndex].date;
+        customConfirm("EXCLUIR WIPE", `Deseja excluir permanentemente o wipe "${wipeNome}"?`, () => {
             wipeHistory.splice(selectedWipeIndex, 1);
             selectedWipeIndex = "current";
+            document.getElementById('wipeSelector').value = "current";
+            document.getElementById('btnFinalize').style.display = "block";
+            document.getElementById('btnDelWipe').style.display = "none";
+            document.getElementById('btnRenameWipe').style.display = "none";
+            const label = document.getElementById('currentWipeName');
+            if (label) label.innerText = "WIPE EM CURSO";
+            document.getElementById('editHistBanner').classList.remove('visible');
             salvarGeral();
             updateWipeSelector();
-            changeWipe("current");
         });
-    }
-
-    function changeWipe(val) {
-        selectedWipeIndex = val;
-        document.getElementById('btnFinalize').style.display = (val === "current") ? "block" : "none";
-        document.getElementById('btnDelWipe').style.display = (val === "current") ? "none" : "block";
-        document.getElementById('btnRenameWipe').style.display = (val === "current") ? "none" : "block";
-        const label = document.getElementById('currentWipeName');
-        if (label) label.innerText = (val === "current") ? "WIPE EM CURSO" : "ARQUIVO: " + wipeHistory[val].date;
-        document.getElementById('editHistBanner').classList.remove('visible');
-        limpar();
-        render();
-    }
-
-    function updateWipeSelector() {
-        const sel = document.getElementById('wipeSelector');
-        if(!sel) return;
-        sel.innerHTML = '<option value="current">WIPE EM CURSO</option>';
-        for (let i = wipeHistory.length - 1; i >= 0; i--) {
-            sel.innerHTML += `<option value="${i}">WIPE - ${wipeHistory[i].date}</option>`;
-        }
-        sel.value = selectedWipeIndex;
-    }
-
-    function salvarGeral() { 
-        db.ref('arkdex_v22').set({ current: currentVipeList, history: wipeHistory });
-        limpar(); 
-    }
-
-    function localizarVip(index, wipeIdx, steamId) {
-        if(wipeIdx !== selectedWipeIndex) changeWipe(wipeIdx);
-        document.getElementById('inputBusca').value = splitIds(steamId)[0] || steamId;
-        render();
-        toggleNotificacoes();
-        setTimeout(() => {
-            const cards = document.querySelectorAll('.vip-card');
-            if(cards.length > 0) {
-                cards[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                cards[0].style.boxShadow = "0 0 20px var(--primary)";
-                setTimeout(() => cards[0].style.boxShadow = "", 2000);
-            }
-        }, 100);
-    }
-
-    function limpar() { 
-        if(!document.getElementById('idsSteam')) return;
-        document.getElementById('idsSteam').value = ''; 
-        document.getElementById('valor').value = ''; 
-        document.getElementById('dias').value = ''; 
-        document.getElementById('obs').value = ''; 
-        document.getElementById('dataCompra').value = getDataHoje();
-        const btn = document.getElementById('btn-add');
-        btn.innerText = "LANÇA VIP";
-        btn.classList.remove('btn-update');
-        document.getElementById('editIndex').value = "-1"; 
-        document.getElementById('editHistBanner').classList.remove('visible');
     }
 </script>
 </body>
