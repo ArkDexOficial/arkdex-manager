@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1280">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ARK Manager | Lançamento VIP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -872,9 +872,9 @@
             border-radius: 12px;
             padding: 1.1rem 1.4rem;
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1.5fr 1.5fr;
+            grid-template-columns: 2fr 0.85fr 0.85fr 1.3fr auto;
             align-items: center;
-            gap: 1.2rem;
+            gap: 1rem;
             transition: background .2s, box-shadow .2s;
             position: relative;
         }
@@ -936,20 +936,21 @@
 
         .obs-text { font-size: .78rem; color: #f97316; margin-top: .3rem; font-style: italic; }
 
-        .actions { display: flex; gap: .45rem; justify-content: flex-end; flex-wrap: wrap; }
+        .actions { display: flex; gap: .35rem; justify-content: flex-end; flex-wrap: nowrap; align-items: center; }
 
         .btn-action {
-            padding: .38rem .75rem;
-            border-radius: 7px;
+            padding: .32rem .6rem;
+            border-radius: 6px;
             border: 1px solid transparent;
-            font-size: .75rem;
+            font-size: .72rem;
             font-weight: 800;
             cursor: pointer;
             transition: transform .15s, box-shadow .15s, opacity .15s;
             font-family: 'Outfit', sans-serif;
+            white-space: nowrap;
             display: inline-flex;
             align-items: center;
-            gap: .3rem;
+            gap: .25rem;
         }
 
         .btn-action:hover { transform: translateY(-1px); opacity: .9; }
