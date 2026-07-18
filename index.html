@@ -865,6 +865,49 @@
         /* ── VIP CARDS ─────────────────────────────────────────────────────── */
         .cards-container { display: flex; flex-direction: column; gap: .6rem; }
 
+        /* ── PAGINAÇÃO ─────────────────────────────────────────────────────── */
+        .paginacao-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: .4rem;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .pg-btn {
+            background: rgba(255,255,255,.05);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 7px;
+            padding: .45rem .8rem;
+            font-size: .8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color .2s, background .2s, color .2s;
+            font-family: 'Outfit', sans-serif;
+            min-width: 36px;
+        }
+
+        .pg-btn:hover:not(:disabled) { border-color: rgba(34,197,94,.5); background: rgba(34,197,94,.08); }
+        .pg-btn:disabled { opacity: .3; cursor: not-allowed; }
+
+        .pg-btn.active {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: #0a0a0a;
+        }
+
+        .pg-info {
+            font-size: .75rem;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin: 0 .5rem;
+            white-space: nowrap;
+        }
+
+        .pg-ellipsis { color: var(--text-dim); padding: 0 .2rem; font-weight: 700; }
+
         .vip-card {
             background: var(--bg-card);
             border: 1px solid rgba(255,255,255,.07);
@@ -910,7 +953,8 @@
         }
 
         .tag-supremo   { background: #f59e0b; color: #000; }
-        .tag-streamer  { background: #e11d48; }
+        .tag-streamer  { background: #14b8a6; }
+        .tag-ranks     { background: #84cc16; color: #000; }
         .tag-elite     { background: #0ea5e9; }
         .tag-imperador { background: #8b5cf6; }
         .tag-lendario  { background: #ec4899; }
@@ -1417,6 +1461,7 @@
                             <option value="EXTREME">VIP EXTREME</option>
                             <option value="SUPREMO">VIP SUPREMO</option>
                             <option value="STREAMER">STREAMER</option>
+                            <option value="RANKS">RANKS</option>
                             <option value="PONTOS">PONTOS</option>
                             <option value="KIT BASE">KIT BASE</option>
                             <option value="LOOT BOX">LOOT BOX</option>
@@ -1439,7 +1484,7 @@
                 </button>
                 <div class="search-integrated">
                     <label class="low-case" style="font-size:.75rem; font-weight:700; color:#9ca3af;">Pesquisar Id Steam</label>
-                    <input type="text" id="inputBusca" placeholder="Pesquisar ID Steam..." onkeyup="render()">
+                    <input type="text" id="inputBusca" placeholder="Pesquisar ID Steam..." onkeyup="paginaAtual = 1; render()">
                 </div>
             </div>
 
@@ -1467,6 +1512,7 @@
                         <option value="EXTREME">VIP EXTREME</option>
                         <option value="SUPREMO">VIP SUPREMO</option>
                         <option value="STREAMER">STREAMER</option>
+                        <option value="RANKS">RANKS</option>
                         <option value="PONTOS">PONTOS</option>
                         <option value="KIT BASE">KIT BASE</option>
                         <option value="LOOT BOX">LOOT BOX</option>
@@ -1477,6 +1523,7 @@
 
             <!-- CARDS LIST -->
             <div id="cardsLista" class="cards-container"></div>
+            <div id="paginacao" class="paginacao-container"></div>
 
             <!-- FOOTER -->
             <footer class="main-footer">
@@ -1644,6 +1691,8 @@
     let filtroStatus = 'todos';
     let filtroVip    = 'todos';
     let dashAberto   = false;
+    let paginaAtual  = 1;
+    const ITENS_POR_PAGINA = 10;
 
     const configVip = {
         'UNLOKED':  { class: 'tag-unloked',  color: '#64748b' },
@@ -1652,7 +1701,8 @@
         'LENDÁRIO': { class: 'tag-lendario', color: '#ec4899' },
         'EXTREME':  { class: 'tag-extreme',  color: '#f43f5e' },
         'SUPREMO':  { class: 'tag-supremo',  color: '#f59e0b' },
-        'STREAMER': { class: 'tag-streamer', color: '#e11d48' },
+        'STREAMER': { class: 'tag-streamer', color: '#14b8a6' },
+        'RANKS':    { class: 'tag-ranks',    color: '#84cc16' },
         'PONTOS':   { class: 'tag-pontos',   color: '#16a34a' },
         'KIT BASE': { class: 'tag-kitbase',  color: '#b45309' },
         'LOOT BOX': { class: 'tag-lootbox',  color: '#7c3aed' },
@@ -1856,7 +1906,7 @@
             let diffDias = v.pausado ? v.tempoRestanteAoPausar : Math.ceil((vencZero - agora) / (1000*60*60*24));
             let corClasse = (diffDias <= 3) ? 'color-red' : (diffDias <= 5) ? 'color-yellow' : 'color-green';
 
-            const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX'].includes(v.tipo);
+            const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX','RANKS'].includes(v.tipo);
 
             let statusHTML = semPrazo ? `<span class="status-badge color-outros">${v.tipo}</span>` :
                              v.pausado ? `<span class="status-badge color-yellow">PAUSADO • ${diffDias}d</span>` :
@@ -1906,6 +1956,7 @@
         };
 
         if (busca !== "") {
+            document.getElementById('paginacao').innerHTML = '';
             lista.innerHTML += `<div class="section-divider">No Wipe Selecionado</div>`;
             listExibida.forEach((v,i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v,i); });
             lista.innerHTML += `<div class="section-divider">Outros Wipes</div>`;
@@ -1915,7 +1966,18 @@
                 if (selectedWipeIndex != wIdx) w.vips.forEach((v,i) => { if(v.ids.toUpperCase().includes(busca)) lista.innerHTML += createCard(v,i,true,wIdx,w.date); });
             });
         } else {
-            listExibida.forEach((v,i) => { if(passaFiltro(v)) lista.innerHTML += createCard(v,i); });
+            const itensFiltrados = listExibida.map((v, i) => ({ v, i })).filter(({ v }) => passaFiltro(v));
+            const totalPaginas = Math.max(1, Math.ceil(itensFiltrados.length / ITENS_POR_PAGINA));
+            if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+            if (paginaAtual < 1) paginaAtual = 1;
+            const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+            const pagina = itensFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
+            if (pagina.length === 0) {
+                lista.innerHTML = '<div class="section-divider">Nenhum VIP encontrado</div>';
+            } else {
+                pagina.forEach(({ v, i }) => { lista.innerHTML += createCard(v, i); });
+            }
+            renderPaginacao(itensFiltrados.length, totalPaginas);
         }
 
         document.getElementById('faturamentoAtivo').innerText = `R$ ${fWipeVisualizado.toFixed(2)}`;
@@ -1931,14 +1993,43 @@
         if (dashAberto) renderDashboard();
     }
 
+    // ── Paginação ──────────────────────────────────────────────────────────
+    function renderPaginacao(totalItens, totalPaginas) {
+        const box = document.getElementById('paginacao');
+        if (!box) return;
+        if (totalItens === 0 || totalPaginas <= 1) { box.innerHTML = ''; return; }
+
+        let html = '';
+        html += `<button class="pg-btn" onclick="irParaPagina(${paginaAtual - 1})" ${paginaAtual === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+
+        const paginasParaMostrar = new Set([1, totalPaginas, paginaAtual, paginaAtual - 1, paginaAtual + 1]);
+        let ultimoMostrado = 0;
+        for (let p = 1; p <= totalPaginas; p++) {
+            if (!paginasParaMostrar.has(p)) continue;
+            if (p - ultimoMostrado > 1) html += `<span class="pg-ellipsis">...</span>`;
+            html += `<button class="pg-btn ${p === paginaAtual ? 'active' : ''}" onclick="irParaPagina(${p})">${p}</button>`;
+            ultimoMostrado = p;
+        }
+
+        html += `<button class="pg-btn" onclick="irParaPagina(${paginaAtual + 1})" ${paginaAtual === totalPaginas ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+        html += `<span class="pg-info">${totalItens} VIP${totalItens === 1 ? '' : 's'} • Página ${paginaAtual} de ${totalPaginas}</span>`;
+        box.innerHTML = html;
+    }
+
+    function irParaPagina(n) {
+        paginaAtual = n;
+        render();
+        document.getElementById('cardsLista')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     // ── Filters ────────────────────────────────────────────────────────────
-    function setFiltroStatus(val) { filtroStatus = val; render(); }
-    function setFiltroVip(val)    { filtroVip    = val; render(); }
+    function setFiltroStatus(val) { filtroStatus = val; paginaAtual = 1; render(); }
+    function setFiltroVip(val)    { filtroVip    = val; paginaAtual = 1; render(); }
 
     function passaFiltro(v) {
         const agora = new Date(); agora.setHours(0,0,0,0);
         const vencZero = new Date(v.vencimento); vencZero.setHours(0,0,0,0);
-        const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX'].includes(v.tipo);
+        const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX','RANKS'].includes(v.tipo);
         const diffDias = v.pausado ? v.tempoRestanteAoPausar : Math.ceil((vencZero - agora) / (1000*60*60*24));
         let statusOk = true;
         if (filtroStatus === 'ativo')   statusOk = !v.baixado && !v.pausado && !semPrazo && diffDias > 0;
@@ -2036,7 +2127,7 @@
         const v = list[index];
         const agora = new Date(); agora.setHours(0,0,0,0);
         const vencZero = new Date(v.vencimento); vencZero.setHours(0,0,0,0);
-        const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX'].includes(v.tipo);
+        const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX','RANKS'].includes(v.tipo);
         let infoExtra = '';
         if (!semPrazo && !v.pausado) {
             const diff = Math.ceil((vencZero - agora) / (1000*60*60*24));
@@ -2152,6 +2243,7 @@
             banner.classList.remove('visible');
         }
         document.getElementById('editIndex').value = "-1";
+        paginaAtual = 1;
         render();
     }
 
