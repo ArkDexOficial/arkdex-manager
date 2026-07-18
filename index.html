@@ -2125,9 +2125,9 @@
         if (!sel) return;
         const val = sel.value;
         sel.innerHTML = '<option value="current">WIPE EM CURSO</option>';
-        wipeHistory.forEach((w, i) => {
-            sel.innerHTML += `<option value="${i}">${w.date}</option>`;
-        });
+        for (let i = wipeHistory.length - 1; i >= 0; i--) {
+            sel.innerHTML += `<option value="${i}">${wipeHistory[i].date}</option>`;
+        }
         sel.value = (val === "current" || wipeHistory[val]) ? val : "current";
     }
 
