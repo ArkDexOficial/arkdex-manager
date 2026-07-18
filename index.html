@@ -1694,6 +1694,9 @@
         const isOpen = panel.style.display === 'block';
         panel.style.display = isOpen ? 'none' : 'block';
         if (arrow) arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+        if (!isOpen) {
+            document.getElementById('notifBar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
     function atualizarMonitor() {
@@ -1715,7 +1718,7 @@
                         <div class="notif-item">
                             <span style="flex:1">[${wipeLabel}] ${idsNotifHTML}</span>
                             <span class="notif-urgent" style="margin-right:8px">VENCIDO</span>
-                            <button onclick="localizarVip(${i}, '${wipeIdx}', '${v.ids}')" class="btn-action btn-edit">IR</button>
+                            <button data-notif-idx="${i}" data-notif-wipeidx="${wipeIdx}" data-notif-ids="${escapeAttr(v.ids)}" class="btn-action btn-edit btn-ir-vencido">IR</button>
                         </div>`;
                 }
             });
@@ -1735,8 +1738,20 @@
         }
         notifList.onclick = function(e) {
             const el = e.target.closest('.notif-clickid');
-            if (el) showPlayerInfo(el.dataset.steamid);
+            if (el) { showPlayerInfo(el.dataset.steamid); return; }
+            const btnIr = e.target.closest('.btn-ir-vencido');
+            if (btnIr) {
+                localizarVip(parseInt(btnIr.dataset.notifIdx), btnIr.dataset.notifWipeidx, btnIr.dataset.notifIds);
+            }
         };
+    }
+
+    function escapeAttr(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
     }
 
     function localizarVip(index, wipeIdx, ids) {
@@ -1794,6 +1809,24 @@
         if (index === -1) targetList.unshift(dados);
         else { targetList[index] = { ...targetList[index], ...dados }; document.getElementById('editIndex').value = "-1"; }
         salvarGeral();
+        resetForm();
+    }
+
+    function resetForm() {
+        document.getElementById('idsSteam').value = '';
+        document.getElementById('tipoVip').selectedIndex = 0;
+        document.getElementById('dataCompra').value = getDataHoje();
+        document.getElementById('valor').value = '';
+        document.getElementById('dias').value = '';
+        document.getElementById('obs').value = '';
+        document.getElementById('editIndex').value = '-1';
+        const btn = document.getElementById('btn-add');
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-rocket" style="margin-right:.4rem;"></i>Lança VIP';
+            btn.classList.remove('btn-update');
+        }
+        const banner = document.getElementById('editHistBanner');
+        if (banner) banner.classList.remove('visible');
     }
 
     // ── Render ─────────────────────────────────────────────────────────────
@@ -1917,7 +1950,10 @@
         document.getElementById('dashboardBody').classList.toggle('aberto', dashAberto);
         document.getElementById('dashboardHeader').classList.toggle('aberto', dashAberto);
         document.getElementById('dashArrow').classList.toggle('aberto', dashAberto);
-        if (dashAberto) renderDashboard();
+        if (dashAberto) {
+            renderDashboard();
+            document.getElementById('dashboardHeader')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         setSidebarActive(dashAberto ? 2 : -1);
     }
 
