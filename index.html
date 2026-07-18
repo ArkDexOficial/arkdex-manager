@@ -952,6 +952,19 @@
             color: #fff;
         }
 
+        .mini-tag {
+            font-size: .62rem;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-weight: 800;
+            display: inline-block;
+            margin-top: 4px;
+            margin-left: 5px;
+            letter-spacing: .03em;
+            opacity: .92;
+            border: 1px solid rgba(255,255,255,.15);
+        }
+
         .tag-supremo   { background: #f59e0b; color: #000; }
         .tag-streamer  { background: #14b8a6; }
         .tag-ranks     { background: #84cc16; color: #000; }
@@ -1460,12 +1473,18 @@
                             <option value="LENDÁRIO">VIP LENDÁRIO</option>
                             <option value="EXTREME">VIP EXTREME</option>
                             <option value="SUPREMO">VIP SUPREMO</option>
-                            <option value="STREAMER">STREAMER</option>
-                            <option value="RANKS">RANKS</option>
                             <option value="PONTOS">PONTOS</option>
                             <option value="KIT BASE">KIT BASE</option>
                             <option value="LOOT BOX">LOOT BOX</option>
                             <option value="OUTROS">OUTROS</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="low-case">Tag Extra (opcional)</label>
+                        <select id="categoriaExtra">
+                            <option value="">— nenhuma —</option>
+                            <option value="STREAMER">STREAMER</option>
+                            <option value="RANKS">RANKS</option>
                         </select>
                     </div>
                     <div class="input-group"><label>Data Compra</label><input type="date" id="dataCompra"></div>
@@ -1511,12 +1530,19 @@
                         <option value="LENDÁRIO">VIP LENDÁRIO</option>
                         <option value="EXTREME">VIP EXTREME</option>
                         <option value="SUPREMO">VIP SUPREMO</option>
-                        <option value="STREAMER">STREAMER</option>
-                        <option value="RANKS">RANKS</option>
                         <option value="PONTOS">PONTOS</option>
                         <option value="KIT BASE">KIT BASE</option>
                         <option value="LOOT BOX">LOOT BOX</option>
                         <option value="OUTROS">OUTROS</option>
+                    </select>
+                </div>
+                <div class="filtro-sep"></div>
+                <div class="filtro-grupo">
+                    <span class="filtro-label">Categoria:</span>
+                    <select class="filtro-select" id="filtroCategoriaSel" onchange="setFiltroCategoria(this.value)">
+                        <option value="todos">TODOS</option>
+                        <option value="STREAMER">STREAMER</option>
+                        <option value="RANKS">RANKS</option>
                     </select>
                 </div>
             </div>
@@ -1690,6 +1716,7 @@
     let modoRenomear = false;
     let filtroStatus = 'todos';
     let filtroVip    = 'todos';
+    let filtroCategoria = 'todos';
     let dashAberto   = false;
     let paginaAtual  = 1;
     const ITENS_POR_PAGINA = 10;
@@ -1850,6 +1877,7 @@
         const rawIds = document.getElementById('idsSteam').value.trim();
         const ids = rawIds === "" ? "S/ID" : rawIds;
         const tipo = document.getElementById('tipoVip').value;
+        const categoriaExtra = document.getElementById('categoriaExtra').value;
         const dataCompra = document.getElementById('dataCompra').value;
         const valor = parseFloat(document.getElementById('valor').value) || 0;
         const dias = parseInt(document.getElementById('dias').value) || 0;
@@ -1858,7 +1886,7 @@
         if (!dataCompra) return alert("PREENCHA A DATA!");
         const dVenc = new Date(dataCompra + 'T00:00:00');
         dVenc.setDate(dVenc.getDate() + dias);
-        const dados = { ids, tipo, dataCompra, valor, vencimento: dVenc.toISOString(), dias, obs, pausado: false, tempoRestanteAoPausar: null, baixado: false };
+        const dados = { ids, tipo, categoriaExtra, dataCompra, valor, vencimento: dVenc.toISOString(), dias, obs, pausado: false, tempoRestanteAoPausar: null, baixado: false };
         let targetList = (selectedWipeIndex === "current") ? currentVipeList : wipeHistory[selectedWipeIndex].vips;
         if (index === -1) targetList.unshift(dados);
         else { targetList[index] = { ...targetList[index], ...dados }; document.getElementById('editIndex').value = "-1"; }
@@ -1869,6 +1897,7 @@
     function resetForm() {
         document.getElementById('idsSteam').value = '';
         document.getElementById('tipoVip').selectedIndex = 0;
+        document.getElementById('categoriaExtra').value = '';
         document.getElementById('dataCompra').value = getDataHoje();
         document.getElementById('valor').value = '';
         document.getElementById('dias').value = '';
@@ -1924,11 +1953,14 @@
             const btnPausaLabel = v.pausado ? 'RETOMAR' : 'PAUSAR';
             const btnPausaClass = v.pausado ? 'btn-play' : 'btn-pause';
 
+            const cfgExtra = v.categoriaExtra ? getConfigVip(v.categoriaExtra) : null;
+            const tagExtraHTML = cfgExtra ? `<span class="mini-tag ${cfgExtra.class}">${v.categoriaExtra}</span>` : '';
+
             return `<div class="vip-card ${v.pausado?'pausado':''} ${v.baixado?'baixa':''} ${urgente?'urgente':''}" style="border-left-color:${cfg.color}">
                 <div class="info-group">
                     <span class="info-label">ID STEAM ${wDate ? `[WIPE ${wDate}]` : ''}</span>
                     <span class="info-value">${idsHTML}</span>
-                    <div><span class="badge ${cfg.class}">${v.tipo}</span></div>
+                    <div><span class="badge ${cfg.class}">${v.tipo}</span>${tagExtraHTML}</div>
                     ${v.obs ? `<div class="obs-text">OBS: ${v.obs}</div>` : ''}
                 </div>
                 <div class="info-group">
@@ -2024,7 +2056,8 @@
 
     // ── Filters ────────────────────────────────────────────────────────────
     function setFiltroStatus(val) { filtroStatus = val; paginaAtual = 1; render(); }
-    function setFiltroVip(val)    { filtroVip    = val; paginaAtual = 1; render(); }
+    function setFiltroVip(val) { filtroVip = val; paginaAtual = 1; render(); }
+    function setFiltroCategoria(val) { filtroCategoria = val; paginaAtual = 1; render(); }
 
     function passaFiltro(v) {
         const agora = new Date(); agora.setHours(0,0,0,0);
@@ -2036,7 +2069,9 @@
         if (filtroStatus === 'vencido') statusOk = !v.baixado && !v.pausado && !semPrazo && diffDias <= 0;
         if (filtroStatus === 'pausado') statusOk = v.pausado;
         if (filtroStatus === 'baixa')   statusOk = v.baixado;
-        return statusOk && (filtroVip === 'todos' || v.tipo === filtroVip);
+        const classeOk = filtroVip === 'todos' || v.tipo === filtroVip;
+        const categoriaOk = filtroCategoria === 'todos' || v.categoriaExtra === filtroCategoria || v.tipo === filtroCategoria;
+        return statusOk && classeOk && categoriaOk;
     }
 
     // ── Dashboard ──────────────────────────────────────────────────────────
@@ -2169,7 +2204,14 @@
         let list = (wipeIdx === "current") ? currentVipeList : wipeHistory[wipeIdx].vips;
         const v = list[index];
         document.getElementById('idsSteam').value = (v.ids === "S/ID" || v.ids === "S / ID") ? "" : v.ids;
-        document.getElementById('tipoVip').value = v.tipo;
+        if (v.tipo === 'STREAMER' || v.tipo === 'RANKS') {
+            // compatibilidade com registros antigos onde streamer/ranks era a classe principal
+            document.getElementById('categoriaExtra').value = v.tipo;
+            document.getElementById('tipoVip').selectedIndex = 0;
+        } else {
+            document.getElementById('categoriaExtra').value = v.categoriaExtra || '';
+            document.getElementById('tipoVip').value = v.tipo;
+        }
         document.getElementById('dataCompra').value = v.dataCompra;
         document.getElementById('valor').value = v.valor;
         document.getElementById('dias').value = v.dias;
