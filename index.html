@@ -916,11 +916,13 @@
             padding: 1.1rem 1.4rem;
             display: grid;
             grid-template-columns: 2fr 0.85fr 0.85fr 1.3fr auto;
-            align-items: center;
+            align-items: start;
             gap: 1rem;
             transition: background .2s, box-shadow .2s;
             position: relative;
         }
+
+        .vip-card > .actions { align-self: center; }
 
         .vip-card:hover {
             background: var(--bg-card-hover);
