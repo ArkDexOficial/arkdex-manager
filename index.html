@@ -1939,9 +1939,9 @@
 
             const semPrazo = (v.dias === 0) && ['OUTROS','PONTOS','KIT BASE','LOOT BOX','RANKS'].includes(v.tipo);
 
-            let statusHTML = semPrazo ? `<span class="status-badge color-outros">${v.tipo}</span>` :
+            let statusHTML = v.baixado ? `<span class="status-badge" style="background:rgba(255,255,255,.08);color:#555;">BAIXA</span>` :
+                             semPrazo ? `<span class="status-badge color-outros">SEM PRAZO</span>` :
                              v.pausado ? `<span class="status-badge color-yellow">PAUSADO • ${diffDias}d</span>` :
-                             v.baixado ? `<span class="status-badge" style="background:rgba(255,255,255,.08);color:#555;">BAIXA</span>` :
                              diffDias <= 0 ? `<span class="status-badge color-red">VENCIDO</span>` :
                              `<span class="status-badge ${corClasse}">ATIVO • ${diffDias}d</span>`;
 
