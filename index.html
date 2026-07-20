@@ -1975,7 +1975,7 @@
                 </div>
                 <div class="info-group">
                     <span class="info-label">VENCIMENTO</span>
-                    <span class="info-value">${(v.pausado||semPrazo) ? '---' : dVenc.toLocaleDateString('pt-BR')}</span>
+                    <span class="info-value">${semPrazo ? '' : (v.pausado ? '---' : dVenc.toLocaleDateString('pt-BR'))}</span>
                     <div style="margin-top:4px">${statusHTML}</div>
                 </div>
                 <div class="actions">
