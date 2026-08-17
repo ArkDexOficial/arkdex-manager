@@ -1386,7 +1386,7 @@
                 <div style="display:flex; align-items:center; gap:.7rem;">
                     <i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i>
                     <span id="notif-count" class="notif-badge">0</span>
-                    <span style="font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">VIPs Vencidos (sistema total)</span>
+                    <span style="font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">VIPs Vencidos (wipe atual)</span>
                 </div>
                 <i class="fas fa-chevron-down" id="notif-arrow" style="color:var(--text-dim); font-size:.8rem;"></i>
             </div>
@@ -1740,6 +1740,10 @@
 
     function getConfigVip(tipo) { return configVip[tipo] || configVip['OUTROS']; }
 
+    function formatMoeda(valor) {
+        return (Number(valor) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
     function splitIds(idsStr) {
         if (!idsStr || idsStr.trim() === '' || idsStr.trim() === 'S / ID') return [];
         return idsStr.split(/[,\/\s]+/).map(s => s.trim()).filter(s => s !== '');
@@ -1806,8 +1810,10 @@
                 }
             });
         };
+        // Verifica apenas o wipe ATUAL. VIPs de wipes já finalizados/arquivados
+        // ficam no histórico apenas como registro e não devem gerar notificação
+        // de vencido, pois aquele wipe já foi encerrado.
         verificar(currentVipeList, "ATUAL", "current");
-        wipeHistory.forEach((w, idx) => verificar(w.vips, w.date, idx));
 
         const countBadge = document.getElementById('notif-count');
         const sidebarBadge = document.getElementById('sidebarBadge');
@@ -1967,7 +1973,7 @@
                 </div>
                 <div class="info-group">
                     <span class="info-label">VALOR</span>
-                    <span class="info-value" style="color:#22c55e">R$ ${v.valor.toFixed(2)}</span>
+                    <span class="info-value" style="color:#22c55e">R$ ${formatMoeda(v.valor)}</span>
                 </div>
                 <div class="info-group">
                     <span class="info-label">COMPRA</span>
@@ -2014,9 +2020,9 @@
             renderPaginacao(itensFiltrados.length, totalPaginas);
         }
 
-        document.getElementById('faturamentoAtivo').innerText = `R$ ${fWipeVisualizado.toFixed(2)}`;
+        document.getElementById('faturamentoAtivo').innerText = `R$ ${formatMoeda(fWipeVisualizado)}`;
         document.getElementById('totalProtocolos').innerText = listExibida.length;
-        document.getElementById('faturamentoAnual').innerText = `R$ ${fAnualTotal.toFixed(2)}`;
+        document.getElementById('faturamentoAnual').innerText = `R$ ${formatMoeda(fAnualTotal)}`;
         document.getElementById('wipeStatsLabel').innerText = selectedWipeIndex === "current" ? "Vendas no Wipe" : "Vendas neste Arquivo";
 
         document.getElementById('cardsLista').onclick = function(e) {
@@ -2115,7 +2121,7 @@
             return `<div class="chart-bar-group">
                 <div class="chart-bar-container">
                     <div class="chart-bar ${d.isAtual?'is-atual':''}" style="height:${h}px">
-                        <div class="chart-tooltip">R$ ${d.val.toFixed(2)}</div>
+                        <div class="chart-tooltip">R$ ${formatMoeda(d.val)}</div>
                     </div>
                 </div>
                 <div class="chart-label ${d.isAtual?'is-atual':''}">${d.label}</div>
@@ -2124,9 +2130,9 @@
 
         if (summary) {
             summary.innerHTML = `
-                <div class="dash-stat"><div class="dash-stat-label">Total Geral</div><div class="dash-stat-val">R$ ${totalGeral.toFixed(2)}</div></div>
+                <div class="dash-stat"><div class="dash-stat-label">Total Geral</div><div class="dash-stat-val">R$ ${formatMoeda(totalGeral)}</div></div>
                 <div class="dash-stat"><div class="dash-stat-label">Melhor Wipe</div><div class="dash-stat-val">${melhorWipe.label}</div></div>
-                <div class="dash-stat"><div class="dash-stat-label">Wipe Atual</div><div class="dash-stat-val">R$ ${totalAtual.toFixed(2)}</div></div>
+                <div class="dash-stat"><div class="dash-stat-label">Wipe Atual</div><div class="dash-stat-val">R$ ${formatMoeda(totalAtual)}</div></div>
                 <div class="dash-stat"><div class="dash-stat-label">Arquivados</div><div class="dash-stat-val">${wipeHistory.length}</div></div>`;
         }
     }
@@ -2244,14 +2250,14 @@
                 const tokens = splitIds(v.ids).map(t => t.toUpperCase());
                 if (tokens.includes(buscarId)) {
                     total += v.valor;
-                    html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${new Date(v.dataCompra+'T12:00:00').toLocaleDateString('pt-BR')}</td><td style="color:#22c55e;font-weight:700;">R$ ${v.valor.toFixed(2)}</td></tr>`;
+                    html += `<tr><td>${label}</td><td>${v.tipo}</td><td>${new Date(v.dataCompra+'T12:00:00').toLocaleDateString('pt-BR')}</td><td style="color:#22c55e;font-weight:700;">R$ ${formatMoeda(v.valor)}</td></tr>`;
                 }
             });
         };
         search(currentVipeList, "ATUAL");
         wipeHistory.forEach(w => search(w.vips, w.date));
         document.getElementById('modalPlayerId').innerText = "Histórico: " + buscarId;
-        document.getElementById('modalPlayerTotal').innerText = "Investimento Total: R$ " + total.toFixed(2);
+        document.getElementById('modalPlayerTotal').innerText = "Investimento Total: R$ " + formatMoeda(total);
         document.getElementById('modalTableBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;color:var(--text-dim)">Nenhum registro encontrado</td></tr>';
         document.getElementById('modalDossie').style.display = 'flex';
     }
