@@ -820,6 +820,34 @@
             box-shadow: 0 0 15px rgba(249,115,22,.3);
         }
 
+        .form-btn-row {
+            display: flex;
+            gap: .6rem;
+            margin-top: 1.2rem;
+        }
+        .form-btn-row .btn-main { margin-top: 0; }
+        .btn-cancel-edit {
+            display: none;
+            background: transparent;
+            color: #ef4444;
+            font-weight: 800;
+            border: 1.5px solid #ef4444;
+            padding: .95rem 1.1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background .2s, color .2s, transform .2s;
+            font-family: 'Outfit', sans-serif;
+            font-size: .95rem;
+            letter-spacing: .3px;
+            white-space: nowrap;
+            flex: 0 0 auto;
+        }
+        .btn-cancel-edit:hover {
+            background: #ef4444;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
         /* ── FILTROS ───────────────────────────────────────────────────────── */
         .filtros-bar {
             display: flex;
@@ -1500,9 +1528,14 @@
                         <input type="text" id="obs" placeholder="Detalhes adicionais da venda...">
                     </div>
                 </div>
-                <button id="btn-add" onclick="processarVip()" class="btn-main">
-                    <i class="fas fa-rocket" style="margin-right:.4rem;"></i>Lança VIP
-                </button>
+                <div class="form-btn-row">
+                    <button id="btn-add" onclick="processarVip()" class="btn-main">
+                        <i class="fas fa-rocket" style="margin-right:.4rem;"></i>Lança VIP
+                    </button>
+                    <button id="btn-cancel-edit" type="button" onclick="cancelarEdicao()" class="btn-cancel-edit">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
                 <div class="search-integrated">
                     <label class="low-case" style="font-size:.75rem; font-weight:700; color:#9ca3af;">Pesquisar Id Steam</label>
                     <input type="text" id="inputBusca" placeholder="Pesquisar ID Steam..." onkeyup="paginaAtual = 1; render()">
@@ -1902,6 +1935,18 @@
         resetForm();
     }
 
+    function atualizarBannerArquivo() {
+        const banner = document.getElementById('editHistBanner');
+        if (!banner) return;
+        if (selectedWipeIndex !== "current" && wipeHistory[selectedWipeIndex]) {
+            document.getElementById('editHistBannerText').innerText =
+                `VISUALIZANDO WIPE ARQUIVADO: ${wipeHistory[selectedWipeIndex].date}`;
+            banner.classList.add('visible');
+        } else {
+            banner.classList.remove('visible');
+        }
+    }
+
     function resetForm() {
         document.getElementById('idsSteam').value = '';
         document.getElementById('tipoVip').selectedIndex = 0;
@@ -1916,8 +1961,13 @@
             btn.innerHTML = '<i class="fas fa-rocket" style="margin-right:.4rem;"></i>Lança VIP';
             btn.classList.remove('btn-update');
         }
-        const banner = document.getElementById('editHistBanner');
-        if (banner) banner.classList.remove('visible');
+        const btnCancel = document.getElementById('btn-cancel-edit');
+        if (btnCancel) btnCancel.style.display = 'none';
+        atualizarBannerArquivo();
+    }
+
+    function cancelarEdicao() {
+        resetForm();
     }
 
     // ── Render ─────────────────────────────────────────────────────────────
@@ -2228,6 +2278,8 @@
         const btn = document.getElementById('btn-add');
         btn.innerHTML = '<i class="fas fa-sync" style="margin-right:.4rem;"></i>Atualizar Registro';
         btn.classList.add('btn-update');
+        const btnCancel = document.getElementById('btn-cancel-edit');
+        if (btnCancel) btnCancel.style.display = 'inline-flex';
         const banner = document.getElementById('editHistBanner');
         if (wipeIdx !== "current") {
             document.getElementById('editHistBannerText').innerText =
@@ -2293,6 +2345,13 @@
             banner.classList.remove('visible');
         }
         document.getElementById('editIndex').value = "-1";
+        const btnAdd = document.getElementById('btn-add');
+        if (btnAdd) {
+            btnAdd.innerHTML = '<i class="fas fa-rocket" style="margin-right:.4rem;"></i>Lança VIP';
+            btnAdd.classList.remove('btn-update');
+        }
+        const btnCancel = document.getElementById('btn-cancel-edit');
+        if (btnCancel) btnCancel.style.display = 'none';
         paginaAtual = 1;
         render();
     }
