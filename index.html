@@ -828,6 +828,9 @@
         .form-btn-row .btn-main { margin-top: 0; }
         .btn-cancel-edit {
             display: none;
+            align-items: center;
+            justify-content: center;
+            gap: .45rem;
             background: transparent;
             color: #ef4444;
             font-weight: 800;
@@ -841,7 +844,9 @@
             letter-spacing: .3px;
             white-space: nowrap;
             flex: 0 0 auto;
+            line-height: 1;
         }
+        .btn-cancel-edit i { line-height: 1; }
         .btn-cancel-edit:hover {
             background: #ef4444;
             color: #fff;
@@ -1533,7 +1538,7 @@
                         <i class="fas fa-rocket" style="margin-right:.4rem;"></i>Lança VIP
                     </button>
                     <button id="btn-cancel-edit" type="button" onclick="cancelarEdicao()" class="btn-cancel-edit">
-                        <i class="fas fa-times"></i> Cancelar
+                        <i class="fas fa-times"></i><span>Cancelar</span>
                     </button>
                 </div>
                 <div class="search-integrated">
