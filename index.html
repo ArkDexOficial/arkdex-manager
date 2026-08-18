@@ -1419,7 +1419,7 @@
                 <div style="display:flex; align-items:center; gap:.7rem;">
                     <i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i>
                     <span id="notif-count" class="notif-badge">0</span>
-                    <span style="font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">VIPs Vencidos (wipe atual)</span>
+                    <span style="font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;">VIPs Vencidos (sistema total)</span>
                 </div>
                 <i class="fas fa-chevron-down" id="notif-arrow" style="color:var(--text-dim); font-size:.8rem;"></i>
             </div>
@@ -1848,10 +1848,12 @@
                 }
             });
         };
-        // Verifica apenas o wipe ATUAL. VIPs de wipes já finalizados/arquivados
-        // ficam no histórico apenas como registro e não devem gerar notificação
-        // de vencido, pois aquele wipe já foi encerrado.
+        // Verifica o wipe ATUAL e também os wipes arquivados: um VIP não baixado
+        // (ainda não pago/resolvido) continua sendo uma pendência real mesmo
+        // depois que o wipe termina, então precisa continuar aparecendo aqui
+        // até alguém marcar a baixa dele.
         verificar(currentVipeList, "ATUAL", "current");
+        wipeHistory.forEach((w, idx) => verificar(w.vips, w.date, idx));
 
         const countBadge = document.getElementById('notif-count');
         const sidebarBadge = document.getElementById('sidebarBadge');
